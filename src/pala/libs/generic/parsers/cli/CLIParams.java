@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javafx.application.Application.Parameters;
 import pala.libs.generic.strings.StringTools;
 
 public class CLIParams {
@@ -28,8 +27,12 @@ public class CLIParams {
 	}
 
 	private final Map<String, String> named;
-
 	private final List<String> unnamed;
+
+	protected CLIParams(Map<String, String> named, List<String> unnamed) {
+		this.named = named;
+		this.unnamed = unnamed;
+	}
 
 	/**
 	 * Whether to ignore captialization (letter casing) in methods where casing
@@ -37,11 +40,6 @@ public class CLIParams {
 	 * <code>false</code> by default.
 	 */
 	private boolean ignoreCase;
-
-	public CLIParams(final Parameters params) {
-		named = params.getNamed();
-		unnamed = params.getUnnamed();
-	}
 
 	public CLIParams(final String... args) {
 		final Map<String, String> named = new HashMap<>();
