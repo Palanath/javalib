@@ -30,7 +30,7 @@ public interface Gateway<F, T> {
 
 	T to(F value);
 
-	static <F, T> Gateway<F, T> from(Function<? super F, ? extends T> to, Function<? super T, ? extends F> from) {
+	static <F, T> Gateway<F, T> from(Function<? super T, ? extends F> from, Function<? super F, ? extends T> to) {
 		return new Gateway<F, T>() {
 
 			@Override
