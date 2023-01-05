@@ -29,4 +29,19 @@ public interface Gateway<F, T> {
 	}
 
 	T to(F value);
+
+	static <F, T> Gateway<F, T> from(Function<? super F, ? extends T> to, Function<? super T, ? extends F> from) {
+		return new Gateway<F, T>() {
+
+			@Override
+			public F from(T value) {
+				return from.apply(value);
+			}
+
+			@Override
+			public T to(F value) {
+				return to.apply(value);
+			}
+		};
+	}
 }
