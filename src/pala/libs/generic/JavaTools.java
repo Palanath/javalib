@@ -28,6 +28,27 @@ import java.util.function.UnaryOperator;
 import pala.libs.generic.util.Pair;
 
 public final class JavaTools {
+
+	/**
+	 * Determines if the provided <code>T</code> is contained in the specified
+	 * array. If so, returns the first index in the array at which the provided
+	 * element is contained. If not, returns <code>-1</code>.
+	 * 
+	 * @param <T>      The type of array to search.
+	 * @param needle   The item to search for.
+	 * @param haystack The array to search through.
+	 * @return <code>-1</code> if <code>needle</code> is not found in
+	 *         <code>haystack</code>, otherwise, the index of the first occurrence
+	 *         of <code>needle</code> in <code>haystack</code>.
+	 */
+	@SafeVarargs
+	public static <T> int indexOf(T needle, T... haystack) {
+		for (int i = 0; i < haystack.length; i++)
+			if (haystack[i] == needle)
+				return i;
+		return -1;
+	}
+
 	/**
 	 * Converts and adds each element in the <code>from</code> matrix to the
 	 * <code>test</code> collection.
