@@ -326,8 +326,4 @@ public final class StringTools {
 		return parts.toArray(new String[parts.size()]);
 	}
 
-	public static void main(String[] args) {
-		split("", "abc");
-	}
-
 }
