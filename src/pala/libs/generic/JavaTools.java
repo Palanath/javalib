@@ -20,6 +20,9 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Spliterator;
 import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -285,11 +288,31 @@ public final class JavaTools {
 	 * @param files The files to delete.
 	 */
 	public static final void deltree(final File... files) {
-		for (final File f : files)
+		deltree(null, files);
+	}
+
+	public static final void deltree(BiConsumer<File, Boolean> callback, File... files) {
+		walktree(callback == null ? File::delete : a -> callback.accept(a, a.delete()), files);
+	}
+
+	/**
+	 * Iterates over every file and its children if the file is a directory.
+	 * Children are always iterated over before the parent. When a file is iterated
+	 * over, the provided {@link Consumer} is called and the {@link File} is
+	 * provided to it. This function can be used to delete a whole directory tree or
+	 * set of directory trees through calling {@link File#delete()} in the
+	 * {@link Consumer}.
+	 * 
+	 * @param walker The {@link Consumer} to receive each file being walked over.
+	 *               This should not be <code>null</code>.
+	 * @param files  The {@link File}s or {@link File} trees to walk over.
+	 */
+	public static final void walktree(Consumer<File> walker, File... files) {
+		for (File f : files) {
 			if (f.isDirectory())
-				deltree(f.listFiles());
-			else
-				f.delete();
+				walktree(walker, f);
+			walker.accept(f);
+		}
 	}
 
 	/**
