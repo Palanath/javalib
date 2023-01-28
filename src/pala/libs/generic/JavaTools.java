@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.Spliterator;
 import java.util.Stack;
@@ -75,9 +76,15 @@ public final class JavaTools {
 	}
 
 	/**
+	 * <p>
 	 * Determines if the provided <code>T</code> is contained in the specified
 	 * array. If so, returns the first index in the array at which the provided
 	 * element is contained. If not, returns <code>-1</code>.
+	 * </p>
+	 * <p>
+	 * This function uses {@link Objects#equals(Object, Object)} to check object
+	 * equality.
+	 * </p>
 	 * 
 	 * @param <T>      The type of array to search.
 	 * @param needle   The item to search for.
@@ -89,7 +96,7 @@ public final class JavaTools {
 	@SafeVarargs
 	public static <T> int indexOf(T needle, T... haystack) {
 		for (int i = 0; i < haystack.length; i++)
-			if (haystack[i] == needle)
+			if (Objects.equals(needle, haystack[i]))
 				return i;
 		return -1;
 	}
