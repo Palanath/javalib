@@ -20,7 +20,6 @@ import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Spliterator;
 import java.util.Stack;
-import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
