@@ -32,6 +32,49 @@ import pala.libs.generic.util.Pair;
 
 public final class JavaTools {
 
+	public interface Indexable<E> {
+		void set(int pos, E element);
+
+		int index(E element);
+	}
+
+	public static <E> void swap(Indexable<E> indexable, E element, E newValue) {
+		indexable.set(indexable.index(element), newValue);
+	}
+
+	public static <E> void swap(E[] array, E element, E newValue) {
+		swap(new Indexable<E>() {
+
+			@Override
+			public void set(int pos, E element) {
+				array[pos] = element;
+			}
+
+			@Override
+			public int index(E element) {
+				for (int i = 0; i < array.length; i++)
+					if (array[i] == element)
+						return i;
+				return -1;
+			}
+		}, element, newValue);
+	}
+
+	public static <E> void swap(List<E> list, E element, E newValue) {
+		swap(new Indexable<E>() {
+
+			@Override
+			public void set(int pos, E element) {
+				list.set(pos, element);
+			}
+
+			@Override
+			public int index(E element) {
+				return list.indexOf(element);
+			}
+		}, element, newValue);
+	}
+
 	/**
 	 * Determines if the provided <code>T</code> is contained in the specified
 	 * array. If so, returns the first index in the array at which the provided
