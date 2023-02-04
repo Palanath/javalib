@@ -147,49 +147,114 @@ public final class JavaTools {
 		return items;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <T> int binarySearch(int size, final Function<? super Integer, ? extends T> arrayIndexer,
-			final Comparator<? super T> comparator, final T key) {
-		if (size == 0)
-			return 0;
-		if (comparator.compare(arrayIndexer.apply(0), key) > 0)
-			return -1;
-		if (comparator.compare(arrayIndexer.apply(size - 1), key) < 0)
-			return -size - 1;
-
-		int l = 0, point = (size + l) / 2;
-		for (; l != size; point = (size + l) / 2) {
-			final int res = comparator.compare(key, arrayIndexer.apply(point));
-			if (res == 0)
-				return point;
-			if (res < 0)
-				size = point;
-			else
-				l = point;
-		}
-		return -point - 1;
+			Comparator<? super T> comparator, final T key) {
+		final Comparator<? super T> c = comparator == null ? (Comparator<Object>) Comparator.naturalOrder()
+				: comparator;
+		return binarySearch(size, a -> {
+			T obj = arrayIndexer.apply(a);
+			int res = c.compare(obj, key);
+			return res == 0 ? null : c.compare(obj, key) > 0;
+		});
 	}
 
-	@SuppressWarnings("unchecked")
-	public static <T> int binarySearch(final T object, final List<? extends T> list, Comparator<? super T> comparator) {
-		if (comparator == null)
-			comparator = (Comparator<Object>) Comparator.naturalOrder();
-		if (list.isEmpty())
+	/**
+	 * <h2>Overview</h2>
+	 * <p>
+	 * Performs a generic binary search. The provided <code>size</code> is used to
+	 * know the original maximum bound for the binary search (the binary search will
+	 * start by querying the provided {@link Function} with half the
+	 * <code>size</code> as initial input). The provided {@link Function}
+	 * <code>checker</code> is used to determine if the value at the queried
+	 * position is less than, greater than, or equal to the object being searched
+	 * for. This {@link Function} encodes both the abstract collection of items
+	 * being searched <i>and</i> comparisons against the object being searched for
+	 * and elements in the abstract collection.
+	 * </p>
+	 * <p>
+	 * Upon any invocation of the provided {@link Function} with an {@link Integer}
+	 * position as an argument, the {@link Function} should return:
+	 * </p>
+	 * <ul>
+	 * <li><code>true</code> if the element at the <i>queried index</i> (the index
+	 * provided to the {@link Function}) is <i>greater than</i> the element being
+	 * searched for,</li>
+	 * <li><code>false</code> if the element at the <i>queried index</i> is <i>less
+	 * than</i> the element being searched for,</li>
+	 * <li>and <code>null</code> if the element at the <i>queried index</i> is
+	 * equivalent in magnitude to the element being searched for.</li>
+	 * </ol>
+	 * <h2>Example</h2>
+	 * <p>
+	 * Consider a simple <code>Dog</code> class:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>class Dog implements Comparable&lt;Dog&gt; {
+	 * 	private final int weight = (int) (Math.random() * 1000);
+	 * 
+	 * 	public &#64;Override int compareTo(Dog o) {
+	 * 		return weight - o.weight;
+	 * 	}
+	 * }</code>
+	 * </pre>
+	 * <p>
+	 * To binary search a {@link List} of <code>Dog</code>s, denoted
+	 * <code>dogs</code>, as so:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>List&lt;Dogs&gt; dogs = new ArrayList<>();
+	 * dogs.sort(null);
+	 * for (int i = 0; i < 100; i++, dogs.add(new Dog()));</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * This method would be called as follows:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>// Dog being searched for:
+	 * Dog searchElement = dogs.get((int) (Math.random() * dogs.size()));
+	 * 
+	 * int index = binarySearch(dogs.size(), ind -> {
+	 * 	Dog dog = dogs.get(ind);
+	 * 	int res = dog.compareTo(searchElement);
+	 * 	if (res > 0) // dog > searchElement
+	 * 		return true;
+	 * 	else if (res == 0) // dog == searchElement
+	 * 		return null;
+	 * 	else // dog < searchElement
+	 * 		return false;
+	 * });</code>
+	 * </pre>
+	 * 
+	 * @param size    The total number of elements to search.
+	 * @param checker The {@link Function} used to obtain and check items from the
+	 *                collection of elements.
+	 * @return The index of the element, if found, or <code>-index - 1</code>, where
+	 *         <code>index</code> is the position that the element would be in if it
+	 *         were present in the sorted collection.
+	 */
+	public static int binarySearch(int size, Function<? super Integer, Boolean> checker) {
+		if (size == 0)
 			return -1;
-		int min = 0, max = list.size() - 1;
-		int index = (max - min) / 2 + (max - min & 1) + min;
+		int min = 0, max = size - 1, ind;
 		while (true) {
-			index = (max - min) / 2 + (max - min & 1) + min;
-			final int res = comparator.compare(object, list.get(index));
-			if (res == 0)
-				return index;
-			if (res > 0) {
-				// Our object is higher, move min up:
-				if (max < (min = index + 1))
-					return -index - 2;
-			} else // Our object is lower, move max down:
-			if ((max = index - 1) < min)
-				return -index - 1;
+			Boolean res = checker.apply(ind = (max - min) / 2 + (max - min & 1) + min);
+			if (res == null)
+				return ind;
+			else if (res) {// get(ind) > searchElement
+				if ((max = ind - 1) < min)
+					return -ind - 1;
+			} else if (max < (min = ind + 1))
+				return -ind - 2;
 		}
+	}
+
+	public static <T> int binarySearch(final T object, final List<? extends T> list, Comparator<? super T> comparator) {
+		return binarySearch(list.size(), list::get, comparator, object);
 	}
 
 	public static int bytesToInt(final byte... bytes) {
