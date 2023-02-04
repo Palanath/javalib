@@ -13,6 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import pala.libs.generic.JavaTools;
+
 public final class StringTools {
 
 	public static class NumberUnit implements Comparable<NumberUnit> {
@@ -284,6 +286,37 @@ public final class StringTools {
 			number = vals[1];
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * <p>
+	 * Binary searches the array of provided {@link NumberUnit}s to determine which
+	 * of them is the largest that is less than or equal to the value of the
+	 * provided <code>number</code>. Note that, if no such {@link NumberUnit}
+	 * satisfies this criteria, this method returns <code>null</code>. The provided
+	 * array of {@link NumberUnit}s should be sorted in ascending order.
+	 * </p>
+	 * <p>
+	 * The return value of this method is the largest unit that would be stored in
+	 * the map return value of {@link #getParts(BigInteger, NumberUnit...)} with the
+	 * same number and {@link NumberUnit}s as arguments. (E.g., for 1000 seconds as
+	 * the number argument and {@link NumberUnit#getTimes()} as the array of units,
+	 * {@link NumberUnit#MINUTES} would be returned, since the largest
+	 * {@link NumberUnit} in the array that is less than or equal to the provided
+	 * number is {@link NumberUnit#MINUTES}.)
+	 * </p>
+	 * 
+	 * @param number The {@link NumberUnit} to find the largest unit of.
+	 * @param units  The array of {@link NumberUnit}s.
+	 * @return The largest {@link NumberUnit} that is used in the string
+	 *         representation of the provided {@link NumberUnit}.
+	 */
+	public static NumberUnit getLargest(BigInteger number, NumberUnit... units) {
+		int ind = JavaTools.binarySearch(units.length, a -> {
+			int res = units[a].amt.compareTo(number);
+			return res == 0 ? null : res > 0;
+		});
+		return ind < 0 ? ind == -1 ? null : units[-ind - 2] : units[ind];
 	}
 
 	public static String format(BigInteger number, NumberUnit... units) {
