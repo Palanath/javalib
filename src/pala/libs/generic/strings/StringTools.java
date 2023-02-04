@@ -5,27 +5,126 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public final class StringTools {
 
-	public static class NumberUnit {
-		public static NumberUnit BYTE = new NumberUnit("B", BigInteger.ONE),
+	public static class NumberUnit implements Comparable<NumberUnit> {
+		public static final NumberUnit BYTE = new NumberUnit("B", BigInteger.ONE),
 				KILOBYTE = new NumberUnit("KB", BigInteger.valueOf(1000)),
 				MEGABYTE = new NumberUnit("MB", KILOBYTE.getAmt().multiply(KILOBYTE.getAmt())),
 				GIGABYTE = new NumberUnit("GB", MEGABYTE.getAmt().multiply(KILOBYTE.getAmt())),
 				TERABYTE = new NumberUnit("TB", GIGABYTE.getAmt().multiply(KILOBYTE.getAmt()));
 
-		private static final NumberUnit[] BYTE_SIZES = { BYTE, KILOBYTE, MEGABYTE, GIGABYTE, TERABYTE };
+		public static final NumberUnit NANOSECONDS = new NumberUnit("ns", BigInteger.ONE),
+				MICROSECONDS = NANOSECONDS.derive("\u03BCs", 1000), MILLISECONDS = MICROSECONDS.derive("ms", 1000),
+				SECONDS = MILLISECONDS.derive("s", 1000), MINUTES = SECONDS.derive("m", 60),
+				HOURS = MINUTES.derive("hr", 60), DAYS = HOURS.derive("d", 24), WEEKS = DAYS.derive("wk", 7),
+				MONTHS = DAYS.derive("mo", 31), YEARS = DAYS.derive("yr", 365), DECADES = YEARS.derive("dec", 10);
+
+		private static final NumberUnit[] BYTE_SIZES = { BYTE, KILOBYTE, MEGABYTE, GIGABYTE, TERABYTE }, TIMES = {
+				NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS, DECADES };
 
 		public static NumberUnit[] getByteSizes() {
 			return BYTE_SIZES.clone();
 		}
 
-//		GRAND("K"), MILLION("M"), BILLION("B"), TRILLION("T"), QUADRIILLION("Q");
+		public static NumberUnit[] getTimes() {
+			return TIMES.clone();
+		}
+
+		/**
+		 * <p>
+		 * Returns an array of {@link NumberUnit}s representing durations of time. The
+		 * returned array of {@link NumberUnit}s begins with a {@link NumberUnit}
+		 * instance representing the same unit as the specified {@link NumberUnit}, but
+		 * with an {@link #getAmt() amount} of <code>1</code>. The returned array is in
+		 * sorted, ascending order, with the smallest {@link NumberUnit} at the
+		 * beginning.
+		 * </p>
+		 * <p>
+		 * The provided {@link NumberUnit} <code>start</code> should be one of the
+		 * following time-based {@link NumberUnit}s:
+		 * </p>
+		 * <ul>
+		 * <li>{@link #NANOSECONDS}</li>
+		 * <li>{@link #MICROSECONDS}</li>
+		 * <li>{@link #MILLISECONDS}</li>
+		 * <li>{@link #SECONDS}</li>
+		 * <li>{@link #MINUTES}</li>
+		 * <li>{@link #HOURS}</li>
+		 * <li>{@link #DAYS}</li>
+		 * </ul>
+		 * <p>
+		 * The above list is relative to {@link #NANOSECONDS}, which has the
+		 * {@link #getAmt() value} <code>1</code>, meaning that any of the time-based
+		 * {@link NumberUnit}s specified in this class are designed to format times
+		 * specified <i>in</i> nanoseconds. If a time is specified in, e.g., seconds, it
+		 * will need to be multiplied by <code>1_000_000_000</code> to be formatted
+		 * appropriately.
+		 * </p>
+		 * <p>
+		 * The returned array of {@link NumberUnit} is adjusted so that the specified
+		 * unit has value <code>1</code>. For example, if {@link #SECONDS} is provided
+		 * as an argument, the returned array will be equivalent to:
+		 * </p>
+		 * 
+		 * <pre>
+		 * <code>new NumberUnit[] { new NumberUnit("s", BigInteger.ONE) // First unit is seconds, with value 1.
+		 * , new NumberUnit("m", BigInteger.valueOf(60)), new NumberUnit("hr", BigInteger.valueOf(60 * 60)), new NumberUnit("d", BigInteger.valueOf(60 * 60 * 24)), ...};</code>
+		 * </pre>
+		 * 
+		 * @param start
+		 * @return
+		 */
+		public static NumberUnit[] getTimes(NumberUnit start) {
+			int ind = Arrays.binarySearch(TIMES, start);
+			if (ind < 0)
+				throw new IllegalArgumentException("Provided NumberUnit is not a time unit.");
+			return adjust(Arrays.copyOfRange(TIMES, ind, TIMES.length));
+		}
+
+		/**
+		 * <p>
+		 * Adjusts the specified array of {@link NumberUnit}s so that the first
+		 * {@link NumberUnit} has value <code>1</code>. This function returns a new
+		 * array of {@link NumberUnit}s, containing {@link NumberUnit} objects that are
+		 * synonymous to those specified in the provided array, but that their
+		 * {@link #getAmt() amounts} have all been divided by the amount of the first
+		 * specified {@link NumberUnit}. For example, if
+		 * </p>
+		 * 
+		 * <pre>
+		 * <code>{ SECONDS, MINUTES, HOURS }</code>
+		 * </pre>
+		 * 
+		 * <p>
+		 * is provided, the result will be:
+		 * </p>
+		 * 
+		 * <pre>
+		 * <code>{ new NumberUnit(SECONDS.getSymbol(), BigInteger.valueOf(1)), new NumberUnit(MINUTES.getSymbol(), MINUTES.getAmt().divide(SECONDS.getAmt())), new NumberUnit(HOURS.getSymbol(), HOURS.getAmt().divide(SECONDS.getAmt())) }</code>
+		 * </pre>
+		 * 
+		 * <p>
+		 * The returned array is newly constructed and modifiable as desired.
+		 * </p>
+		 * 
+		 * @param units The units, in ascending order.
+		 * @return A new array of adjusted {@link NumberUnit}s.
+		 */
+		public static NumberUnit[] adjust(NumberUnit... units) {
+			NumberUnit[] n = new NumberUnit[units.length];
+			for (int i = 0; i < units.length; i++)
+				n[i] = new NumberUnit(units[i].getSymbol(), units[i].getAmt().divide(units[0].getAmt()));
+			return n;
+		}
 
 		private final String symbol;
 		private final BigInteger amt;
@@ -41,6 +140,24 @@ public final class StringTools {
 
 		public String getSymbol() {
 			return symbol;
+		}
+
+		public NumberUnit derive(String symbol, long factor) {
+			return derive(symbol, BigInteger.valueOf(factor));
+		}
+
+		public NumberUnit derive(String symbol, BigInteger factor) {
+			return new NumberUnit(symbol, getAmt().multiply(factor));
+		}
+
+		@Override
+		public int compareTo(NumberUnit o) {
+			return amt.compareTo(o.amt);
+		}
+
+		@Override
+		public String toString() {
+			return getSymbol();
 		}
 	}
 
@@ -133,12 +250,51 @@ public final class StringTools {
 	}
 
 	/**
-	 * Formats the provided number as if it were a monetary value, (applying the
-	 * {@link MoneyUnit} conversion, as appropriate), but does not prepend the
-	 * {@link #CURRENCY_SYMBOL}.
+	 * Returns a {@link Map} of all the {@link NumberUnit}-parsed values of the
+	 * provided number. The provided {@link NumberUnit} array should be in ascending
+	 * order. If the array contains, for example, seconds and minutes, with
+	 * {@link NumberUnit#getAmt() amounts} 1 and 60, respectively, and the provided
+	 * value is <code>181</code> (seconds), this method will return a {@link Map}
+	 * denoting 3 minutes and 1 second.
+	 * 
+	 * @param value
+	 * @param units
+	 * @return
+	 */
+	public static Map<NumberUnit, BigInteger> getParts(BigInteger value, NumberUnit... units) {
+		Map<NumberUnit, BigInteger> values = new HashMap<>(units.length);
+		for (int i = units.length - 1; i >= 0; --i) {
+			BigInteger[] vals = value.divideAndRemainder(units[i].getAmt());
+			if (!vals[0].equals(BigInteger.ZERO))
+				values.put(units[i], vals[0]);
+			value = vals[1];// Set value to be the remainder.
+		}
+		return values;
+	}
+
+	public static String format(BigInteger number, String delimiter, NumberUnit... units) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = units.length - 1; i >= 0; --i) {
+			BigInteger[] vals = number.divideAndRemainder(units[i].amt);
+			if (!vals[0].equals(BigInteger.ZERO)) {
+				if (i != units.length - 1)
+					sb.append(delimiter);
+				sb.append(vals[0]).append(units[i].symbol);
+			}
+			number = vals[1];
+		}
+		return sb.toString();
+	}
+
+	public static String format(BigInteger number, NumberUnit... units) {
+		return format(number, "", units);
+	}
+
+	/**
+	 * Formats the provided number in bytes, using suffixes as appropriate.
 	 *
 	 * @param number The {@link BigInteger} number to format.
-	 * @return A string holding the formatted number.
+	 * @return A string holding the formatted output.
 	 */
 	public static String formatBytes(final BigInteger number) {
 		NumberUnit m = null;
