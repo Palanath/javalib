@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import pala.libs.generic.JavaTools;
 
@@ -32,6 +33,26 @@ public final class StringTools {
 
 		private static final NumberUnit[] BYTE_SIZES = { BYTE, KILOBYTE, MEGABYTE, GIGABYTE, TERABYTE }, TIMES = {
 				NANOSECONDS, MICROSECONDS, MILLISECONDS, SECONDS, MINUTES, HOURS, DAYS, WEEKS, MONTHS, YEARS, DECADES };
+
+		public NumberUnit adjust(NumberUnit other) {
+			return adjust(other.getAmt());
+		}
+
+		/**
+		 * Returns a new {@link NumberUnit} that is the same as this {@link NumberUnit}
+		 * except that the {@link #getAmt()} is divded by the provided <code>amt</code>.
+		 * This method effectively "scales" this {@link NumberUnit} to be in terms of
+		 * the provided amount. For example, calling
+		 * <code>MONTHS.adjust(SECONDS.getAmt())</code> will return a new
+		 * {@link NumberUnit} representing months, that can be used to format numbers
+		 * specifying <i>seconds</i> instead of <i>nanoseconds</i>.
+		 * 
+		 * @param amt The amount to divide by.
+		 * @return
+		 */
+		public NumberUnit adjust(BigInteger amt) {
+			return new NumberUnit(symbol, getAmt().divide(amt));
+		}
 
 		public static NumberUnit[] getByteSizes() {
 			return BYTE_SIZES.clone();
@@ -161,6 +182,22 @@ public final class StringTools {
 		public String toString() {
 			return getSymbol();
 		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(amt, symbol);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			else if (!(obj instanceof NumberUnit))
+				return false;
+			NumberUnit other = (NumberUnit) obj;
+			return Objects.equals(amt, other.amt) && Objects.equals(symbol, other.symbol);
+		}
+
 	}
 
 	private static final byte[] HEX_CHAR_BYTES = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
