@@ -421,10 +421,18 @@ public final class JavaTools {
 	 *               This should not be <code>null</code>.
 	 * @param files  The {@link File}s or {@link File} trees to walk over.
 	 */
-	public static final void walktree(Consumer<File> walker, File... files) {
+	public static final void walktree(Consumer<? super File> walker, File... files) {
 		for (File f : files) {
 			if (f.isDirectory())
-				walktree(walker, f);
+				walktree(walker, f.listFiles());
+			walker.accept(f);
+		}
+	}
+
+	public static final void walktree(Consumer<? super File> walker, Iterable<? extends File> files) {
+		for (File f : files) {
+			if (f.isDirectory())
+				walktree(walker, f.listFiles());
 			walker.accept(f);
 		}
 	}
