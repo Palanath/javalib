@@ -1013,6 +1013,23 @@ public final class JavaTools {
 		};
 	}
 
+	@SafeVarargs
+	public static <T> T[][] listProd(T[]... lists) {
+		int dim = 1;// Number of lists there will be. One list per element combination.
+		for (T[] s : lists)
+			dim *= s.length;
+		@SuppressWarnings("unchecked")
+		T[][] result = (T[][]) Array.newInstance(lists.getClass().getComponentType().getComponentType(), dim,
+				lists.length);
+
+		int dupecount = 1;
+		for (int i = lists.length - 1; i >= 0; dupecount *= lists[i--].length)
+			for (int j = 0; j < result.length; j++)
+				result[j][i] = lists[i][(j / dupecount) % lists[i].length];
+
+		return result;
+	}
+
 	private JavaTools() {
 	}
 }
