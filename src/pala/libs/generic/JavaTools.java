@@ -28,6 +28,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 
 public final class JavaTools {
@@ -1028,6 +1029,16 @@ public final class JavaTools {
 				result[j][i] = lists[i][(j / dupecount) % lists[i].length];
 
 		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <V, T extends Throwable> V hideCheckedExceptions(FallibleSupplier<?, ? extends V> computation)
+			throws T {
+		try {
+			return computation.get();
+		} catch (Throwable e) {
+			throw (T) e;
+		}
 	}
 
 	private JavaTools() {
