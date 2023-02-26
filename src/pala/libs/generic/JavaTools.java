@@ -295,7 +295,7 @@ public final class JavaTools {
 		return res;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SafeVarargs
 	public static <T> T[] combine(T[] array1, T... array2) {
 		return combine(array(array1, array2));
 	}
