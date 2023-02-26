@@ -295,6 +295,11 @@ public final class JavaTools {
 		return res;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T> T[] combine(T[] array1, T... array2) {
+		return combine(array(array1, array2));
+	}
+
 	@SafeVarargs
 	public static <T> T combineArrays(final T... arrays) {
 		@SuppressWarnings("unchecked")
@@ -1030,7 +1035,7 @@ public final class JavaTools {
 
 		return result;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <V, T extends Throwable> V hideCheckedExceptions(FallibleSupplier<?, ? extends V> computation)
 			throws T {
