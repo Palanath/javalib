@@ -39,6 +39,11 @@ public final class JavaTools {
 		int index(E element);
 	}
 
+	public static <E> void copyTo(E[] destArray, int destFrom, int numElements, Iterator<? extends E> items) {
+		for (int i = destFrom; i < destFrom + numElements; ++i)
+			destArray[i] = items.next();
+	}
+
 	public static <T> Iterable<T> reverseIterator(List<? extends T> list) {
 		return () -> new Iterator<T>() {
 			private final ListIterator<? extends T> li = list.listIterator(list.size());
