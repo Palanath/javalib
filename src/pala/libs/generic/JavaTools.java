@@ -44,7 +44,7 @@ public final class JavaTools {
 			destArray[i] = items.next();
 	}
 
-	public static <T> Iterable<T> reverseIterator(List<? extends T> list) {
+	public static <T> Iterable<T> reverseIterable(List<? extends T> list) {
 		return () -> new Iterator<T>() {
 			private final ListIterator<? extends T> li = list.listIterator(list.size());
 
