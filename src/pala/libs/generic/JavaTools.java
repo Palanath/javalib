@@ -39,6 +39,22 @@ public final class JavaTools {
 		int index(E element);
 	}
 
+	public static <T> Iterable<T> reverseIterator(List<? extends T> list) {
+		return () -> new Iterator<T>() {
+			private final ListIterator<? extends T> li = list.listIterator(list.size());
+
+			@Override
+			public boolean hasNext() {
+				return li.hasPrevious();
+			}
+
+			@Override
+			public T next() {
+				return li.previous();
+			}
+		};
+	}
+
 	public static <E> void swap(Indexable<E> indexable, E element, E newValue) {
 		indexable.set(indexable.index(element), newValue);
 	}
