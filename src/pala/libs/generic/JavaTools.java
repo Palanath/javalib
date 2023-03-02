@@ -57,6 +57,11 @@ public final class JavaTools {
 			public T next() {
 				return li.previous();
 			}
+
+			@Override
+			public void remove() {
+				li.remove();
+			}
 		};
 	}
 
