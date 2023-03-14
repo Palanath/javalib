@@ -2,9 +2,13 @@ package pala.libs.generic.util;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.function.Consumer;
 
-public class Tree<E> {
+import pala.libs.generic.JavaTools;
+
+public class Tree<E> implements Iterable<E> {
 
 	private E element;
 	private final Set<Tree<E>> children = new HashSet<Tree<E>>(0);
@@ -54,6 +58,35 @@ public class Tree<E> {
 		children.add(child);
 	}
 
+	public Tree<E> addChild(E child) {
+		Tree<E> t = new Tree<>();
+		t.setElement(child);
+		addChild(t);
+		return t;
+	}
+
+	/**
+	 * Removes the first occurrence of a node with the specified element that is an
+	 * <i>immediate</i> child of this {@link Tree} node.
+	 * 
+	 * @param childElem The element. The first child node that contains the
+	 *                  specified element is removed.
+	 * @return The removed {@link Tree} node. If not found, this method returns
+	 *         <code>null</code>.
+	 */
+	public Tree<E> removeChild(E childElem) {
+		for (Tree<E> c : children)
+			if (c.getElement() == childElem) {
+				removeChild(c);
+				return c;
+			}
+		return null;
+	}
+
+	public boolean isLeaf() {
+		return children.isEmpty();
+	}
+
 	public void removeChild(Tree<E> child) {
 		if (children.remove(child))
 			child.parent = null;
@@ -80,6 +113,30 @@ public class Tree<E> {
 	}
 
 	public Tree() {
+	}
+
+	/**
+	 * Recrusively creates an iterator that iterates over this node's element, then
+	 * all the elements of the children of this node. This method can have high
+	 * overhead because of it's implementation. Care should be taken when iterating
+	 * over large trees, however the iterator returned is detached from this
+	 * {@link Tree} and can be used independently of it; subsequent modifications to
+	 * this {@link Tree} that happen during iteration on the iterator do not affect
+	 * the iterator, although this tree should not be modified while the iterator is
+	 * being <i>constructed</i>.
+	 */
+	@Override
+	public Iterator<E> iterator() {
+		Iterator<E> itr = JavaTools.iterator(element);
+		for (Tree<E> child : children)
+			itr = JavaTools.concat(itr, child.iterator());
+		return itr;
+	}
+
+	public void collect(Consumer<? super E> consumer) {
+		consumer.accept(element);
+		for (Tree<E> c : children)
+			c.collect(consumer);
 	}
 
 }
