@@ -20,6 +20,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Stack;
 import java.util.function.BiConsumer;
@@ -1262,6 +1263,25 @@ public final class JavaTools {
 	public static <K, V> void replaceValuesByEntry(Function<? super Entry<K, V>, ? extends V> replacer, Map<K, V> map) {
 		for (Entry<K, V> e : map.entrySet())
 			e.setValue(replacer.apply(e));
+	}
+
+	public static String toFormattedString(Map<?, ?> map) {
+		return toFormattedString(map, "{\n\t", "\n\t", " : ", "\n}");
+	}
+
+	public static String toFormattedString(Map<?, ?> map, String openBrace, String entryDelimiter,
+			String keyValueDelimiter, String closeBrace) {
+		StringBuilder sb = new StringBuilder(openBrace);
+		Iterator<? extends Entry<?, ?>> itr = map.entrySet().iterator();
+		if (itr.hasNext()) {
+			Entry<?, ?> x = itr.next();
+			sb.append(x.getKey()).append(keyValueDelimiter).append(x.getValue());
+			while (itr.hasNext()) {
+				x = itr.next();
+				sb.append(entryDelimiter).append(x.getKey()).append(keyValueDelimiter).append(x.getValue());
+			}
+		}
+		return sb.append(closeBrace).toString();
 	}
 
 }
