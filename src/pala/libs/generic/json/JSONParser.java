@@ -216,8 +216,8 @@ public class JSONParser {
 						break;
 					case 'u':
 						final StringBuilder n = new StringBuilder();
-						for (int nc = stream.next(), i = 0; i < 4; i++) {
-							if (nc == -1)
+						for (int nc, i = 0; i < 4; i++) {
+							if ((nc = stream.next()) == -1)
 								throw new IllegalArgumentException(
 										"Malformed JSON. End of input found before string termination.");
 							if (!isHexDigit((char) nc))
