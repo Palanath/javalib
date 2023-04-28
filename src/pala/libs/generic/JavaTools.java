@@ -1074,4 +1074,54 @@ public final class JavaTools {
 
 	private JavaTools() {
 	}
+
+	/**
+	 * Invokes the first {@link Supplier}. If it returns a non-<code>null</code>
+	 * value, returns that value. Otherwise, invokes and returns the result of the
+	 * second {@link Supplier}.
+	 * 
+	 * @param <T>           The type of the value to get.
+	 * @param supplier      The first {@link Supplier} to try.
+	 * @param otherSupplier The second {@link Supplier} to try as a fallback if the
+	 *                      first one returns <code>null</code>.
+	 * @return The result.
+	 */
+	public static <T> T getFallback(Supplier<? extends T> supplier, Supplier<? extends T> otherSupplier) {
+		T t;
+		if ((t = supplier.get()) != null)
+			return t;
+		return otherSupplier.get();
+	}
+
+	/**
+	 * <p>
+	 * Invokes the first {@link Supplier}. If it returns a non-<code>null</code>
+	 * value, returns that value. Otherwise, if another {@link Supplier} is
+	 * provided, repeats the process with this {@link Supplier}, moving on to the
+	 * third if provided and the second returns <code>null</code>. If all
+	 * {@link Supplier}s return <code>null</code>, this function returns
+	 * <code>null</code>.
+	 * </p>
+	 * <p>
+	 * This function calls each {@link Supplier} in order and does not handle
+	 * exceptions; {@link Supplier} exceptions are propagated to the caller.
+	 * </p>
+	 * 
+	 * @param <T>       The type of the result.
+	 * @param supplier  The first {@link Supplier} to invoke.
+	 * @param fallbacks The remaining {@link Supplier}s.
+	 * @return The result, or <code>null</code> if all {@link Supplier}s return
+	 *         <code>null</code>.
+	 */
+	@SafeVarargs
+	public static <T> T getFallback(Supplier<? extends T> supplier, Supplier<? extends T>... fallbacks) {
+		T t;
+		if ((t = supplier.get()) != null)
+			return t;
+		else
+			for (Supplier<? extends T> s : fallbacks)
+				if ((t = s.get()) != null)
+					return t;
+		return t;
+	}
 }
