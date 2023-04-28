@@ -58,23 +58,23 @@ public class JSONArray extends ArrayList<JSONValue> implements JSONValue {
 	 * @return An "object-only" {@link Iterable} of this {@link JSONArray}.
 	 */
 	public Iterable<JSONObject> forEachObject() {
-		return JavaTools.filterToType(this, a -> a instanceof JSONObject);
+		return JavaTools.filterToType(this, a -> !(a instanceof JSONObject));
 	}
 
 	public Iterable<JSONArray> forEachArray() {
-		return JavaTools.filterToType(this, a -> a instanceof JSONArray);
+		return JavaTools.filterToType(this, a -> !(a instanceof JSONArray));
 	}
 
 	public Iterable<JSONConstant> forEachConstant() {
-		return JavaTools.filterToType(this, a -> a instanceof JSONConstant);
+		return JavaTools.filterToType(this, a -> !(a instanceof JSONConstant));
 	}
 
 	public Iterable<JSONNumber> forEachNumber() {
-		return JavaTools.filterToType(this, a -> a instanceof JSONNumber);
+		return JavaTools.filterToType(this, a -> !(a instanceof JSONNumber));
 	}
 
 	public Iterable<JSONString> forEachString() {
-		return JavaTools.filterToType(this, a -> a instanceof JSONString);
+		return JavaTools.filterToType(this, a -> !(a instanceof JSONString));
 	}
 
 }
