@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -1124,4 +1125,55 @@ public final class JavaTools {
 					return t;
 		return t;
 	}
+
+	/**
+	 * <p>
+	 * Iterates over the {@link Map}'s keys and replaces each of them with the key
+	 * returned by the specified {@link Function}.
+	 * </p>
+	 * <p>
+	 * For every entry in the {@link Map}, the entry's key is given to the specified
+	 * {@link Function}, the entry is removed, and the value of the entry is placed
+	 * under the new key (returned by the specified {@link Function}) in the
+	 * {@link Map}.
+	 * </p>
+	 * 
+	 * @param <K>      The type of keys stored in the {@link Map}.
+	 * @param <V>      The type of values stored in the {@link Map}.
+	 * @param replacer The function that is used to derive the new key from the old
+	 *                 key.
+	 * @param map      The {@link Map} to perform the replacement on.
+	 */
+	public static <K, V> void replaceKeys(Function<? super K, ? extends K> replacer, Map<K, V> map) {
+		replaceKeysByEntry(a -> replacer.apply(a.getKey()), map);
+	}
+
+	/**
+	 * Same as {@link #replaceKeys(Function, Map)}, but the provided
+	 * {@link Function} is given the entire {@link Map} {@link Entry} to derive the
+	 * new key from.
+	 * 
+	 * @param <K>      The type of keys stored in the {@link Map}.
+	 * @param <V>      The type of values stored in the {@link Map}.
+	 * @param replacer {@link Function} that, for each {@link Entry} in the
+	 *                 {@link Map}, is given the {@link Entry} and is expected to
+	 *                 return the new key that the value of the {@link Entry} should
+	 *                 be placed at.
+	 * @param map      The {@link Map} to perform the replacement on.
+	 */
+	public static <K, V> void replaceKeysByEntry(Function<Entry<K, V>, ? extends K> replacer, Map<K, V> map) {
+		Collection<Entry<K, V>> entries = new ArrayList<>(map.entrySet());
+		for (Entry<K, V> t : entries)
+			map.put(replacer.apply(t), map.remove(t));
+	}
+
+	public static <V> void replaceValues(Function<? super V, ? extends V> replacer, Map<?, V> map) {
+		replaceValuesByEntry(a -> replacer.apply(a.getValue()), map);
+	}
+
+	public static <K, V> void replaceValuesByEntry(Function<? super Entry<K, V>, ? extends V> replacer, Map<K, V> map) {
+		for (Entry<K, V> e : map.entrySet())
+			e.setValue(replacer.apply(e));
+	}
+
 }
