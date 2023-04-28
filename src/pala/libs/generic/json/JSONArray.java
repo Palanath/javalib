@@ -51,4 +51,30 @@ public class JSONArray extends ArrayList<JSONValue> implements JSONValue {
 		return builder.toString();
 	}
 
+	/**
+	 * Returns an {@link Iterable} that goes over only the {@link JSONObject}s
+	 * contained within this {@link JSONArray}.
+	 * 
+	 * @return An "object-only" {@link Iterable} of this {@link JSONArray}.
+	 */
+	public Iterable<JSONObject> forEachObject() {
+		return JavaTools.filterToType(this, a -> a instanceof JSONObject);
+	}
+
+	public Iterable<JSONArray> forEachArray() {
+		return JavaTools.filterToType(this, a -> a instanceof JSONArray);
+	}
+
+	public Iterable<JSONConstant> forEachConstant() {
+		return JavaTools.filterToType(this, a -> a instanceof JSONConstant);
+	}
+
+	public Iterable<JSONNumber> forEachNumber() {
+		return JavaTools.filterToType(this, a -> a instanceof JSONNumber);
+	}
+
+	public Iterable<JSONString> forEachString() {
+		return JavaTools.filterToType(this, a -> a instanceof JSONString);
+	}
+
 }
