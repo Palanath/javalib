@@ -38,8 +38,26 @@ public class JSONObject extends HashMap<String, JSONValue> implements JSONValue 
 		}
 	}
 
+	public Boolean getBooleanNullable(String key) {
+		switch (getJConstant(key)) {
+		case FALSE:
+			return false;
+		case TRUE:
+			return true;
+		case NULL:
+			return null;
+		default:
+			throw new ClassCastException("The JSON Constant stored for the key, " + key
+					+ ", is not a boolean nor null, but an attempt was made to access it as such.");
+		}
+	}
+
 	public int getInt(final String key) {
 		return getJNumber(key).intValue();
+	}
+
+	public JSONArray getJArray(String key) {
+		return (JSONArray) get(key);
 	}
 
 	public JSONConstant getJConstant(final String key) {
@@ -48,6 +66,10 @@ public class JSONObject extends HashMap<String, JSONValue> implements JSONValue 
 
 	public JSONNumber getJNumber(final String key) {
 		return (JSONNumber) get(key);
+	}
+
+	public JSONObject getJObject(String key) {
+		return (JSONObject) get(key);
 	}
 
 	public JSONString getJString(final String key) {
@@ -62,16 +84,13 @@ public class JSONObject extends HashMap<String, JSONValue> implements JSONValue 
 		return getJString(key).getValue();
 	}
 
-	public JSONArray getJArray(String key) {
-		return (JSONArray) get(key);
-	}
-
-	public JSONObject getJObject(String key) {
-		return (JSONObject) get(key);
-	}
-
 	public JSONObject put(final String key, final boolean value) {
 		put(key, value ? JSONConstant.TRUE : JSONConstant.FALSE);
+		return this;
+	}
+
+	public JSONObject put(String key, Boolean value) {
+		put(key, value == null ? null : value ? JSONConstant.TRUE : JSONConstant.FALSE);
 		return this;
 	}
 
@@ -80,13 +99,94 @@ public class JSONObject extends HashMap<String, JSONValue> implements JSONValue 
 		return this;
 	}
 
+	public JSONObject putNull(String key) {
+		put(key, JSONConstant.NULL);
+		return this;
+	}
+
+	/**
+	 * If the provided {@link String} value is <code>null</code>,
+	 * {@link #put(String, JSONValue)}s {@link JSONConstant#NULL} into the map,
+	 * otherwise, puts the a new {@link JSONNumber} wrapping the provided
+	 * {@link Integer}.
+	 * 
+	 * @param key   The location to put the value.
+	 * @param value The value, possibly <code>null</code>, in which case
+	 *              {@link JSONConstant#NULL} is placed instead of a new
+	 *              {@link JSONNumber}.
+	 * @return This {@link JSONObject}.
+	 */
+	public JSONObject put(String key, Integer value) {
+		return value == null ? putNull(key) : put(key, (int) value);
+	}
+
 	public JSONObject put(final String key, final long value) {
 		put(key, new JSONNumber(value));
 		return this;
 	}
 
+	/**
+	 * If the provided {@link String} value is <code>null</code>,
+	 * {@link #put(String, JSONValue)}s {@link JSONConstant#NULL} into the map,
+	 * otherwise, puts the a new {@link JSONNumber} wrapping the provided
+	 * {@link Long}.
+	 * 
+	 * @param key   The location to put the value.
+	 * @param value The value, possibly <code>null</code>, in which case
+	 *              {@link JSONConstant#NULL} is placed instead of a new
+	 *              {@link JSONNumber}.
+	 * @return This {@link JSONObject}.
+	 */
+	public JSONObject put(String key, Long value) {
+		return value == null ? putNull(key) : put(key, (long) value);
+	}
+
+	/**
+	 * If the provided {@link String} value is <code>null</code>,
+	 * {@link #put(String, JSONValue)}s {@link JSONConstant#NULL} into the map,
+	 * otherwise, puts the provided {@link JSONObject}.
+	 * 
+	 * @param key   The location to put the value.
+	 * @param value The value, possibly <code>null</code>, in which case
+	 *              {@link JSONConstant#NULL} is placed instead of the
+	 *              {@link JSONObject}.
+	 * @return This {@link JSONObject}.
+	 */
+	public JSONObject put(String key, JSONObject value) {
+		put(key, value == null ? JSONConstant.NULL : value);
+		return this;
+	}
+
+	/**
+	 * If the provided {@link String} value is <code>null</code>,
+	 * {@link #put(String, JSONValue)}s {@link JSONConstant#NULL} into the map,
+	 * otherwise, puts the provided {@link JSONArray}.
+	 * 
+	 * @param key   The location to put the value.
+	 * @param value The value, possibly <code>null</code>, in which case
+	 *              {@link JSONConstant#NULL} is placed instead of the
+	 *              {@link JSONArray}.
+	 * @return This {@link JSONObject}.
+	 */
+	public JSONObject put(String key, JSONArray value) {
+		put(key, value == null ? JSONConstant.NULL : value);
+		return this;
+	}
+
+	/**
+	 * If the provided {@link String} value is <code>null</code>,
+	 * {@link #put(String, JSONValue)}s {@link JSONConstant#NULL} into the map,
+	 * otherwise, puts the a new {@link JSONString} wrapping the provided
+	 * {@link String}.
+	 * 
+	 * @param key   The location to put the value.
+	 * @param value The value, possibly <code>null</code>, in which case
+	 *              {@link JSONConstant#NULL} is placed instead of a new
+	 *              {@link JSONString}.
+	 * @return This {@link JSONObject}.
+	 */
 	public JSONObject put(final String key, final String value) {
-		put(key, new JSONString(value));
+		put(key, value == null ? JSONConstant.NULL : new JSONString(value));
 		return this;
 	}
 
