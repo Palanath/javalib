@@ -37,7 +37,15 @@ public class JSONParser {
 		return Character.isDigit(digit) || digit <= 'F' && digit >= 'A' || digit <= 'f' && digit >= 'a';
 	}
 
-	private boolean strictEscapeHandling = false;
+	private boolean strictEscapeHandling = false, ignoreUnescapedControlsInStrings = false;
+
+	public boolean isIgnoreUnescapedControlsInStrings() {
+		return ignoreUnescapedControlsInStrings;
+	}
+
+	public void setIgnoreUnescapedControlsInStrings(boolean ignoreUnescapedControlsInStrings) {
+		this.ignoreUnescapedControlsInStrings = ignoreUnescapedControlsInStrings;
+	}
 
 	public boolean isStrictEscapeHandling() {
 		return strictEscapeHandling;
@@ -156,8 +164,11 @@ public class JSONParser {
 			case '\n':
 			case '\r':
 			case '\t':
-				throw new IllegalArgumentException(
-						"Malformed JSON. Unescaped control character found in string literal.");
+				if (ignoreUnescapedControlsInStrings)
+					continue;
+				else
+					throw new IllegalArgumentException(
+							"Malformed JSON. Unescaped control character found in string literal.");
 			default:
 				if (c == -1)
 					throw new IllegalArgumentException("Malformed JSON. End of input found before string termination.");
