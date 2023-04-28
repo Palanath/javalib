@@ -62,6 +62,10 @@ public class JSONObject extends HashMap<String, JSONValue> implements JSONValue 
 		return getJString(key).getValue();
 	}
 
+	public JSONArray getJArray(String key) {
+		return (JSONArray) get(key);
+	}
+
 	public JSONObject put(final String key, final boolean value) {
 		put(key, value ? JSONConstant.TRUE : JSONConstant.FALSE);
 		return this;
