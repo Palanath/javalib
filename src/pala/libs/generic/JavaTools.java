@@ -1164,7 +1164,7 @@ public final class JavaTools {
 	public static <K, V> void replaceKeysByEntry(Function<Entry<K, V>, ? extends K> replacer, Map<K, V> map) {
 		Collection<Entry<K, V>> entries = new ArrayList<>(map.entrySet());
 		for (Entry<K, V> t : entries)
-			map.put(replacer.apply(t), map.remove(t));
+			map.put(replacer.apply(t), map.remove(t.getKey()));
 	}
 
 	public static <V> void replaceValues(Function<? super V, ? extends V> replacer, Map<?, V> map) {
