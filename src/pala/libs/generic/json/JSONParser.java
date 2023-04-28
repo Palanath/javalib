@@ -37,14 +37,35 @@ public class JSONParser {
 		return Character.isDigit(digit) || digit <= 'F' && digit >= 'A' || digit <= 'f' && digit >= 'a';
 	}
 
-	private boolean strictEscapeHandling = false, ignoreUnescapedControlsInStrings = false;
+	private boolean strictEscapeHandling = false;
+	private UnescapedControlsInStringsBehavior unescapedControlsInStringsBehavior;
 
-	public boolean isIgnoreUnescapedControlsInStrings() {
-		return ignoreUnescapedControlsInStrings;
+	public enum UnescapedControlsInStringsBehavior {
+		/**
+		 * Causes the parser to throw an error if unescaped controls are found in a
+		 * string.
+		 */
+		ERROR,
+		/**
+		 * Causes the parser to retain any unescaped controls within a string, as if
+		 * they were valid characters such as <code>a</code> or <code>b</code>.
+		 */
+		KEEP,
+		/**
+		 * Causes the parser to completely ignore unescaped controls within a string.
+		 * This differs from {@link #KEEP} in that unescaped controls are not added to
+		 * the returned string; they are dropped.
+		 */
+		IGNORE;
 	}
 
-	public void setIgnoreUnescapedControlsInStrings(boolean ignoreUnescapedControlsInStrings) {
-		this.ignoreUnescapedControlsInStrings = ignoreUnescapedControlsInStrings;
+	public UnescapedControlsInStringsBehavior getUnescapedControlsInStringsBehavior() {
+		return unescapedControlsInStringsBehavior;
+	}
+
+	public void setUnescapedControlsInStringsBehavior(
+			UnescapedControlsInStringsBehavior unescapedControlsInStringsBehavior) {
+		this.unescapedControlsInStringsBehavior = unescapedControlsInStringsBehavior;
 	}
 
 	public boolean isStrictEscapeHandling() {
@@ -142,6 +163,7 @@ public class JSONParser {
 	 *               quotation mark.
 	 * @return The parsed {@link String}.
 	 */
+	@SuppressWarnings("incomplete-switch")
 	private JSONString parseHeadlessString(final CharacterSequence stream) {
 		final StringBuilder builder = new StringBuilder();
 		int c;
@@ -164,11 +186,14 @@ public class JSONParser {
 			case '\n':
 			case '\r':
 			case '\t':
-				if (ignoreUnescapedControlsInStrings)
-					continue;
-				else
+				switch (unescapedControlsInStringsBehavior) {
+				case ERROR:
 					throw new IllegalArgumentException(
 							"Malformed JSON. Unescaped control character found in string literal.");
+				case KEEP:
+					builder.append((char) c);
+				}
+				break;
 			default:
 				if (c == -1)
 					throw new IllegalArgumentException("Malformed JSON. End of input found before string termination.");
