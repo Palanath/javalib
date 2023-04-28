@@ -29,6 +29,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 
@@ -669,6 +670,53 @@ public final class JavaTools {
 	public static <F, T> Iterable<T> mask(final Iterable<? extends F> itr,
 			final Function<? super F, ? extends T> conv) {
 		return () -> mask(itr.iterator(), conv);
+	}
+
+	/**
+	 * Returns an {@link Iterator} that skips over any elements from the provided
+	 * {@link Iterator} for which the provided {@link Predicate} returns
+	 * <code>true</code>. Both {@link Iterator#hasNext()} and
+	 * {@link Iterator#next()} work on this {@link Iterator}, though
+	 * {@link Iterator#remove()} does not.
+	 * 
+	 * @param <T>    The type of the {@link Iterator}.
+	 * @param itr    The {@link Iterator} to filter.
+	 * @param filter The {@link Predicate} to use as a filter. Each element that the
+	 *               {@link Predicate} returns <code>true</code> for is filtered out
+	 *               (skipped over).
+	 * @return The new {@link Iterator} that is filtered.
+	 */
+	public static <T> Iterator<T> filter(Iterator<? extends T> itr, Predicate<? super T> filter) {
+		return new Iterator<T>() {
+			private Box<T> cache;
+
+			@Override
+			public boolean hasNext() {
+				while (cache == null) {
+					if (itr.hasNext()) {
+						T temp = itr.next();
+						if (!filter.test(temp))
+							cache = new Box<>(temp);
+					} else
+						return false;
+				}
+				return true;
+			}
+
+			@Override
+			public T next() {
+				if (hasNext()) {
+					T temp = cache.value;
+					cache = null;
+					return temp;
+				} else
+					throw new NoSuchElementException();
+			}
+		};
+	}
+
+	public static <T> Iterable<T> filter(Iterable<? extends T> itr, Predicate<? super T> filter) {
+		return () -> filter(itr.iterator(), filter);
 	}
 
 	public static <F, T> Iterator<T> mask(final Iterator<? extends F> itr,
