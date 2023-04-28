@@ -719,6 +719,46 @@ public final class JavaTools {
 		return () -> filter(itr.iterator(), filter);
 	}
 
+	/**
+	 * <p>
+	 * Returns an {@link Iterable} that filters the provided {@link Iterable}
+	 * according to the provided {@link Predicate} filter, but then casts the
+	 * argument to the specified type, <code>Q</code>.
+	 * </p>
+	 * <p>
+	 * This {@link Function} is intended to be used with {@link Predicate}s that
+	 * filter out any values from the {@link Iterable} that are not of a specified
+	 * type, that type being <code>Q</code>. If the {@link Predicate} allows any
+	 * elements that are not an instance of type <code>Q</code> to pass through, the
+	 * result may be unsafe.
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>Iterable&lt;Number&gt; x = ...;
+	 * Iterable&lt;Integer&gt; a = filterToType(x, a->a instanceof Integer);</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * This function essentially performs what {@link #filter(Iterable, Predicate)}
+	 * does but casts each item let through the filter.
+	 * </p>
+	 * 
+	 * @param <T>    The type of the source {@link Iterable}.
+	 * @param <Q>    The type of the result {@link Iterable}.
+	 * @param itr    The source {@link Iterable}.
+	 * @param filter The filter to apply.
+	 * @return The resulting {@link Iterable}.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T, Q extends T> Iterable<Q> filterToType(Iterable<? extends T> itr, Predicate<? super T> filter) {
+		return (Iterable<Q>) filter(itr, filter);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T, Q extends T> Iterator<Q> filterToType(Iterator<? extends T> itr, Predicate<? super T> filter) {
+		return (Iterator<Q>) filter(itr, filter);
+	}
+
 	public static <F, T> Iterator<T> mask(final Iterator<? extends F> itr,
 			final Function<? super F, ? extends T> conv) {
 		return new Iterator<T>() {
