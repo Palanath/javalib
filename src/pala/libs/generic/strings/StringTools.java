@@ -515,36 +515,34 @@ public final class StringTools {
 			if (delimiter.isEmpty()) {
 				parts.add(input.substring(previousDelimitPosition + 1, i + 1));
 				previousDelimitPosition = i;
-			} else {
-				if (delimiter.charAt(0) == c) {
-					if (delimiter.length() == 1) {
-						parts.add(input.substring(previousDelimitPosition + 1, i));
-						previousDelimitPosition = i;
-					} else
-						for (int j = i + 1;; j++) {
-							c = j >= input.length() ? -1 : input.charAt(j);
-							if (c == -1)
-								break OUTER;
-							else if (c == delimiter.charAt(j - i)) {
-								if (j - i == delimiter.length() - 1) {// We've parsed a whole instance of the delimiter
-																		// out of the input.
+			} else if (delimiter.charAt(0) == c) {
+				if (delimiter.length() == 1) {
+					parts.add(input.substring(previousDelimitPosition + 1, i));
+					previousDelimitPosition = i;
+				} else
+					for (int j = i + 1;; j++) {
+						c = j >= input.length() ? -1 : input.charAt(j);
+						if (c == -1)
+							break OUTER;
+						else if (c == delimiter.charAt(j - i)) {
+							if (j - i == delimiter.length() - 1) {// We've parsed a whole instance of the delimiter
+																	// out of the input.
 
-									// i is the position of the start of the instance of the delimiter that we just
-									// found, in the input.
-									// previousDelimitPosition is the last character of the previous instance of the
-									// delimiter (or -1, if none), in the input.
-									parts.add(input.substring(previousDelimitPosition + 1, i));
-									previousDelimitPosition = j;
-									// "Skip forward" in the outer loop, over the delimiter we just parsed.
-									i = j;
-									break;// Upon the outer loop's, i will become what j currently is, +1 (which is the
-											// next character that we want to be considered by the outer loop).
-								}
-							} else// Character didn't match the delimiter.
-								break;
+								// i is the position of the start of the instance of the delimiter that we just
+								// found, in the input.
+								// previousDelimitPosition is the last character of the previous instance of the
+								// delimiter (or -1, if none), in the input.
+								parts.add(input.substring(previousDelimitPosition + 1, i));
+								previousDelimitPosition = j;
+								// "Skip forward" in the outer loop, over the delimiter we just parsed.
+								i = j;
+								break;// Upon the outer loop's, i will become what j currently is, +1 (which is the
+										// next character that we want to be considered by the outer loop).
+							}
+						} else// Character didn't match the delimiter.
+							break;
 
-						}
-				}
+					}
 			}
 		}
 		parts.add(input.substring(previousDelimitPosition + 1));
