@@ -2,10 +2,15 @@ package pala.libs.generic;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1282,6 +1287,42 @@ public final class JavaTools {
 			}
 		}
 		return sb.append(closeBrace).toString();
+	}
+
+	/**
+	 * Opens a {@link PrintWriter} to the specified file <code>location</code> and
+	 * writes the provided {@link String} to it. No additional trailing line is
+	 * added ({@link PrintWriter#print(String)} is used rather than
+	 * {@link PrintWriter#println(String)}).
+	 * 
+	 * @param text     The text to write.
+	 * @param location The location to write the text to.
+	 * @throws FileNotFoundException If the file could not be created and written to
+	 *                               (if {@link PrintWriter#PrintWriter(String)}
+	 *                               throws a {@link FileNotFoundException}).
+	 */
+	public static void writeToFile(String text, String location) throws FileNotFoundException {
+		try (PrintWriter pw = new PrintWriter(location)) {
+			pw.print(text);
+		}
+	}
+
+	public static void writeToFile(String text, File location) throws FileNotFoundException {
+		try (PrintWriter pw = new PrintWriter(location)) {
+			pw.print(text);
+		}
+	}
+
+	public static void writeToFile(String text, String location, Charset charset) throws FileNotFoundException {
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(location), charset))) {
+			pw.print(text);
+		}
+	}
+
+	public static void writeToFile(String text, File location, Charset charset) throws FileNotFoundException {
+		try (PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(location), charset))) {
+			pw.print(text);
+		}
 	}
 
 }
