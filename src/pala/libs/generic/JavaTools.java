@@ -1419,8 +1419,8 @@ public final class JavaTools {
 
 	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterator<? extends I> inputs) {
 		List<O> res = new ArrayList<O>();
-		for (int i = 0; inputs.hasNext(); i++)
-			res.set(i, processor.apply(inputs.next()));
+		for (; inputs.hasNext();)
+			res.add(processor.apply(inputs.next()));
 		return res;
 	}
 
@@ -1433,5 +1433,88 @@ public final class JavaTools {
 	public static List<String[]> split(String delimRegex, Iterator<? extends String> strings) {
 		return forEach(a -> a.split(delimRegex), strings);
 	}
-	
+
+	/**
+	 * <p>
+	 * Runs the provided {@link Function} on each input provided that is within the
+	 * specified range from <code>from</code> (inclusive) to, but not including,
+	 * <code>to</code>. The result is collected into an array and returned.
+	 * </p>
+	 * <p>
+	 * If <code>from</code> is negative, it is treated as <code>0</code>.
+	 * </p>
+	 * <p>
+	 * If <code>to</code> is negative, it is treated as the size of the array.
+	 * </p>
+	 * 
+	 * @param <I>       The type of input element.
+	 * @param <O>       The type of output element.
+	 * @param processor The processor to handle each element that needs to be
+	 *                  processed with.
+	 * @param from      The beginning position of the array.
+	 * @param to        The ending position of the array.
+	 * @param inputs    The input array.
+	 * @return An array of size <code>to - from</code> (where both <code>to</code>
+	 *         and <code>from</code> are corrected, if negative, as described
+	 *         above), containing the processed elements.
+	 */
+	@SafeVarargs
+	public static <I, O> O[] forEach(Function<? super I, ? extends O> processor, int from, int to, I... inputs) {
+		if (from < 0)
+			from = 0;
+		if (to < 0)
+			to = inputs.length;
+		@SuppressWarnings("unchecked")
+		O[] res = (O[]) new Object[to - from];
+		for (int i = from; i < to; i++)
+			res[i] = processor.apply(inputs[i]);
+		return res;
+	}
+
+	@SafeVarargs
+	public static <I> void doForEach(Consumer<? super I> processor, int from, int to, I... inputs) {
+		if (from < 0)
+			from = 0;
+		if (to < 0)
+			to = inputs.length;
+		for (int i = from; i < to; i++)
+			processor.accept(inputs[i]);
+	}
+
+	public static <I, O> List<O> forEach(int from, int to, Function<? super I, ? extends O> processor,
+			Iterable<? extends I> inputs) {
+		return forEach(from, to, inputs.iterator(), processor);
+	}
+
+	public static <I> void doForEach(int from, int to, Iterable<? extends I> inputs, Consumer<? super I> processor) {
+		doForEach(from, to, inputs.iterator(), processor);
+	}
+
+	public static <I, O> List<O> forEach(int from, int to, Iterator<? extends I> inputs,
+			Function<? super I, ? extends O> processor) {
+		List<O> res = new ArrayList<>();
+		doForEach(from, to, inputs, a -> res.add(processor.apply(a)));
+		return res;
+	}
+
+	public static <I> void doForEach(int from, int to, Iterator<I> itr, Consumer<? super I> elementHandler) {
+		// Handle from lower bound.
+		if (from < 0)
+			from = 0;
+		else
+			// If starting point (from) is not <0, skip over elements until iter is at
+			// starting point.
+			for (int i = 0; i < from; i++, itr.next())
+				;
+		// If end point is "end of iter" then keep going until we hit the end of the
+		// iter, (inputs.hasNext() is our stopping condition).
+		// Otherwise, keep going until from is == to.
+		if (to < 0)
+			for (; itr.hasNext(); elementHandler.accept(itr.next()))
+				;
+		else
+			for (; from < to; from++, elementHandler.accept(itr.next()))
+				;
+	}
+
 }
