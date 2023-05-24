@@ -1547,4 +1547,15 @@ public final class JavaTools {
 		return res;
 	}
 
+	public static <I, O> List<O> convolve(int kernelSize, List<? extends I> input,
+			Function<? super List<? extends I>, ? extends O> handler) {
+		if (input.size() < kernelSize)
+			return new ArrayList<>(0);
+
+		List<O> res = new ArrayList<>(input.size() - kernelSize + 1);
+		for (int i = 0; i < input.size() - kernelSize + 1; i++)
+			res.set(i, handler.apply(input.subList(i, i + kernelSize)));
+		return res;
+	}
+
 }
