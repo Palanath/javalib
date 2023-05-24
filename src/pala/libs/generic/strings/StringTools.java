@@ -293,19 +293,12 @@ public final class StringTools {
 	 * <p>
 	 * Returns a {@link Map} of all the {@link NumberUnit}-parsed values of the
 	 * provided number. The provided {@link NumberUnit} array should be in ascending
-	 * order. If the array contains, for example, seconds and minutes, with
-	 * {@link NumberUnit#getAmt() amounts} 1 and 60, respectively, and the provided
-	 * value is <code>181</code> (seconds), this method will return a {@link Map}
-	 * denoting 3 minutes and 1 second.
+	 * order.
 	 * </p>
 	 * <p>
-	 * Note that the {@link BigInteger} is interpreted as a measure in the first
-	 * {@link NumberUnit} provided, so if the {@link BigInteger} <code>199</code> is
-	 * provided and the {@link NumberUnit}s are seconds and minutes, the result will
-	 * be 3m19s (the {@link BigInteger} will be interpreted to represent seconds),
-	 * but if <code>199</code> is provided and the {@link NumberUnit}s are hours and
-	 * days, the result will be 8d7h, since the {@link BigInteger} will be
-	 * interpreted to represent <code>199</code> hours.
+	 * Note that the {@link BigInteger} is interpreted as a number of
+	 * <code>unit</code> units. The first {@link NumberUnit} provided is the unit
+	 * for the {@link BigInteger}.
 	 * 
 	 * @param value The value to get the parts of.
 	 * @param units The types of parts to get. The first of these is the unit that
@@ -313,29 +306,40 @@ public final class StringTools {
 	 *              in ascending order.
 	 * @return A {@link Map} of the {@link NumberUnit}s parsed.
 	 */
-	public static Map<NumberUnit, BigInteger> getParts(BigInteger value, NumberUnit... units) {
-		Map<NumberUnit, BigInteger> values = new HashMap<>(units.length);
-		for (int i = units.length - 1; i >= 0; --i) {
-			BigInteger[] vals = value.divideAndRemainder(units[i].getAmt());
+	public static Map<NumberUnit, BigInteger> getParts(NumberUnit unit, BigInteger count,
+			NumberUnit... formattingUnits) {
+		count = count.multiply(unit.amt);
+		Map<NumberUnit, BigInteger> values = new HashMap<>(formattingUnits.length);
+		for (int i = formattingUnits.length - 1; i >= 0; --i) {
+			BigInteger[] vals = count.divideAndRemainder(formattingUnits[i].amt);
 			if (!vals[0].equals(BigInteger.ZERO))
-				values.put(units[i], vals[0]);
-			value = vals[1];// Set value to be the remainder.
+				values.put(formattingUnits[i], vals[0]);
+			count = vals[1];// Set value to be the remainder.
 		}
 		return values;
 	}
 
-	public static String format(BigInteger number, String delimiter, NumberUnit... units) {
+	public static String format(NumberUnit unit, BigInteger count, String delimiter, NumberUnit... formattingUnits) {
+		count = count.multiply(unit.amt);
 		StringBuilder sb = new StringBuilder();
-		for (int i = units.length - 1; i >= 0; --i) {
-			BigInteger[] vals = number.divideAndRemainder(units[i].amt);
+		for (int i = formattingUnits.length - 1; i >= 0; --i) {
+			BigInteger[] vals = count.divideAndRemainder(formattingUnits[i].amt);
 			if (!vals[0].equals(BigInteger.ZERO)) {
-				if (i != units.length - 1)
+				if (i != formattingUnits.length - 1)
 					sb.append(delimiter);
-				sb.append(vals[0]).append(units[i].symbol);
+				sb.append(vals[0]).append(formattingUnits[i].symbol);
 			}
-			number = vals[1];
+			count = vals[1];
 		}
-		return sb.length() == 0 ? "0" + units[0].symbol : sb.toString();
+		return sb.length() == 0 ? "0" + formattingUnits[0].symbol : sb.toString();
+	}
+
+	public static Map<NumberUnit, BigInteger> getParts(BigInteger value, NumberUnit... units) {
+		return getParts(NumberUnit.NANOSECONDS, value, units);// NANOSECONDS has amt 1.
+	}
+
+	public static String format(BigInteger number, String delimiter, NumberUnit... units) {
+		return format(NumberUnit.NANOSECONDS, number, delimiter, units);
 	}
 
 	/**
@@ -410,6 +414,10 @@ public final class StringTools {
 
 	public static String format(BigInteger number, NumberUnit... units) {
 		return format(number, "", units);
+	}
+
+	public static String format(NumberUnit unit, BigInteger count, NumberUnit... formattingUnits) {
+		return format(unit, count, "", formattingUnits);
 	}
 
 	/**
