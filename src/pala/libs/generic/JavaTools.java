@@ -1526,4 +1526,25 @@ public final class JavaTools {
 				;
 	}
 
+	@FunctionalInterface
+	public interface Convolver<I, O> extends Function<I[], O> {
+		@Override
+		O apply(@SuppressWarnings("unchecked") I... input);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <I, O> O[] convolve(int kernelSize, Function<? super I[], ? extends O> handler, I... input) {
+		if (input.length < kernelSize)
+			return (O[]) new Object[0];
+
+		I[] kern = (I[]) Array.newInstance(input.getClass().getComponentType(), kernelSize);
+		O[] res = (O[]) new Object[input.length - kernelSize + 1];
+		for (int i = 0; i < input.length - kernelSize + 1; i++) {
+			System.arraycopy(input, i, kern, 0, kernelSize);
+			res[i] = handler.apply(kern);
+		}
+
+		return res;
+	}
+
 }
