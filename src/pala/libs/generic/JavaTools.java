@@ -853,6 +853,36 @@ public final class JavaTools {
 		return sb.toString();
 	}
 
+	public static final class Collector<T> implements Consumer<T> {
+		public final List<T> items = new ArrayList<>();
+
+		@Override
+		public void accept(T t) {
+			items.add(t);
+		}
+
+		public List<T> getItems() {
+			return items;
+		}
+	}
+
+	public static List<String> readLines(InputStream is) {
+		return collect(a -> readLines(is, a));
+	}
+
+	public static <T> List<T> collect(Consumer<? super Consumer<? super T>> consumer) {
+		Collector<T> t = new Collector<>();
+		consumer.accept(t);
+		return t.items;
+	}
+
+	public static void readLines(InputStream is, Consumer<? super String> lineHandler) {
+		try (final Scanner s = new Scanner(is)) {
+			while (s.hasNextLine())
+				lineHandler.accept(s.nextLine() + '\n');
+		}
+	}
+
 	public static <K, V> void removeFromListMap(final Map<K, ? extends Collection<? super V>> map, final K key,
 			final V value) {
 		final Collection<? super V> coll = map.get(key);
