@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -1555,6 +1556,35 @@ public final class JavaTools {
 		List<O> res = new ArrayList<>(input.size() - kernelSize + 1);
 		for (int i = 0; i < input.size() - kernelSize + 1; i++)
 			res.add(handler.apply(input.subList(i, i + kernelSize)));
+		return res;
+	}
+
+	public static <E> int collectAtMostNElementsFromIterator(int count, Iterator<? extends E> elements,
+			Consumer<? super E> handler) {
+		int i = 0;
+		for (; i < count && elements.hasNext(); i++)
+			handler.accept(elements.next());
+		return i;
+	}
+
+	public static <I, O> List<O> convolve(int kernelSize, Iterable<? extends I> input,
+			Function<? super List<I>, ? extends O> handler) {
+		return convolve(kernelSize, input.iterator(), handler);
+	}
+
+	public static <I, O> List<O> convolve(int kernelSize, Iterator<? extends I> itr,
+			Function<? super List<I>, ? extends O> handler) {
+		LinkedList<I> items = new LinkedList<>();
+		if (collectAtMostNElementsFromIterator(kernelSize, itr, items::add) < kernelSize)
+			return new ArrayList<>(0);
+
+		List<O> res = new ArrayList<O>();
+		res.add(handler.apply(items));
+		while (itr.hasNext()) {
+			items.removeFirst();
+			items.add(itr.next());
+			res.add(handler.apply(items));
+		}
 		return res;
 	}
 
