@@ -1404,4 +1404,34 @@ public final class JavaTools {
 		return forEach(a -> a.split(","), strings);
 	}
 
+	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterable<? extends I> inputs) {
+		return forEach(processor, inputs.iterator());
+	}
+
+	public static <I> void doForEach(Consumer<? super I> processor, Iterable<? extends I> inputs) {
+		for (I i : inputs)
+			processor.accept(i);
+	}
+
+	public static List<String[]> split(Iterable<? extends String> strings) {
+		return forEach(a -> a.split(","), strings);
+	}
+
+	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterator<? extends I> inputs) {
+		List<O> res = new ArrayList<O>();
+		for (int i = 0; inputs.hasNext(); i++)
+			res.set(i, processor.apply(inputs.next()));
+		return res;
+	}
+
+	public static <I> void doForEach(Consumer<? super I> processor, Iterator<? extends I> inputs) {
+		while (inputs.hasNext()) {
+			processor.accept((I) inputs.next());
+		}
+	}
+
+	public static List<String[]> split(Iterator<? extends String> strings) {
+		return forEach(a -> a.split(","), strings);
+	}
+
 }
