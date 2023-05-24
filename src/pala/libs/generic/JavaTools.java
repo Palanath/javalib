@@ -1433,5 +1433,5 @@ public final class JavaTools {
 	public static List<String[]> split(String delimRegex, Iterator<? extends String> strings) {
 		return forEach(a -> a.split(delimRegex), strings);
 	}
-
+	
 }
