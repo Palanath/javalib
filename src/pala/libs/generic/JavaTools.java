@@ -1495,18 +1495,18 @@ public final class JavaTools {
 		return forEach(from, to, inputs.iterator(), processor);
 	}
 
-	public static <I> void doForEach(int from, int to, Consumer<? super I> processor, Iterable<? extends I> inputs) {
-		doForEach(from, to, processor, inputs.iterator());
+	public static <I> void doForEach(int from, int to, Iterable<? extends I> inputs, Consumer<? super I> processor) {
+		doForEach(from, to, inputs.iterator(), processor);
 	}
 
 	public static <I, O> List<O> forEach(int from, int to, Iterator<? extends I> inputs,
 			Function<? super I, ? extends O> processor) {
 		List<O> res = new ArrayList<>();
-		doForEach(from, to, a -> res.add(processor.apply(a)), inputs);
+		doForEach(from, to, inputs, a -> res.add(processor.apply(a)));
 		return res;
 	}
 
-	public static <I> void doForEach(int from, int to, Consumer<? super I> elementHandler, Iterator<I> itr) {
+	public static <I> void doForEach(int from, int to, Iterator<I> itr, Consumer<? super I> elementHandler) {
 		// Handle from lower bound.
 		if (from < 0)
 			from = 0;
