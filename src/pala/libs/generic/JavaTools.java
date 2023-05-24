@@ -1400,8 +1400,8 @@ public final class JavaTools {
 			processor.accept(i);
 	}
 
-	public static String[][] split(String... strings) {
-		return forEach(a -> a.split(","), strings);
+	public static String[][] split(String delimRegex, String... strings) {
+		return forEach(a -> a.split(delimRegex), strings);
 	}
 
 	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterable<? extends I> inputs) {
@@ -1413,8 +1413,8 @@ public final class JavaTools {
 			processor.accept(i);
 	}
 
-	public static List<String[]> split(Iterable<? extends String> strings) {
-		return forEach(a -> a.split(","), strings);
+	public static List<String[]> split(String delimRegex, Iterable<? extends String> strings) {
+		return forEach(a -> a.split(delimRegex), strings);
 	}
 
 	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterator<? extends I> inputs) {
@@ -1430,8 +1430,8 @@ public final class JavaTools {
 		}
 	}
 
-	public static List<String[]> split(Iterator<? extends String> strings) {
-		return forEach(a -> a.split(","), strings);
+	public static List<String[]> split(String delimRegex, Iterator<? extends String> strings) {
+		return forEach(a -> a.split(delimRegex), strings);
 	}
 
 }
