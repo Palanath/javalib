@@ -10,7 +10,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -1384,6 +1383,25 @@ public final class JavaTools {
 
 	public static List<String> grabLines(URL url) throws IOException {
 		return readLines(url.openStream());
+	}
+
+	@SafeVarargs
+	public static <I, O> O[] forEach(Function<? super I, ? extends O> processor, I... inputs) {
+		@SuppressWarnings("unchecked")
+		O[] res = (O[]) new Object[inputs.length];
+		for (int i = 0; i < inputs.length; i++)
+			res[i] = processor.apply(inputs[i]);
+		return res;
+	}
+
+	@SafeVarargs
+	public static <I> void doForEach(Consumer<? super I> processor, I... inputs) {
+		for (I i : inputs)
+			processor.accept(i);
+	}
+
+	public static String[][] split(String... strings) {
+		return forEach(a -> a.split(","), strings);
 	}
 
 }
