@@ -292,16 +292,28 @@ public final class StringTools {
 	}
 
 	/**
+	 * <p>
 	 * Returns a {@link Map} of all the {@link NumberUnit}-parsed values of the
 	 * provided number. The provided {@link NumberUnit} array should be in ascending
 	 * order. If the array contains, for example, seconds and minutes, with
 	 * {@link NumberUnit#getAmt() amounts} 1 and 60, respectively, and the provided
 	 * value is <code>181</code> (seconds), this method will return a {@link Map}
 	 * denoting 3 minutes and 1 second.
+	 * </p>
+	 * <p>
+	 * Note that the {@link BigInteger} is interpreted as a measure in the first
+	 * {@link NumberUnit} provided, so if the {@link BigInteger} <code>199</code> is
+	 * provided and the {@link NumberUnit}s are seconds and minutes, the result will
+	 * be 3m19s (the {@link BigInteger} will be interpreted to represent seconds),
+	 * but if <code>199</code> is provided and the {@link NumberUnit}s are hours and
+	 * days, the result will be 8d7h, since the {@link BigInteger} will be
+	 * interpreted to represent <code>199</code> hours.
 	 * 
-	 * @param value
-	 * @param units
-	 * @return
+	 * @param value The value to get the parts of.
+	 * @param units The types of parts to get. The first of these is the unit that
+	 *              the {@link BigInteger} is interpreted as. This array should be
+	 *              in ascending order.
+	 * @return A {@link Map} of the {@link NumberUnit}s parsed.
 	 */
 	public static Map<NumberUnit, BigInteger> getParts(BigInteger value, NumberUnit... units) {
 		Map<NumberUnit, BigInteger> values = new HashMap<>(units.length);
