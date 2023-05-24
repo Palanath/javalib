@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -323,6 +326,45 @@ public final class StringTools {
 			number = vals[1];
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * <p>
+	 * Converts the provided {@link Duration} into a {@link BigInteger} so that it
+	 * can be used in {@link #format(BigInteger, NumberUnit...) formatting}.
+	 * </p>
+	 * <p>
+	 * {@link Duration} objects are comprised of a <code>seconds</code> count and a
+	 * <code>nanoseconds</code> count, both of which are separate fields. The
+	 * <code>nanoseconds</code> count ranges from <code>0</code> to
+	 * <code>999,999,999</code>.
+	 * </p>
+	 * <p>
+	 * This method can return a {@link BigInteger} that is equal to the number of
+	 * <code>seconds</code> in the provided {@link Duration} (if
+	 * <code>secOrNanoPrecision</code> is <code>true</code>) OR it can return a
+	 * {@link BigInteger} that is equal to the number of TOTAL nanoseconds in the
+	 * provided {@link Duration}. The number of total nanoseconds in the
+	 * {@link Duration} is the number of seconds in the {@link Duration}, times
+	 * <code>1,000,000,000</code>, plus the number of <code>nanoseconds</code>
+	 * stored in the {@link Duration}.
+	 * </p>
+	 * 
+	 * @param duration           The {@link Duration} to convert.
+	 * @param secOrNanoPreicison Whether second or nanosecond precision is desired.
+	 *                           If second precision is requested, the
+	 *                           {@link BigInteger} will represent seconds (e.g.
+	 *                           <code>1</code> will mean 1 second). If nanosecond
+	 *                           precision is requested, the {@link BigInteger} will
+	 *                           represent nanoseconds (e.g. <code>1</code> will
+	 *                           mean 1 nanosecond and <code>1,000,000,001</code>
+	 *                           will mean 1 second and 1 nanosecond).
+	 * @return The converted value.
+	 */
+	public static BigInteger toBigIntegerForFormatting(Duration duration, boolean secOrNanoPreicison) {
+		return secOrNanoPreicison ? BigInteger.valueOf(duration.getSeconds())
+				: BigInteger.valueOf(duration.getSeconds()).multiply(BigInteger.valueOf(1000000000))
+						.add(BigInteger.valueOf(duration.getNano()));
 	}
 
 	/**
