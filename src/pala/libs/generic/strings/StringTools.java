@@ -5,8 +5,6 @@ import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -337,7 +335,7 @@ public final class StringTools {
 			}
 			number = vals[1];
 		}
-		return sb.toString();
+		return sb.length() == 0 ? "0" + units[0].symbol : sb.toString();
 	}
 
 	/**
