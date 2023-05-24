@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -1375,6 +1376,14 @@ public final class JavaTools {
 
 	public static String grabResource(URL url) throws IOException {
 		return JavaTools.readText(url.openStream());
+	}
+
+	public static List<String> grabLines(String url) throws IOException {
+		return grabLines(new URL(url));
+	}
+
+	public static List<String> grabLines(URL url) throws IOException {
+		return readLines(url.openStream());
 	}
 
 }
