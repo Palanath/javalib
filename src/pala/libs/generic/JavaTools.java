@@ -1554,7 +1554,7 @@ public final class JavaTools {
 
 		List<O> res = new ArrayList<>(input.size() - kernelSize + 1);
 		for (int i = 0; i < input.size() - kernelSize + 1; i++)
-			res.set(i, handler.apply(input.subList(i, i + kernelSize)));
+			res.add(handler.apply(input.subList(i, i + kernelSize)));
 		return res;
 	}
 
