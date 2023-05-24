@@ -879,7 +879,7 @@ public final class JavaTools {
 	public static void readLines(InputStream is, Consumer<? super String> lineHandler) {
 		try (final Scanner s = new Scanner(is)) {
 			while (s.hasNextLine())
-				lineHandler.accept(s.nextLine() + '\n');
+				lineHandler.accept(s.nextLine());
 		}
 	}
 
