@@ -1404,34 +1404,34 @@ public final class JavaTools {
 		return forEach(a -> a.split(delimRegex), strings);
 	}
 
-	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterable<? extends I> inputs) {
-		return forEach(processor, inputs.iterator());
+	public static <I, O> List<O> forEach(Iterable<? extends I> inputs, Function<? super I, ? extends O> processor) {
+		return forEach(inputs.iterator(), processor);
 	}
 
-	public static <I> void doForEach(Consumer<? super I> processor, Iterable<? extends I> inputs) {
+	public static <I> void doForEach(Iterable<? extends I> inputs, Consumer<? super I> processor) {
 		for (I i : inputs)
 			processor.accept(i);
 	}
 
 	public static List<String[]> split(String delimRegex, Iterable<? extends String> strings) {
-		return forEach(a -> a.split(delimRegex), strings);
+		return forEach(strings, a -> a.split(delimRegex));
 	}
 
-	public static <I, O> List<O> forEach(Function<? super I, ? extends O> processor, Iterator<? extends I> inputs) {
+	public static <I, O> List<O> forEach(Iterator<? extends I> inputs, Function<? super I, ? extends O> processor) {
 		List<O> res = new ArrayList<O>();
 		for (; inputs.hasNext();)
 			res.add(processor.apply(inputs.next()));
 		return res;
 	}
 
-	public static <I> void doForEach(Consumer<? super I> processor, Iterator<? extends I> inputs) {
+	public static <I> void doForEach(Iterator<? extends I> inputs, Consumer<? super I> processor) {
 		while (inputs.hasNext()) {
 			processor.accept((I) inputs.next());
 		}
 	}
 
 	public static List<String[]> split(String delimRegex, Iterator<? extends String> strings) {
-		return forEach(a -> a.split(delimRegex), strings);
+		return forEach(strings, a -> a.split(delimRegex));
 	}
 
 	/**
@@ -1459,7 +1459,7 @@ public final class JavaTools {
 	 *         above), containing the processed elements.
 	 */
 	@SafeVarargs
-	public static <I, O> O[] forEach(Function<? super I, ? extends O> processor, int from, int to, I... inputs) {
+	public static <I, O> O[] forEach(int from, int to, Function<? super I, ? extends O> processor, I... inputs) {
 		if (from < 0)
 			from = 0;
 		if (to < 0)
@@ -1472,7 +1472,7 @@ public final class JavaTools {
 	}
 
 	@SafeVarargs
-	public static <I> void doForEach(Consumer<? super I> processor, int from, int to, I... inputs) {
+	public static <I> void doForEach(int from, int to, Consumer<? super I> processor, I... inputs) {
 		if (from < 0)
 			from = 0;
 		if (to < 0)
@@ -1486,18 +1486,18 @@ public final class JavaTools {
 		return forEach(from, to, inputs.iterator(), processor);
 	}
 
-	public static <I> void doForEach(int from, int to, Iterable<? extends I> inputs, Consumer<? super I> processor) {
-		doForEach(from, to, inputs.iterator(), processor);
+	public static <I> void doForEach(int from, int to, Consumer<? super I> processor, Iterable<? extends I> inputs) {
+		doForEach(from, to, processor, inputs.iterator());
 	}
 
 	public static <I, O> List<O> forEach(int from, int to, Iterator<? extends I> inputs,
 			Function<? super I, ? extends O> processor) {
 		List<O> res = new ArrayList<>();
-		doForEach(from, to, inputs, a -> res.add(processor.apply(a)));
+		doForEach(from, to, a -> res.add(processor.apply(a)), inputs);
 		return res;
 	}
 
-	public static <I> void doForEach(int from, int to, Iterator<I> itr, Consumer<? super I> elementHandler) {
+	public static <I> void doForEach(int from, int to, Consumer<? super I> elementHandler, Iterator<I> itr) {
 		// Handle from lower bound.
 		if (from < 0)
 			from = 0;
