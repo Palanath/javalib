@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,14 @@ import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 
 public final class JavaTools {
+
+	private static DateTimeFormatter SIMPLE_DATE_TIME_FORMATTER;
+
+	public static DateTimeFormatter getSimpleDateTimeFormatter() {
+		return SIMPLE_DATE_TIME_FORMATTER == null
+				? SIMPLE_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd kk:mm:ss")
+				: SIMPLE_DATE_TIME_FORMATTER;
+	}
 
 	public interface Indexable<E> {
 		void set(int pos, E element);
