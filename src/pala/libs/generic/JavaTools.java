@@ -1594,4 +1594,15 @@ public final class JavaTools {
 		map.put(key, map.containsKey(key) ? updater.apply(value, map.get(key)) : value);
 	}
 
+	@SafeVarargs
+	public static <K, V, M extends Map<? super K, V>> M combineMaps(M dest,
+			BiFunction<? super V, ? super V, ? extends V> entryCombiner, Map<? extends K, ? extends V>... maps) {
+		for (Map<? extends K, ? extends V> m : maps)
+			for (Entry<? extends K, ? extends V> e : m.entrySet())
+				dest.put(e.getKey(),
+						dest.containsKey(e.getKey()) ? entryCombiner.apply(dest.get(e.getKey()), e.getValue())
+								: e.getValue());
+		return dest;
+	}
+
 }
