@@ -31,6 +31,7 @@ import java.util.Scanner;
 import java.util.Spliterator;
 import java.util.Stack;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -1586,6 +1587,11 @@ public final class JavaTools {
 			res.add(handler.apply(items));
 		}
 		return res;
+	}
+
+	public static <K, V> void updateMap(Map<? super K, V> map, K key, V value,
+			BiFunction<? super V, ? super V, ? extends V> updater) {
+		map.put(key, map.containsKey(key) ? updater.apply(value, map.get(key)) : value);
 	}
 
 }
