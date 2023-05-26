@@ -1603,4 +1603,9 @@ public final class JavaTools {
 		return dest;
 	}
 
+	public static <K, V> Map<K, V> combine(Map<? extends K, ? extends V> first, Map<? extends K, ? extends V> second,
+			BiFunction<? super V, ? super V, ? extends V> entryCombiner) {
+		return combineMaps(new HashMap<>(first), entryCombiner, second);
+	}
+
 }
