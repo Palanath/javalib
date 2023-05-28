@@ -325,7 +325,7 @@ public final class StringTools {
 		for (int i = formattingUnits.length - 1; i >= 0; --i) {
 			BigInteger[] vals = count.divideAndRemainder(formattingUnits[i].amt);
 			if (!vals[0].equals(BigInteger.ZERO)) {
-				if (i != formattingUnits.length - 1)
+				if (sb.length() != 0)
 					sb.append(delimiter);
 				sb.append(vals[0]).append(formattingUnits[i].symbol);
 			}
