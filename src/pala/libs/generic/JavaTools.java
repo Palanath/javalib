@@ -1608,4 +1608,27 @@ public final class JavaTools {
 		return combineMaps(new HashMap<>(first), entryCombiner, second);
 	}
 
+	/**
+	 * Puts the provided value into the provided {@link Map} at the provided key if
+	 * there is not already an entry for that key. If there already exists an entry
+	 * at the specified key in the {@link Map}, this method simply returns that
+	 * value. Otherwise, the method returns the value it inserts into the
+	 * {@link Map} (the one provided).
+	 * 
+	 * @param <K>   The type of the key.
+	 * @param <V>   The type of the value.
+	 * @param map   The {@link Map}.
+	 * @param key   The key.
+	 * @param value The value.
+	 * @return The value located at the provided key in the map once the method
+	 *         completes. This is either the provided value or the value already in
+	 *         the {@link Map}, if one was already there.
+	 */
+	public static <K, V> V putIfAbsent(Map<? super K, V> map, K key, V value) {
+		if (map.containsKey(key))
+			return map.get(key);
+		map.put(key, value);
+		return value;
+	}
+
 }
