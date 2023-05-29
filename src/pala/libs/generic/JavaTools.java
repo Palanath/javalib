@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -1641,6 +1642,11 @@ public final class JavaTools {
 			avg = avg.add(values.next());
 		}
 		return avg.divide(BigDecimal.valueOf(count), scale, RoundingMode.HALF_UP);
+	}
+
+	public static BigDecimal variance(Iterator<? extends BigDecimal> values, int scale) {
+		MathContext mc = new MathContext(scale);
+		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(average(values, scale).pow(2, mc));
 	}
 
 }
