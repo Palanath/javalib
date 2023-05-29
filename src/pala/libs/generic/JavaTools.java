@@ -1658,7 +1658,7 @@ public final class JavaTools {
 	public static BigDecimal sqrt(BigDecimal input, int scale) {
 		double f = Math.sqrt(input.doubleValue());
 		BigDecimal s = BigDecimal.ZERO.setScale(scale),
-				g = Double.isFinite(f) ? BigDecimal.valueOf(f).setScale(scale) : input;
+				g = Double.isFinite(f) ? BigDecimal.valueOf(f).setScale(scale, RoundingMode.HALF_UP) : input;
 		while (s.compareTo(g) != 0)
 			g = input.divide(s = g, scale, RoundingMode.HALF_UP).add(s).divide(BIG_DECIMAL_TWO, scale,
 					RoundingMode.HALF_UP);
