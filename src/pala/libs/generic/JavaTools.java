@@ -1634,17 +1634,17 @@ public final class JavaTools {
 		return value;
 	}
 
-	public static BigDecimal average(Iterator<? extends BigDecimal> values, int scale) {
+	public static BigDecimal average(Iterable<? extends BigDecimal> values, int scale) {
 		BigDecimal avg = BigDecimal.ZERO;
 		int count = 0;
-		while (values.hasNext()) {
+		for (BigDecimal b : values) {
 			count++;
-			avg = avg.add(values.next());
+			avg = avg.add(b);
 		}
 		return avg.divide(BigDecimal.valueOf(count), scale, RoundingMode.HALF_UP);
 	}
 
-	public static BigDecimal variance(Iterator<? extends BigDecimal> values, int scale) {
+	public static BigDecimal variance(Iterable<? extends BigDecimal> values, int scale) {
 		MathContext mc = new MathContext(scale);
 		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(average(values, scale).pow(2, mc));
 	}
@@ -1661,7 +1661,7 @@ public final class JavaTools {
 		return g;
 	}
 
-	public static BigDecimal stddev(Iterator<? extends BigDecimal> values, int scale) {
+	public static BigDecimal stddev(Iterable<? extends BigDecimal> values, int scale) {
 		return sqrt(variance(values, scale), scale);
 	}
 
