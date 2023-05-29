@@ -9,7 +9,9 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.format.DateTimeFormatter;
@@ -1629,6 +1631,16 @@ public final class JavaTools {
 			return map.get(key);
 		map.put(key, value);
 		return value;
+	}
+
+	public static BigDecimal average(Iterator<? extends BigDecimal> values, int scale) {
+		BigDecimal avg = BigDecimal.ZERO;
+		int count = 0;
+		while (values.hasNext()) {
+			count++;
+			avg = avg.add(values.next());
+		}
+		return avg.divide(BigDecimal.valueOf(count), scale, RoundingMode.HALF_UP);
 	}
 
 }
