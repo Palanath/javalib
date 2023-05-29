@@ -881,13 +881,27 @@ public final class JavaTools {
 	}
 
 	public static List<String> readLines(InputStream is) {
-		return collect(a -> readLines(is, a));
+		return collectFromWithin(a -> readLines(is, a));
 	}
 
-	public static <T> List<T> collect(Consumer<? super Consumer<? super T>> consumer) {
+	public static <T> List<T> collectFromWithin(Consumer<? super Consumer<? super T>> consumer) {
 		Collector<T> t = new Collector<>();
 		consumer.accept(t);
 		return t.items;
+	}
+
+	public static <T> List<T> collect(Iterator<? extends T> items) {
+		List<T> res = new ArrayList<>();
+		while (items.hasNext())
+			res.add(items.next());
+		return res;
+	}
+
+	public static <T> List<T> collect(Iterable<? extends T> items) {
+		List<T> res = new ArrayList<>();
+		for (T t : items)
+			res.add(t);
+		return res;
 	}
 
 	public static void readLines(InputStream is, Consumer<? super String> lineHandler) {
@@ -1671,6 +1685,44 @@ public final class JavaTools {
 
 	public static BigDecimal stddev(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
 		return sqrt(variance(values, scale, mean), scale);
+	}
+
+	/**
+	 * Creates and returns a new {@link Iterable} whose {@link Iterator}s consist of
+	 * the items whose indices are <code>offset</code> plus non-negative integer
+	 * multiples of <code>n</code>. The {@link Iterator}s start at
+	 * <code>offset</code> in the {@link List}, (if the {@link List} is big enough),
+	 * and return that starting element, then the element <code>n</code> farther
+	 * into the {@link List}. Subsequent calls return the elements spaced
+	 * <code>n</code> after the last.
+	 * 
+	 * @param <T>    The type of item in the {@link List}.
+	 * @param offset The offset of the first element.
+	 * @param n      The jump width/spacing.
+	 * @param items  The {@link List} of items.
+	 * @return The new {@link Iterable}.
+	 */
+	public static <T> Iterable<T> nth(int offset, int n, List<? extends T> items) {
+		return () -> new Iterator<T>() {
+
+			int p = offset;
+
+			@Override
+			public boolean hasNext() {
+				return items.size() < p;
+			}
+
+			@Override
+			public T next() {
+				T item = items.get(p);
+				p += n;
+				return item;
+			}
+		};
+	}
+
+	public static <T> List<T> collectNth(int offset, int n, List<? extends T> items) {
+		return collect(nth(offset, n, items));
 	}
 
 }
