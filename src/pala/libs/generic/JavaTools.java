@@ -1645,8 +1645,12 @@ public final class JavaTools {
 	}
 
 	public static BigDecimal variance(Iterable<? extends BigDecimal> values, int scale) {
+		return variance(values, scale, average(values, scale));
+	}
+
+	public static BigDecimal variance(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
 		MathContext mc = new MathContext(scale);
-		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(average(values, scale).pow(2, mc));
+		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(mean.pow(2, mc));
 	}
 
 	public static final BigDecimal BIG_DECIMAL_TWO = BigDecimal.valueOf(2);
