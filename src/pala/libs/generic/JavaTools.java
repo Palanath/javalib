@@ -1649,4 +1649,20 @@ public final class JavaTools {
 		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(average(values, scale).pow(2, mc));
 	}
 
+	public static final BigDecimal BIG_DECIMAL_TWO = BigDecimal.valueOf(2);
+
+	public static BigDecimal sqrt(BigDecimal input, int scale) {
+		double f = Math.sqrt(input.doubleValue());
+		BigDecimal s = BigDecimal.ZERO.setScale(scale),
+				g = Double.isFinite(f) ? BigDecimal.valueOf(f).setScale(scale) : input;
+		while (s.compareTo(g) != 0)
+			g = input.divide(s = g, scale, RoundingMode.HALF_UP).add(s).divide(BIG_DECIMAL_TWO, scale,
+					RoundingMode.HALF_UP);
+		return g;
+	}
+
+	public static BigDecimal stddev(Iterator<? extends BigDecimal> values, int scale) {
+		return sqrt(variance(values, scale), scale);
+	}
+
 }
