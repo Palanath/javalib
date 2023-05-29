@@ -1669,4 +1669,8 @@ public final class JavaTools {
 		return sqrt(variance(values, scale), scale);
 	}
 
+	public static BigDecimal stddev(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
+		return sqrt(variance(values, scale, mean), scale);
+	}
+
 }
