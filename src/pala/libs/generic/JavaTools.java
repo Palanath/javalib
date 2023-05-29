@@ -1709,7 +1709,7 @@ public final class JavaTools {
 
 			@Override
 			public boolean hasNext() {
-				return items.size() < p;
+				return p < items.size();
 			}
 
 			@Override
