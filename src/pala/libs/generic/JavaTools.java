@@ -11,7 +11,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -1662,9 +1661,40 @@ public final class JavaTools {
 		return variance(values, scale, average(values, scale));
 	}
 
+	/**
+	 * Calculates the variance of the given population.
+	 * 
+	 * @param values The values in the population.
+	 * @param scale  The scale of the result.
+	 * @param mean   The population mean.
+	 * @return The variance of the population.
+	 */
 	public static BigDecimal variance(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
-		MathContext mc = new MathContext(scale);
-		return average(mask(values, a -> a.multiply(a, mc)), scale).subtract(mean.pow(2, mc));
+		return average(mask(values, a -> a.multiply(a)), scale).subtract(mean.pow(2)).setScale(scale,
+				RoundingMode.HALF_UP);
+	}
+
+	public static BigDecimal sampleVariance(Iterable<? extends BigDecimal> values, int scale) {
+		return sampleVariance(values, scale, average(values, scale));
+	}
+
+	/**
+	 * Attempts to estimate the variance of a population through a sample from it.
+	 * 
+	 * @param values The values in the sample.
+	 * @param scale  The scale of the result.
+	 * @param mean   The sample mean.
+	 * @return The estimated population variance.
+	 */
+	public static BigDecimal sampleVariance(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
+		BigDecimal v = BigDecimal.ZERO;
+		int count = 0;
+		for (BigDecimal b : values) {
+			count++;
+			v = v.add(mean.subtract(b).pow(2));
+		}
+		return v.divide(BigDecimal.valueOf(count).subtract(BigDecimal.ONE), scale, RoundingMode.HALF_UP)
+				.subtract(mean.pow(2)).setScale(scale, RoundingMode.HALF_UP);
 	}
 
 	public static final BigDecimal BIG_DECIMAL_TWO = BigDecimal.valueOf(2);
@@ -1685,6 +1715,24 @@ public final class JavaTools {
 
 	public static BigDecimal stddev(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
 		return sqrt(variance(values, scale, mean), scale);
+	}
+
+	public static BigDecimal sampleStddev(Iterable<? extends BigDecimal> values, int scale) {
+		return sqrt(sampleVariance(values, scale), scale);
+	}
+
+	public static BigDecimal sampleStddev(Iterable<? extends BigDecimal> values, int scale, BigDecimal mean) {
+		return sqrt(sampleVariance(values, scale, mean), scale);
+	}
+
+	public static BigDecimal[] calculateMeanAndVariance(Iterable<? extends BigDecimal> values, int scale) {
+		BigDecimal a = average(values, scale);
+		return new BigDecimal[] { a, variance(values, scale, a) };
+	}
+
+	public static BigDecimal[] calculateMeanAndSampleVariance(Iterable<? extends BigDecimal> values, int scale) {
+		BigDecimal a = average(values, scale);
+		return new BigDecimal[] { a, sampleVariance(values, scale, a) };
 	}
 
 	/**
