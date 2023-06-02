@@ -373,6 +373,9 @@ public final class JavaTools {
 	 * ranker.</li>
 	 * </ul>
 	 * </li>
+	 * <li>This method calls the {@link Comparator} frequently and does not perform
+	 * inter-cycle caching. If the {@link Comparator} is costly to invoke, callers
+	 * can implement caching into the {@link Comparator}.</li>
 	 * </ol>
 	 * 
 	 * 
