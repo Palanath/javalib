@@ -43,6 +43,7 @@ import java.util.function.UnaryOperator;
 import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
+import pala.libs.generic.util.functions.BiBooleanFunction;
 
 public final class JavaTools {
 
@@ -413,10 +414,15 @@ public final class JavaTools {
 	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
 			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds,
 			Consumer<? super Pair<T, T>> cycleHandler) {
+		return optimizeForMax(lower, upper, converter, interpolator, ranker, rounds, cycleHandler, (a, b) -> false);
+	}
+
+	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
+			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds,
+			Consumer<? super Pair<T, T>> cycleHandler, BiBooleanFunction<? super T, ? super T> stoppingCondition) {
 		for (int l = 0; l < rounds; l++) {
 			T[] items = interpolator.interpolate(lower, upper);
 			O[] arr = JavaTools.convert(converter, items);
-			System.out.println(Arrays.toString(arr));
 			if (arr.length == 0)
 				throw new IllegalArgumentException("Interpolator returned too few values.");
 			else if (arr.length == 1)
@@ -433,7 +439,13 @@ public final class JavaTools {
 					largest = i;
 				} else if (ranker.compare(arr[secondLargest], arr[i]) < 0)
 					secondLargest = i;
-			cycleHandler.accept(new Pair<>(lower = items[secondLargest], upper = items[largest]));
+			cycleHandler.accept(new Pair<>(items[secondLargest], items[largest]));
+			// Early stop if the bounds we found are the same as the ones we last called the
+			// interpolator with.
+			System.out.println("Lower: " + lower + ", New: " + items[secondLargest] + "\t\tUpper: " + upper + ", New: "
+					+ items[largest]);
+			if (stoppingCondition.apply(lower = items[secondLargest], upper = items[largest]))
+				return new Pair<>(lower, upper);
 		}
 		return new Pair<>(lower, upper);
 	}
