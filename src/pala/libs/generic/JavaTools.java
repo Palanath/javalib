@@ -399,29 +399,21 @@ public final class JavaTools {
 	 */
 	public static <T> Pair<T, T> optimizeForMax(T lower, T upper, Interpolator<T> interpolator,
 			Comparator<? super T> ranker, int rounds) {
-		for (int l = 0; l < rounds; l++) {
-			T[] arr = interpolator.interpolate(lower, upper);
-			if (arr.length == 1 || arr.length == 0)
-				throw new IllegalArgumentException("Interpolator returned too few values.");
-			int largest = 0, secondLargest = 1;
-			if (ranker.compare(arr[largest], arr[secondLargest]) < 0) {
-				int t = largest;
-				largest = secondLargest;
-				secondLargest = t;
-			}
-			for (int i = 2; i < arr.length; i++)
-				if (ranker.compare(arr[i], arr[i]) < 0) {
-					secondLargest = largest;
-					largest = i;
-				}
-		}
-		return new Pair<>(lower, upper);
+		return optimizeForMax(lower, upper, a -> a, interpolator, ranker, rounds);
 	}
 
 	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
 			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds) {
+		return optimizeForMax(lower, upper, converter, interpolator, ranker, rounds, a -> {
+		});
+	}
+
+	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
+			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds,
+			Consumer<? super Pair<T, T>> cycleHandler) {
 		for (int l = 0; l < rounds; l++) {
-			O[] arr = JavaTools.convert(converter, interpolator.interpolate(lower, upper));
+			T[] items = interpolator.interpolate(lower, upper);
+			O[] arr = JavaTools.convert(converter, items);
 			if (arr.length == 1 || arr.length == 0)
 				throw new IllegalArgumentException("Interpolator returned too few values.");
 			int largest = 0, secondLargest = 1;
@@ -431,10 +423,11 @@ public final class JavaTools {
 				secondLargest = t;
 			}
 			for (int i = 2; i < arr.length; i++)
-				if (ranker.compare(arr[i], arr[i]) < 0) {
+				if (ranker.compare(arr[largest], arr[i]) < 0) {
 					secondLargest = largest;
 					largest = i;
 				}
+			cycleHandler.accept(new Pair<>(lower = items[secondLargest], upper = items[largest]));
 		}
 		return new Pair<>(lower, upper);
 	}
