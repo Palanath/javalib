@@ -418,6 +418,27 @@ public final class JavaTools {
 		return new Pair<>(lower, upper);
 	}
 
+	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
+			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds) {
+		for (int l = 0; l < rounds; l++) {
+			O[] arr = JavaTools.convert(converter, interpolator.interpolate(lower, upper));
+			if (arr.length == 1 || arr.length == 0)
+				throw new IllegalArgumentException("Interpolator returned too few values.");
+			int largest = 0, secondLargest = 1;
+			if (ranker.compare(arr[largest], arr[secondLargest]) < 0) {
+				int t = largest;
+				largest = secondLargest;
+				secondLargest = t;
+			}
+			for (int i = 2; i < arr.length; i++)
+				if (ranker.compare(arr[i], arr[i]) < 0) {
+					secondLargest = largest;
+					largest = i;
+				}
+		}
+		return new Pair<>(lower, upper);
+	}
+
 	public static int bytesToInt(final byte... bytes) {
 		return (bytes[0] & 0xff) << 24 | (bytes[1] & 0xff) << 16 | (bytes[2] & 0xff) << 8 | bytes[3] & 0xff;
 	}
@@ -1884,6 +1905,10 @@ public final class JavaTools {
 
 	public static <T> List<T> collectNth(int offset, int n, List<? extends T> items) {
 		return collect(nth(offset, n, items));
+	}
+
+	public static BigDecimal linearInterp(BigDecimal from, BigDecimal to, BigDecimal frac) {
+		return frac.multiply(from).add(BigDecimal.ONE.subtract(frac).multiply(to));
 	}
 
 }
