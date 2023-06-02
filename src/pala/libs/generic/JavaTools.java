@@ -305,6 +305,116 @@ public final class JavaTools {
 		return binarySearch(list.size(), list::get, comparator, object);
 	}
 
+	public interface Interpolator<T> {
+		T[] interpolate(T left, T right);
+	}
+
+	@SafeVarargs
+	public static <T> int max(Comparator<? super T> ranker, T... items) {
+		int maxind = 0;
+		for (int i = 1; i < items.length; i++)
+			if (ranker.compare(items[maxind], items[i]) < 0)
+				maxind = i;
+		return maxind;
+	}
+
+	@SafeVarargs
+	public static <T> int min(Comparator<? super T> ranker, T... items) {
+		int minind = 0;
+		for (int i = 1; i < items.length; i++)
+			if (ranker.compare(items[minind], items[i]) > 0)
+				minind = i;
+		return minind;
+	}
+
+	/**
+	 * <h2>Overview</h2>
+	 * <p>
+	 * Optimizes for the value on a 1D surface that is captured by the provided
+	 * {@link Comparator} ranker. The surface's maximum value between (including)
+	 * the provided <code>lower</code> and <code>upper</code> bounds is searched
+	 * for.
+	 * </p>
+	 * <h2>Description</h2>
+	 * <p>
+	 * This method operates on a conceptual, 1-input function whose graph looks like
+	 * a mountain (a <code>V</code> shape, but upside down). This function attempts
+	 * to iteratively narrow the range containing the optimal value by comparing the
+	 * outputs of the function at different points along the current range.
+	 * </p>
+	 * <h3>Single Pass</h3>
+	 * <p>
+	 * The method begins with the provided range (from <code>lower</code> to
+	 * <code>upper</code>). The <code>lower</code> and <code>upper</code> values,
+	 * defining the range, represent inputs to the function being optimized.
+	 * </p>
+	 * <p>
+	 * This method interpolates the range using the provided {@link Interpolator}
+	 * and expects to receive a number of values. (The values need not be
+	 * contiguous.)
+	 * </p>
+	 * <p>
+	 * This method then finds the two values, out of those returned, that rank the
+	 * highest using the provided {@link Comparator}. These two values are then set
+	 * to define the range for the next cycle, or are returned as a {@link Pair} if
+	 * as many cycles as desired has elapsed.
+	 * </p>
+	 * <h2>Notes</h2>
+	 * <ol>
+	 * <li>The number of values returned by the {@link Interpolator} should be at
+	 * least 2, so a new range can be defined. The number of values returned can be
+	 * anything no less than 2, however. This algorithm will pick the two
+	 * highest-ranking values and use those to define the new range.</li>
+	 * <li>The values returned by the {@link Interpolator} are not considered to be
+	 * sorted. The {@link Interpolator} can return them in any order.
+	 * <ul>
+	 * <li>A method could be devised which utilizes order in values returned from an
+	 * {@link Interpolator} to make fewer calls to the {@link Comparator}
+	 * ranker.</li>
+	 * </ul>
+	 * </li>
+	 * </ol>
+	 * 
+	 * 
+	 * @param <T>          The type of point on the 1D surface.
+	 * @param lower        The lower bound of the surface (defining one end of the
+	 *                     range of the line to search over).
+	 * @param upper        The upper bound of the surface (defining the other end of
+	 *                     the range of the line to search over).
+	 * @param interpolator A function that returns points to search over between two
+	 *                     provided points. The points in this list should be
+	 *                     ordered along the 1D surface (line) that they reside on.
+	 *                     If the interpolator returns fewer than 2 values, this
+	 *                     method throws an {@link IllegalArgumentException},
+	 *                     (signifying that the {@link Interpolator} is not valid
+	 *                     for this method).
+	 * @param ranker       A {@link Comparator} that determines which of two values
+	 *                     is greater.
+	 * @param rounds       The number of cycles the optimization algorithm should
+	 *                     perform.
+	 * @return A smaller range containing the optimal value.
+	 */
+	public static <T> Pair<T, T> optimizeForMax(T lower, T upper, Interpolator<T> interpolator,
+			Comparator<? super T> ranker, int rounds) {
+		for (int l = 0; l < rounds; l++) {
+			T[] arr = interpolator.interpolate(lower, upper);
+			if (arr.length == 1 || arr.length == 0)
+				throw new IllegalArgumentException("Interpolator returned too few values.");
+			int largest = 0, secondLargest = 1;
+			if (ranker.compare(arr[largest], arr[secondLargest]) < 0) {
+				int t = largest;
+				largest = secondLargest;
+				secondLargest = t;
+			}
+			for (int i = 2; i < arr.length; i++)
+				if (ranker.compare(arr[i], arr[i]) < 0) {
+					secondLargest = largest;
+					largest = i;
+				}
+		}
+		return new Pair<>(lower, upper);
+	}
+
 	public static int bytesToInt(final byte... bytes) {
 		return (bytes[0] & 0xff) << 24 | (bytes[1] & 0xff) << 16 | (bytes[2] & 0xff) << 8 | bytes[3] & 0xff;
 	}
