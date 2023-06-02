@@ -419,7 +419,13 @@ public final class JavaTools {
 
 	public static <T, O> Pair<T, T> optimizeForMax(T lower, T upper, Function<? super T, ? extends O> converter,
 			Interpolator<T> interpolator, Comparator<? super O> ranker, int rounds,
-			Consumer<? super Pair<T, T>> cycleHandler, BiBooleanFunction<? super T, ? super T> stoppingCondition) {
+			Consumer<? super Pair<T, T>> cycleHandler, BiBooleanFunction<? super T, ? super T> earlyStoppingCondition) {
+		if (cycleHandler == null)
+			cycleHandler = a -> {
+			};
+		if (earlyStoppingCondition == null)
+			earlyStoppingCondition = (a, b) -> false;
+
 		for (int l = 0; l < rounds; l++) {
 			T[] items = interpolator.interpolate(lower, upper);
 			O[] arr = JavaTools.convert(converter, items);
@@ -444,7 +450,7 @@ public final class JavaTools {
 			// interpolator with.
 			System.out.println("Lower: " + lower + ", New: " + items[secondLargest] + "\t\tUpper: " + upper + ", New: "
 					+ items[largest]);
-			if (stoppingCondition.apply(lower = items[secondLargest], upper = items[largest]))
+			if (earlyStoppingCondition.apply(lower = items[secondLargest], upper = items[largest]))
 				return new Pair<>(lower, upper);
 		}
 		return new Pair<>(lower, upper);
