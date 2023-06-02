@@ -448,8 +448,6 @@ public final class JavaTools {
 			cycleHandler.accept(new Pair<>(items[secondLargest], items[largest]));
 			// Early stop if the bounds we found are the same as the ones we last called the
 			// interpolator with.
-			System.out.println("Lower: " + lower + ", New: " + items[secondLargest] + "\t\tUpper: " + upper + ", New: "
-					+ items[largest]);
 			if (earlyStoppingCondition.apply(lower = items[secondLargest], upper = items[largest]))
 				return new Pair<>(lower, upper);
 		}
