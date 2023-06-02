@@ -387,10 +387,12 @@ public final class JavaTools {
 	 * @param interpolator A function that returns points to search over between two
 	 *                     provided points. The points in this list should be
 	 *                     ordered along the 1D surface (line) that they reside on.
-	 *                     If the interpolator returns fewer than 2 values, this
-	 *                     method throws an {@link IllegalArgumentException},
-	 *                     (signifying that the {@link Interpolator} is not valid
-	 *                     for this method).
+	 *                     If the interpolator returns 1 value, that value is
+	 *                     returned as both elements of a {@link Pair} from this
+	 *                     method. If the interpolator returns 0 values, this method
+	 *                     throws an {@link IllegalArgumentException}, (signifying
+	 *                     that the {@link Interpolator} is not valid for this
+	 *                     method).
 	 * @param ranker       A {@link Comparator} that determines which of two values
 	 *                     is greater.
 	 * @param rounds       The number of cycles the optimization algorithm should
@@ -415,8 +417,10 @@ public final class JavaTools {
 			T[] items = interpolator.interpolate(lower, upper);
 			O[] arr = JavaTools.convert(converter, items);
 			System.out.println(Arrays.toString(arr));
-			if (arr.length == 1 || arr.length == 0)
+			if (arr.length == 0)
 				throw new IllegalArgumentException("Interpolator returned too few values.");
+			else if (arr.length == 1)
+				return new Pair<>(items[0], items[0]);
 			int largest = 0, secondLargest = 1;
 			if (ranker.compare(arr[largest], arr[secondLargest]) < 0) {
 				int t = largest;
