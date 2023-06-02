@@ -414,6 +414,7 @@ public final class JavaTools {
 		for (int l = 0; l < rounds; l++) {
 			T[] items = interpolator.interpolate(lower, upper);
 			O[] arr = JavaTools.convert(converter, items);
+			System.out.println(Arrays.toString(arr));
 			if (arr.length == 1 || arr.length == 0)
 				throw new IllegalArgumentException("Interpolator returned too few values.");
 			int largest = 0, secondLargest = 1;
@@ -426,7 +427,8 @@ public final class JavaTools {
 				if (ranker.compare(arr[largest], arr[i]) < 0) {
 					secondLargest = largest;
 					largest = i;
-				}
+				} else if (ranker.compare(arr[secondLargest], arr[i]) < 0)
+					secondLargest = i;
 			cycleHandler.accept(new Pair<>(lower = items[secondLargest], upper = items[largest]));
 		}
 		return new Pair<>(lower, upper);
