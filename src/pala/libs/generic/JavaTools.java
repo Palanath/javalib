@@ -1954,7 +1954,7 @@ public final class JavaTools {
 	 * @param pc       The character to use for padding.
 	 * @return The padded or truncated {@link String}.
 	 */
-	public static String space(String text, int space, boolean padfront, char pc) {
+	public static String padOrShrink(String text, int space, boolean padfront, char pc) {
 		if (text.length() < space) {
 			if (padfront)
 				return repeat(pc, space - text.length()) + text;
@@ -1968,12 +1968,12 @@ public final class JavaTools {
 			return text.substring(0, space);
 	}
 
-	public static String space(String text, int space, boolean padfront) {
-		return space(text, space, padfront, ' ');
+	public static String padOrShrink(String text, int space, boolean padfront) {
+		return padOrShrink(text, space, padfront, ' ');
 	}
 
-	public static String space(String text, int space) {
-		return space(text, space, false);
+	public static String padOrShrink(String text, int space) {
+		return padOrShrink(text, space, false);
 	}
 
 }
