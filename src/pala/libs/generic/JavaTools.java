@@ -1926,4 +1926,17 @@ public final class JavaTools {
 		return frac.multiply(from).add(BigDecimal.ONE.subtract(frac).multiply(to));
 	}
 
+	public static String repeat(String input, int times) {
+		StringBuilder sb = new StringBuilder(input.length() * times);
+		for (; times > 0; times--)
+			sb.append(input);
+		return sb.toString();
+	}
+
+	public static String repeat(char input, int times) {
+		char[] arr = new char[times];
+		Arrays.fill(arr, input);
+		return new String(arr);
+	}
+
 }
