@@ -1939,12 +1939,31 @@ public final class JavaTools {
 		return new String(arr);
 	}
 
+	/**
+	 * Returns a {@link String} containing the provided <code>text</code>, padded by
+	 * the provided <code>pc</code> or truncated, as appropriate, so that the
+	 * {@link String} has the size specified by <code>space</code>. Padding is
+	 * applied to the front (filling the front of the string with <code>pc</code>
+	 * padding chars) if <code>padfront</code> is <code>true</code>, otherwise it is
+	 * applied to the back (end).
+	 * 
+	 * @param text     The text to pad or truncated.
+	 * @param space    The amount of space (characters) that the returned text
+	 *                 should take up.
+	 * @param padfront Whether to pad the front or back of the {@link String}.
+	 * @param pc       The character to use for padding.
+	 * @return The padded or truncated {@link String}.
+	 */
 	public static String space(String text, int space, boolean padfront, char pc) {
 		if (text.length() < space) {
-			StringBuilder sb = new StringBuilder(text);
-			for (int i = space - text.length(); i > 0; i--)
-				sb.append(pc);
-			return sb.toString();
+			if (padfront)
+				return repeat(pc, space - text.length()) + text;
+			else {
+				StringBuilder sb = new StringBuilder(text);
+				for (int i = space - text.length(); i > 0; i--)
+					sb.append(pc);
+				return sb.toString();
+			}
 		} else
 			return text.substring(0, space);
 	}
