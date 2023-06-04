@@ -1939,4 +1939,14 @@ public final class JavaTools {
 		return new String(arr);
 	}
 
+	public static String space(String text, int space, boolean padfront, char pc) {
+		if (text.length() < space) {
+			StringBuilder sb = new StringBuilder(text);
+			for (int i = space - text.length(); i > 0; i--)
+				sb.append(pc);
+			return sb.toString();
+		} else
+			return text.substring(0, space);
+	}
+
 }
