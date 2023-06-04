@@ -1968,4 +1968,12 @@ public final class JavaTools {
 			return text.substring(0, space);
 	}
 
+	public static String space(String text, int space, boolean padfront) {
+		return space(text, space, padfront, ' ');
+	}
+
+	public static String space(String text, int space) {
+		return space(text, space, false);
+	}
+
 }
