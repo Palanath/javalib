@@ -1955,17 +1955,7 @@ public final class JavaTools {
 	 * @return The padded or truncated {@link String}.
 	 */
 	public static String padOrShrink(String text, int space, boolean padfront, char pc) {
-		if (text.length() < space) {
-			if (padfront)
-				return repeat(pc, space - text.length()) + text;
-			else {
-				StringBuilder sb = new StringBuilder(text);
-				for (int i = space - text.length(); i > 0; i--)
-					sb.append(pc);
-				return sb.toString();
-			}
-		} else
-			return text.substring(0, space);
+		return text.length() < space ? pad(text, padfront, pc, space - text.length()) : text.substring(0, space);
 	}
 
 	public static String padOrShrink(String text, int space, boolean padfront) {
@@ -1974,6 +1964,37 @@ public final class JavaTools {
 
 	public static String padOrShrink(String text, int space) {
 		return padOrShrink(text, space, false);
+	}
+
+	public static String pad(String text, boolean padfront, char pc, int charsToPad) {
+		if (padfront)
+			return repeat(pc, charsToPad) + text;
+		else {
+			StringBuilder sb = new StringBuilder(text);
+			for (int i = charsToPad; i > 0; i--)
+				sb.append(pc);
+			return sb.toString();
+		}
+	}
+
+	public static String pad(String text, boolean padfront, int charsToPad) {
+		return pad(text, padfront, ' ', charsToPad);
+	}
+
+	public static String pad(String text, int charsToPad) {
+		return pad(text, false, charsToPad);
+	}
+
+	public static String padUpTo(String text, int space, boolean padfront, char pc) {
+		return text.length() < space ? pad(text, padfront, pc, space - text.length()) : text;
+	}
+
+	public static String padUpTo(String text, int space, boolean padfront) {
+		return padUpTo(text, space, padfront, ' ');
+	}
+
+	public static String padUpTo(String text, int space) {
+		return padUpTo(text, space, false);
 	}
 
 	/**
