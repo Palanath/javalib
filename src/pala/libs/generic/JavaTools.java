@@ -1976,4 +1976,22 @@ public final class JavaTools {
 		return padOrShrink(text, space, false);
 	}
 
+	/**
+	 * Replaces all the items in the provided array and then returns the provided
+	 * array. No new array is created directly by this method.
+	 * 
+	 * @param <T>       The type of item in the array.
+	 * @param converter The {@link Function} applied to each individual array
+	 *                  element.
+	 * @param items     The array of items to convert each element of.
+	 * @return The provided array (after all contained elements have been
+	 *         converted).
+	 */
+	@SafeVarargs
+	public static <T> T[] replaceAll(Function<? super T, ? extends T> converter, T... items) {
+		for (int i = 0; i < items.length; i++)
+			items[i] = converter.apply(items[i]);
+		return items;
+	}
+
 }
