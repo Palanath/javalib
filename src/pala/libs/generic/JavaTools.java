@@ -2066,4 +2066,28 @@ public final class JavaTools {
 		return bound.compareTo(item) <= 0;
 	}
 
+	/**
+	 * Returns <code>true</code> if each element in the provided array is less than
+	 * the subsequent element.
+	 * 
+	 * @param <C>   The type of the item in the array.
+	 * @param items The array of items.
+	 * @return <code>true</code> if the array is sorted in ascending order.
+	 */
+	@SafeVarargs
+	public static <C extends Comparable<? super C>> boolean lessThan(C... items) {
+		for (int i = 1; i < items.length; i++)
+			if (items[i - 1].compareTo(items[i]) >= 0)
+				return false;
+		return true;
+	}
+
+	@SafeVarargs
+	public static <C extends Comparable<? super C>> boolean isSortedAscending(C... items) {
+		for (int i = 1; i < items.length; i++)
+			if (items[i - 1].compareTo(items[i]) > 0)
+				return false;
+		return true;
+	}
+
 }
