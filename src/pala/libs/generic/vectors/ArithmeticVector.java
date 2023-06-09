@@ -28,4 +28,9 @@ public interface ArithmeticVector<V extends Addable<V> & Subtractable<V> & Multi
 	default ArithmeticVector<? extends V> subtract(SubtractableVector<? extends V> other) {
 		return (ArithmeticVector<? extends V>) SubtractableVector.super.subtract(other);
 	}
+	
+	@Override
+	default ArithmeticVector<? extends V> square() {
+		return (ArithmeticVector<? extends V>) MultipliableVector.super.square();
+	}
 }

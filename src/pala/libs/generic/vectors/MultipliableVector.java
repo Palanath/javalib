@@ -13,4 +13,8 @@ public interface MultipliableVector<V extends Multipliable<V>>
 			res.set(i, get(i).multiply(other.get(i)));
 		return res;
 	}
+
+	default MultipliableVector<? extends V> square() {
+		return multiply(this);
+	}
 }
