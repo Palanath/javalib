@@ -2106,4 +2106,15 @@ public final class JavaTools {
 		return true;
 	}
 
+	public static double[] addVectors(double[] first, double... second) {
+		assert first.length == second.length : "Cannot add vectors of different lengths";
+		return addVectorInto(first.clone(), second);
+	}
+
+	public static double[] addVectorInto(double[] result, double... addend) {
+		for (int i = 0; i < result.length; i++)
+			result[i] = result[i] + addend[i];
+		return result;
+	}
+
 }
