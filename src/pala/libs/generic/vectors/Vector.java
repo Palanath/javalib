@@ -1,6 +1,9 @@
 package pala.libs.generic.vectors;
 
+import java.util.Iterator;
 import java.util.List;
+
+import pala.libs.generic.JavaTools;
 
 /**
  * An ordered collection of objects, much like a {@link List} or an array, that
@@ -38,4 +41,21 @@ public interface Vector<V> extends Iterable<V> {
 	 * @return The length of this vector.
 	 */
 	int len();
+
+	@Override
+	default Iterator<V> iterator() {
+		return new Iterator<V>() {
+			int ind;
+
+			@Override
+			public boolean hasNext() {
+				return ind < len();
+			}
+
+			@Override
+			public V next() {
+				return get(ind++);
+			}
+		};
+	}
 }
