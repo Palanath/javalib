@@ -2050,4 +2050,20 @@ public final class JavaTools {
 		return lower.compareTo(item) >= 0 && upper.compareTo(item) <= 0;
 	}
 
+	public static <I, C extends Comparable<? super I>> boolean lessThan(I item, C bound) {
+		return bound.compareTo(item) > 0;
+	}
+
+	public static <I, C extends Comparable<? super I>> boolean lessThanOrEqualTo(I item, C bound) {
+		return bound.compareTo(item) >= 0;
+	}
+
+	public static <I, C extends Comparable<? super I>> boolean greaterThan(I item, C bound) {
+		return bound.compareTo(item) < 0;
+	}
+
+	public static <I, C extends Comparable<? super I>> boolean greaterThanOrEqualTo(I item, C bound) {
+		return bound.compareTo(item) <= 0;
+	}
+
 }
