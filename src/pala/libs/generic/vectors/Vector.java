@@ -3,18 +3,24 @@ package pala.libs.generic.vectors;
 import java.util.Iterator;
 import java.util.List;
 
-import pala.libs.generic.JavaTools;
-
 /**
+ * <p>
  * An ordered collection of objects, much like a {@link List} or an array, that
  * additionally supports operations as its member elements do. Used primarily to
  * abstractly represent mathematical vectors.
+ * </p>
+ * <p>
+ * {@link Vector}s are {@link Cloneable} and so {@link #clone()} should be
+ * implemented by subtypes.
+ * </p>
  * 
  * @author Palanath
  *
- * @param <V>
+ * @param <V> The type of element in the vector.
  */
-public interface Vector<V> extends Iterable<V> {
+public interface Vector<V> extends Iterable<V>, Cloneable {
+	Vector<V> clone();
+
 	/**
 	 * Gets the element at the specified index.
 	 * 
