@@ -2090,4 +2090,20 @@ public final class JavaTools {
 		return true;
 	}
 
+	@SafeVarargs
+	public static <C extends Comparable<? super C>> boolean greaterThan(C... items) {
+		for (int i = 1; i < items.length; i++)
+			if (items[i - 1].compareTo(items[i]) <= 0)
+				return false;
+		return true;
+	}
+
+	@SafeVarargs
+	public static <C extends Comparable<? super C>> boolean isSortedDescending(C... items) {
+		for (int i = 1; i < items.length; i++)
+			if (items[i - 1].compareTo(items[i]) < 0)
+				return false;
+		return true;
+	}
+
 }
