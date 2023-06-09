@@ -2015,4 +2015,39 @@ public final class JavaTools {
 		return items;
 	}
 
+	/**
+	 * Returns <code>true</code> if the provided <code>item</code> is between the
+	 * provided <code>lower</code> and <code>upper</code> bounds.
+	 * 
+	 * @param <I>   The type of the item.
+	 * @param <TL>  The type of the lower bound.
+	 * @param <TU>  The type of the upper bound.
+	 * @param item  The item.
+	 * @param lower The lower bound.
+	 * @param upper The upper bound.
+	 * @return <code>lower.compareTo(item) > 0 && upper.compareTo(item) < 0</code>
+	 */
+	public static <I, TL extends Comparable<? super I>, TU extends Comparable<? super I>> boolean isBetween(I item,
+			TL lower, TU upper) {
+		return lower.compareTo(item) > 0 && upper.compareTo(item) < 0;
+	}
+
+	/**
+	 * Returns <code>true</code> if the provided <code>item</code> is between the
+	 * provided <code>lower</code> and <code>upper</code> bounds or if it is equal
+	 * to the bounds.
+	 * 
+	 * @param <I>   The type of the item.
+	 * @param <TL>  The type of the lower bound.
+	 * @param <TU>  The type of the upper bound.
+	 * @param item  The item.
+	 * @param lower The lower bound.
+	 * @param upper The upper bound.
+	 * @return <code>lower.compareTo(item) >= 0 && upper.compareTo(item) <= 0</code>
+	 */
+	public static <I, TL extends Comparable<? super I>, TU extends Comparable<? super I>> boolean isOnRange(I item,
+			TL lower, TU upper) {
+		return lower.compareTo(item) >= 0 && upper.compareTo(item) <= 0;
+	}
+
 }
