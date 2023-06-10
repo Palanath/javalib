@@ -2138,4 +2138,32 @@ public final class JavaTools {
 		return multiplyInPlace(factor, vector.clone());
 	}
 
+	/**
+	 * <p>
+	 * Iteratively moves the vector <code>startPos</code> in the direction of the
+	 * gradient (evaluated before each move) <code>iterations</code> number of
+	 * times. The magnitude of the move is the gradient times
+	 * <code>stepFactor</code>.
+	 * </p>
+	 * 
+	 * @param iterations The number of iterations to take.
+	 * @param stepFactor The constant step factor. When making "steps" (iterative
+	 *                   modifications to the provided <code>startPos</code>), the
+	 *                   gradient is multiplied by this number before being
+	 *                   subtracted from the current position.
+	 * @param gradient   A function that calculates the gradient at a certain point.
+	 *                   This should accept and return arrays that are of the same
+	 *                   size as the <code>startPos</code>
+	 * @param startPos   The initial, starting position.
+	 * @return The final position; an array of the same size as
+	 *         <code>startPos</code>.
+	 */
+	public static double[] gradientDescent(int iterations, double stepFactor,
+			Function<? super double[], ? extends double[]> gradient, double... startPos) {
+		double[] c = startPos.clone();
+		for (; iterations > 0; iterations--)
+			subtractVectorFrom(c, multiply(stepFactor, gradient.apply(c)));
+		return c;
+	}
+
 }
