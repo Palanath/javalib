@@ -2128,4 +2128,14 @@ public final class JavaTools {
 		return result;
 	}
 
+	public static double[] multiplyInPlace(double factor, double... result) {
+		for (int i = 0; i < result.length; i++)
+			result[i] *= factor;
+		return result;
+	}
+
+	public static double[] multiply(double factor, double... vector) {
+		return multiplyInPlace(factor, vector.clone());
+	}
+
 }
