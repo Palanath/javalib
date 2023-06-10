@@ -2161,10 +2161,41 @@ public final class JavaTools {
 	 */
 	public static double[] gradientDescent(int iterations, double stepFactor,
 			Function<? super double[], ? extends double[]> gradient, double... startPos) {
-		double[] c = startPos.clone();
-		for (; iterations > 0; iterations--)
-			subtractVectorFrom(c, multiply(stepFactor, gradient.apply(c)));
-		return c;
+		return gradientDescent(invokedNTimes(iterations), (a, b) -> stepFactor, gradient, startPos);
+	}
+
+	/**
+	 * <p>
+	 * Returns a {@link Predicate} that begins returning <code>true</code>
+	 * <i>after</i> it has been invoked <code>times</code> times.
+	 * </p>
+	 * <p>
+	 * If this method is called with <code>1</code> as the argument, it will return
+	 * a {@link Predicate} that will return <code>false</code> upon its first
+	 * invocation and <code>true</code> thereafter. If called with <code>0</code>,
+	 * this method returns a {@link Predicate} that is always <code>true</code>.
+	 * </p>
+	 * 
+	 * @param <T>   The type of the resulting {@link Predicate}.
+	 * @param times The number of times the {@link Predicate} needs to be invoked to
+	 *              begin returning <code>true</code>. This number is treated as
+	 *              unsigned, so negative values need to "wrap around" before the
+	 *              {@link Predicate} begins returning <code>true</code>.
+	 * @return The new {@link Predicate}.
+	 */
+	public static <T> Predicate<T> invokedNTimes(int times) {
+		return new Predicate<T>() {
+			int t = times;
+
+			@Override
+			public boolean test(T item) {
+				if (t == 0)
+					return true;
+				else
+					t--;
+				return false;
+			}
+		};
 	}
 
 	/**
