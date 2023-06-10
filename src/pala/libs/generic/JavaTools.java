@@ -44,6 +44,7 @@ import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 import pala.libs.generic.util.functions.BiBooleanFunction;
+import pala.libs.generic.util.functions.BiDoubleFunction;
 
 public final class JavaTools {
 
@@ -2164,6 +2165,68 @@ public final class JavaTools {
 		for (; iterations > 0; iterations--)
 			subtractVectorFrom(c, multiply(stepFactor, gradient.apply(c)));
 		return c;
+	}
+
+	/**
+	 * <p>
+	 * Performs gradient descent with a {@link Predicate} (given the current
+	 * position) used to determine when to stop and a {@link BiDoubleFunction}
+	 * (given the current position and the gradient, in that order) used to
+	 * determine the step size. Specifically, this method begins with the provided
+	 * <code>startPos</code> and repeatedly:
+	 * </p>
+	 * <ol>
+	 * <li>Calculates the gradient at the current position, storing it in
+	 * <code>grad</code>,</li>
+	 * <li>scales (multiplies) that gradient by the result of calling
+	 * <code>stepFactor(currentPosition, grad)</code>, and</li>
+	 * <li>subtracts the scaled gradient from the current position.</li>
+	 * </ol>
+	 * 
+	 * @param stoppingCondition A {@link Predicate} determining when the algorithm
+	 *                          should stop. This is called at the <i>beginning</i>
+	 *                          of each iteration, including the first, so it is
+	 *                          first called with the provided <code>startPos</code>
+	 *                          position. It should always return <code>false</code>
+	 *                          if the algorithm should continue and
+	 *                          <code>true</code> if the algorithm should stop (if
+	 *                          the stopping condition has been <i>met</i>). After
+	 *                          any iteration (including the first), it is called
+	 *                          again with the updated position to determine if that
+	 *                          updated position is "good enough to stop." The
+	 *                          vector (array of <code>double</code>s) that this
+	 *                          {@link Predicate} is provided is always of the same
+	 *                          size as the <code>startPos</code>.
+	 * @param stepFactor        A function determining the step factor. It is always
+	 *                          called once per iteration after the gradient has
+	 *                          been calculated. It is always given the current
+	 *                          position and the calculated gradient (at that
+	 *                          current position) as arguments. It is evaluated
+	 *                          before the current position is modified and is used
+	 *                          to scale the vector by which the current position is
+	 *                          modified. It is always given two vectors (arrays of
+	 *                          <code>double</code>s), both of equal size. The sizes
+	 *                          are the same as that of <code>startPos</code>.
+	 * @param gradient          A {@link Function} that calculates the gradient,
+	 *                          given a point. It is used to represent the gradient
+	 *                          of the function being optimized. It is given a
+	 *                          vector (array of <code>double</code>s) of size equal
+	 *                          to that of <code>startPos</code> and should return
+	 *                          one that is the same size.
+	 * @param startPos          The starting position. Should be the same size as
+	 *                          the arrays returned by the <code>gradient</code>
+	 *                          function.
+	 * @return The position that the algorithm stopped on.
+	 */
+	public static double[] gradientDescent(Predicate<? super double[]> stoppingCondition,
+			BiDoubleFunction<? super double[], ? super double[]> stepFactor,
+			Function<? super double[], ? extends double[]> gradient, double... startPos) {
+		startPos = startPos.clone();
+		while (!stoppingCondition.test(startPos)) {
+			double[] grad = gradient.apply(startPos);
+			subtractVectorFrom(startPos, multiply(stepFactor.run(startPos, gradient.apply(startPos)), grad));
+		}
+		return startPos;
 	}
 
 }
