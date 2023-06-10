@@ -2117,4 +2117,15 @@ public final class JavaTools {
 		return result;
 	}
 
+	public static double[] subtractVectors(double[] first, double... second) {
+		assert first.length == second.length : "Cannot add vectors of different lengths";
+		return subtractVectorFrom(first.clone(), second);
+	}
+
+	public static double[] subtractVectorFrom(double[] result, double... operand) {
+		for (int i = 0; i < result.length; i++)
+			result[i] = result[i] - operand[i];
+		return result;
+	}
+
 }
