@@ -2288,8 +2288,10 @@ public final class JavaTools {
 		return argmax(function, comparator, iterator(arguments));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator,
 			Iterator<? extends A> arguments) {
+		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
 		A amax = arguments.next();
 		V m = function.apply(amax);
 		while (arguments.hasNext()) {
@@ -2301,6 +2303,29 @@ public final class JavaTools {
 			}
 		}
 		return amax;
+	}
+
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator,
+			Iterable<? extends A> arguments) {
+		return max(function, comparator, arguments.iterator());
+	}
+
+	@SafeVarargs
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator, A... arguments) {
+		return max(function, comparator, iterator(arguments));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator,
+			Iterator<? extends A> arguments) {
+		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
+		V m = function.apply(arguments.next());
+		while (arguments.hasNext()) {
+			V nv = function.apply(arguments.next());
+			if (comparator.compare(m, nv) < 0)
+				m = nv;
+		}
+		return m;
 	}
 
 	public static <S, A> MDPSolution<S, A> valueIteration(Map<S, A> policy, Map<S, Double> valueFunction,
