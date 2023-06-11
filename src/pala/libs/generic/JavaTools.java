@@ -2328,12 +2328,78 @@ public final class JavaTools {
 		return m;
 	}
 
-	public static <S, A> MDPSolution<S, A> valueIteration(Map<S, A> policy, Map<S, Double> valueFunction,
-			Set<? extends S> states, Set<? extends A> actions,
-			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+	/**
+	 * <p>
+	 * Performs value iteration on the provided policy and value functions. This
+	 * method optimizes the value function in a loop, <code>itercount</code> times,
+	 * and then performs a policy-extraction step where it finds the optimal policy
+	 * based on the values. The value function provided, as a {@link Map}, should be
+	 * modifiable. This method updates it and then extracts and returns a
+	 * corresponding policy based off of it.
+	 * </p>
+	 * 
+	 * @param <S>                           The type of the states.
+	 * @param <A>                           The type of the actions.
+	 * @param valueFunction                 A {@link Map} of discounted reward sums
+	 *                                      keyed by states. This is provided as an
+	 *                                      argument, rather than created in and
+	 *                                      returned by the function, so that
+	 *                                      callers that have already partially
+	 *                                      optimized the value function can provide
+	 *                                      their partially optimized instance. It
+	 *                                      will be optimized <code>itercount</code>
+	 *                                      times (it will be modified).
+	 * @param states                        The set of states in the Markov Decision
+	 *                                      Process.
+	 * @param actions                       The set of actions in the Markov
+	 *                                      Decision Process.
+	 * @param transitionProbabilityFunction A probability function that, when given
+	 *                                      a <i>current state</i> and a chosen
+	 *                                      <i>action</i>, and a <i>desired
+	 *                                      state</i>, returns the probability of
+	 *                                      arriving in the <i>desired state</i>
+	 *                                      from the <i>current state</i> if the
+	 *                                      provided <i>action</i> is taken. This is
+	 *                                      a function of three arguments:
+	 *                                      <code>(currentState, action, desiredState)</code>
+	 *                                      (in that order) that returns a
+	 *                                      <code>double</code> between
+	 *                                      <code>0</code> and <i>1</i> inclusive.
+	 * @param rewardFunction                A function that returns the reward that
+	 *                                      an actor would gain for transitioning
+	 *                                      from state <code>currentState</code> by
+	 *                                      taking action <code>action</code> to
+	 *                                      arrive at <code>desiredState</code>. The
+	 *                                      arguments are in that order.
+	 * @param decayFactor                   A constant <code>double</code> usually
+	 *                                      between <code>0</code> and
+	 *                                      <code>1</code>, near <code>1</code>. It
+	 *                                      discounts the value of a reward in the
+	 *                                      future.
+	 * @param itercount                     The number of times to update the value
+	 *                                      function before extracting the policy
+	 *                                      function.
+	 * @return The
+	 */
+	public static <S, A> Map<S, A> valueIteration(Map<S, Double> valueFunction, Set<? extends S> states,
+			Set<? extends A> actions, TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
 		assert !states.isEmpty() : "Set of states cannot be empty.";
 		assert !actions.isEmpty() : "Set of actions cannot be empty.";
+
+		Map<S, A> policy = new HashMap<>();
+
+		if (valueFunction.isEmpty())
+			for (S s : states)
+				valueFunction.put(s, 0d); // Initialize value function.
+
+		BiDoubleFunction<S, A> discountedRewards = (first, second) -> {
+			double tot = 0;
+			for (S s : states)
+				tot += transitionProbabilityFunction.run(first, second, s)
+						* (rewardFunction.run(first, second, s) + decayFactor * valueFunction.get(s));
+			return tot;
+		};
 
 		while (itercount-- > 0)
 			for (S s : states) {
@@ -2379,17 +2445,15 @@ public final class JavaTools {
 			policy.put(s, maxac);
 		}
 
-		return new MDPSolution<S, A>(valueFunction, policy);
+		return policy;
 	}
 
 	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
 		HashMap<S, Double> valueFunction = new HashMap<>();
-		for (S s : states)
-			valueFunction.put(s, 0d); // Initialize value function.
-		return valueIteration(new HashMap<>(), valueFunction, states, actions, transitionProbabilityFunction,
-				rewardFunction, decayFactor, itercount);
+		return new MDPSolution<S, A>(valueFunction, valueIteration(valueFunction, states, actions,
+				transitionProbabilityFunction, rewardFunction, decayFactor, itercount));
 	}
 
 	public static <S, A> double runPolicy(S startingState, Function<? super S, ? extends A> policy,
