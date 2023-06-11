@@ -2117,6 +2117,14 @@ public final class JavaTools {
 		return inner.put(key2, value);
 	}
 
+	public static <K1, K2, K3, V> V putIntoTripleMap(Map<? super K1, Map<K2, Map<K3, V>>> tripleMap, K1 key1, K2 key2,
+			K3 key3, V value) {
+		Map<K2, Map<K3, V>> inner;
+		if ((inner = tripleMap.get(key1)) == null)
+			tripleMap.put(key1, inner = new HashMap<>());
+		return putIntoDoubleMap(inner, key2, key3, value);
+	}
+
 	public static double[] addVectors(double[] first, double... second) {
 		assert first.length == second.length : "Cannot add vectors of different lengths";
 		return addVectorInto(first.clone(), second);
