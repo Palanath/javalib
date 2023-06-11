@@ -2332,6 +2332,7 @@ public final class JavaTools {
 		return max(function, Comparator.naturalOrder(), arguments);
 	}
 
+	@SafeVarargs
 	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
 			A... arguments) {
 		return max(function, Comparator.naturalOrder(), arguments);
