@@ -33,7 +33,7 @@ import pala.libs.generic.JavaTools;
 public final class TransitionFunction<S, A> {
 
 	public TransitionFunction(Map<S, Map<A, Map<S, Double>>> jumps) {
-		this.jumps = jumps;
+		this.transitions = jumps;
 		for (Map<A, Map<S, Double>> v : jumps.values())
 			for (Map<S, Double> v2 : v.values()) {
 				double prob = 0;
@@ -46,16 +46,16 @@ public final class TransitionFunction<S, A> {
 	}
 
 	public static final class Builder<S, A> {
-		private final Map<S, Map<A, Map<S, Double>>> jumps = new HashMap<>();
+		private final Map<S, Map<A, Map<S, Double>>> transitions = new HashMap<>();
 
 		public void putProb(S fromState, A action, S toState, double prob) {
 			if (prob > 1 || prob < 0)
 				throw new IllegalArgumentException("Provided probability is out of bounds.");
-			JavaTools.putIntoTripleMap(jumps, fromState, action, toState, prob);
+			JavaTools.putIntoTripleMap(transitions, fromState, action, toState, prob);
 		}
 
 		public TransitionFunction<S, A> build() {
-			return new TransitionFunction<>(jumps);
+			return new TransitionFunction<>(transitions);
 		}
 	}
 
@@ -70,7 +70,7 @@ public final class TransitionFunction<S, A> {
 	 * @return The probability that this specific transition occurs.
 	 */
 	public double getProb(S fromState, A action, S toState) {
-		Map<A, Map<S, Double>> m1 = jumps.get(fromState);
+		Map<A, Map<S, Double>> m1 = transitions.get(fromState);
 		Map<S, Double> m2;
 		return m1 != null && (m2 = m1.get(action)) != null && m2.containsKey(toState) ? m2.get(toState) : 0;
 	}
@@ -89,10 +89,10 @@ public final class TransitionFunction<S, A> {
 		return new Transition<>(toState, getProb(fromState, action, toState));
 	}
 
-	private final Map<S, Map<A, Map<S, Double>>> jumps;
+	private final Map<S, Map<A, Map<S, Double>>> transitions;
 
 	public List<Transition<S>> getTransitions(S fromState, A action) {
-		Map<A, Map<S, Double>> m1 = jumps.get(fromState);
+		Map<A, Map<S, Double>> m1 = transitions.get(fromState);
 		Map<S, Double> m2;
 		if (m1 != null)
 			if ((m2 = m1.get(action)) != null) {
@@ -124,6 +124,6 @@ public final class TransitionFunction<S, A> {
 
 	@Override
 	public String toString() {
-		return jumps.toString();
+		return transitions.toString();
 	}
 }
