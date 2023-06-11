@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.util.Triplet;
@@ -32,7 +33,7 @@ import pala.libs.generic.util.functions.TriDoubleFunction;
  * @param <S> The type of the state.
  * @param <A> The type of the action.
  */
-public final class TransitionFunction<S, A> implements TriDoubleFunction<S, A, S> {
+public final class TransitionFunction<S, A> implements TriDoubleFunction<S, A, S>, BiFunction<S, A, S> {
 
 	public TransitionFunction(Map<S, Map<A, Map<S, Double>>> jumps) {
 		this.transitions = jumps;
@@ -138,5 +139,22 @@ public final class TransitionFunction<S, A> implements TriDoubleFunction<S, A, S
 	@Override
 	public double run(S first, A second, S third) {
 		return getProb(first, second, third);
+	}
+
+	/**
+	 * Samples a transition from this {@link TransitionFunction} going from the
+	 * provided <code>fromState</code> by taking the provided <code>action</code>.
+	 * This method returns one of the possible states that can be arrived at by
+	 * taking the provided action while in the provided states, with probability in
+	 * accordance with the likelihood of arriving in the resulting state.
+	 */
+	@Override
+	public S apply(S fromState, A action) {
+		double r = Math.random();
+		List<Transition<S>> list = getTransitions(fromState, action);
+		for (Transition<S> tr : list)
+			if ((r -= tr.prob) <= 0)
+				return tr.resultingState;
+		return list.get(list.size() - 1).resultingState;
 	}
 }
