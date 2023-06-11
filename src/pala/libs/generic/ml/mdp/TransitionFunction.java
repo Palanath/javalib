@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import pala.libs.generic.JavaTools;
+import pala.libs.generic.util.Triplet;
+import pala.libs.generic.util.functions.TriDoubleFunction;
 
 /**
  * <p>
@@ -30,7 +32,7 @@ import pala.libs.generic.JavaTools;
  * @param <S> The type of the state.
  * @param <A> The type of the action.
  */
-public final class TransitionFunction<S, A> {
+public final class TransitionFunction<S, A> implements TriDoubleFunction<S, A, S> {
 
 	public TransitionFunction(Map<S, Map<A, Map<S, Double>>> jumps) {
 		this.transitions = jumps;
@@ -52,6 +54,12 @@ public final class TransitionFunction<S, A> {
 			if (prob > 1 || prob < 0)
 				throw new IllegalArgumentException("Provided probability is out of bounds.");
 			JavaTools.putIntoTripleMap(transitions, fromState, action, toState, prob);
+		}
+
+		@SafeVarargs
+		public final void putTransitions(double prob, Triplet<? extends S, ? extends A, ? extends S>... transitions) {
+			for (Triplet<? extends S, ? extends A, ? extends S> t : transitions)
+				putTransition(t.first, t.second, t.third, prob);
 		}
 
 		public TransitionFunction<S, A> build() {
@@ -125,5 +133,10 @@ public final class TransitionFunction<S, A> {
 	@Override
 	public String toString() {
 		return transitions.toString();
+	}
+
+	@Override
+	public double run(S first, A second, S third) {
+		return getProb(first, second, third);
 	}
 }
