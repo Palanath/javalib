@@ -2278,6 +2278,31 @@ public final class JavaTools {
 		return startPos;
 	}
 
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator,
+			Iterable<? extends A> arguments) {
+		return argmax(function, comparator, arguments.iterator());
+	}
+
+	@SafeVarargs
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator, A... arguments) {
+		return argmax(function, comparator, iterator(arguments));
+	}
+
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator,
+			Iterator<? extends A> arguments) {
+		A amax = arguments.next();
+		V m = function.apply(amax);
+		while (arguments.hasNext()) {
+			A n = arguments.next();
+			V nv = function.apply(amax);
+			if (comparator.compare(m, nv) < 0) {
+				amax = n;
+				m = nv;
+			}
+		}
+		return amax;
+	}
+
 	public static <S, A> MDPSolution<S, A> valueIteration(Map<S, A> policy, Map<S, Double> valueFunction,
 			Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
