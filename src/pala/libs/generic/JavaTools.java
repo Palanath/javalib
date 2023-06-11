@@ -2278,18 +2278,35 @@ public final class JavaTools {
 		return startPos;
 	}
 
-	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator,
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			Iterable<? extends A> arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			Iterator<? extends A> arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	@SafeVarargs
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			A... arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
 			Iterable<? extends A> arguments) {
 		return argmax(function, comparator, arguments.iterator());
 	}
 
 	@SafeVarargs
-	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator, A... arguments) {
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			A... arguments) {
 		return argmax(function, comparator, iterator(arguments));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<V> comparator,
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
 			Iterator<? extends A> arguments) {
 		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
 		A amax = arguments.next();
@@ -2305,18 +2322,34 @@ public final class JavaTools {
 		return amax;
 	}
 
-	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator,
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			Iterable<? extends A> arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			Iterator<? extends A> arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			A... arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
 			Iterable<? extends A> arguments) {
 		return max(function, comparator, arguments.iterator());
 	}
 
 	@SafeVarargs
-	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator, A... arguments) {
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			A... arguments) {
 		return max(function, comparator, iterator(arguments));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<V> comparator,
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
 			Iterator<? extends A> arguments) {
 		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
 		V m = function.apply(arguments.next());
