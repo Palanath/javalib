@@ -2107,9 +2107,8 @@ public final class JavaTools {
 		return true;
 	}
 
-	public static <K1, K2, V> V putIntoDoubleMap(Map<? super K1, Map<? super K2, V>> doubleMap, K1 key1, K2 key2,
-			V value) {
-		Map<? super K2, V> inner;
+	public static <K1, K2, V> V putIntoDoubleMap(Map<? super K1, Map<K2, V>> doubleMap, K1 key1, K2 key2, V value) {
+		Map<K2, V> inner;
 		if ((inner = doubleMap.get(key1)) == null)
 			doubleMap.put(key1, inner = new HashMap<>());
 		return inner.put(key2, value);
