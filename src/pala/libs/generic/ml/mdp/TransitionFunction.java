@@ -121,4 +121,9 @@ public final class TransitionFunction<S, A> {
 			return prob;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return jumps.toString();
+	}
 }
