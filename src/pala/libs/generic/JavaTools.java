@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Stack;
 import java.util.function.BiConsumer;
@@ -40,11 +41,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import pala.libs.generic.ml.mdp.MDPSolution;
 import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 import pala.libs.generic.util.functions.BiBooleanFunction;
 import pala.libs.generic.util.functions.BiDoubleFunction;
+import pala.libs.generic.util.functions.TriDoubleFunction;
 
 public final class JavaTools {
 
@@ -2265,6 +2268,63 @@ public final class JavaTools {
 			subtractVectorFrom(startPos, multiply(stepFactor.run(startPos, gradient.apply(startPos)), grad));
 		}
 		return startPos;
+	}
+
+	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		assert !states.isEmpty() : "Set of states cannot be empty.";
+		assert !actions.isEmpty() : "Set of actions cannot be empty.";
+		Map<S, Double> valueFunction = new HashMap<>();
+		Map<S, A> policy = new HashMap<>();
+		for (S s : states)
+			valueFunction.put(s, 0d); // Initialize value function.
+
+		while (itercount-- > 0)
+			for (S s : states) {
+				Iterator<? extends A> aitr = actions.iterator();
+				A ac = aitr.next();
+				double max = 0;
+				for (S newState : states)
+					max += transitionProbabilityFunction.run(s, ac, newState)
+							* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
+
+				while (aitr.hasNext()) {
+					ac = aitr.next();
+					double tot = 0;
+					for (S newState : states)
+						tot += transitionProbabilityFunction.run(s, ac, newState)
+								* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
+					if (max < tot)
+						max = tot;
+				}
+				valueFunction.put(s, max);
+			}
+
+		for (S s : states) {
+			Iterator<? extends A> aitr = actions.iterator();
+			A ac = aitr.next();
+			double max = 0;
+			A maxac = ac;
+			for (S newState : states)
+				max += transitionProbabilityFunction.run(s, ac, newState)
+						* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
+
+			while (aitr.hasNext()) {
+				ac = aitr.next();
+				double tot = 0;
+				for (S newState : states)
+					tot += transitionProbabilityFunction.run(s, ac, newState)
+							* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
+				if (max < tot) {
+					max = tot;
+					maxac = ac;
+				}
+			}
+			policy.put(s, maxac);
+		}
+
+		return new MDPSolution<S, A>(valueFunction, policy);
 	}
 
 }
