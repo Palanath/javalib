@@ -1,7 +1,6 @@
 package pala.libs.generic.ml.mdp;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,22 +27,35 @@ import pala.libs.generic.JavaTools;
  * 
  * @author Palanath
  *
- * @param <S>
- * @param <A>
+ * @param <S> The type of the state.
+ * @param <A> The type of the action.
  */
 public final class TransitionFunction<S, A> {
 
-	private TransitionFunction(Map<S, Map<A, Map<S, Double>>> jumps) {
+	public TransitionFunction(Map<S, Map<A, Map<S, Double>>> jumps) {
 		this.jumps = jumps;
+		for (Map<A, Map<S, Double>> v : jumps.values())
+			for (Map<S, Double> v2 : v.values()) {
+				double prob = 0;
+				for (double d : v2.values())
+					prob += d;
+				for (Entry<S, Double> e : v2.entrySet())
+					e.setValue(e.getValue() / prob);
+			}
+
 	}
 
 	public static final class Builder<S, A> {
-		private final Map<S, Map<A, Transition<S>>> jumps = new HashMap<>();
+		private final Map<S, Map<A, Map<S, Double>>> jumps = new HashMap<>();
 
 		public void putProb(S fromState, A action, S toState, double prob) {
 			if (prob > 1 || prob < 0)
 				throw new IllegalArgumentException("Provided probability is out of bounds.");
-			JavaTools.putIntoDoubleMap(jumps, fromState, action, new Transition<>(toState, prob));
+			JavaTools.putIntoTripleMap(jumps, fromState, action, toState, prob);
+		}
+
+		public TransitionFunction<S, A> build() {
+			return new TransitionFunction<>(jumps);
 		}
 	}
 
