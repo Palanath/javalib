@@ -2278,13 +2278,12 @@ public final class JavaTools {
 		return startPos;
 	}
 
-	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
+	public static <S, A> MDPSolution<S, A> valueIteration(Map<S, A> policy, Map<S, Double> valueFunction,
+			Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
 		assert !states.isEmpty() : "Set of states cannot be empty.";
 		assert !actions.isEmpty() : "Set of actions cannot be empty.";
-		Map<S, Double> valueFunction = new HashMap<>();
-		Map<S, A> policy = new HashMap<>();
 		for (S s : states)
 			valueFunction.put(s, 0d); // Initialize value function.
 
@@ -2333,6 +2332,26 @@ public final class JavaTools {
 		}
 
 		return new MDPSolution<S, A>(valueFunction, policy);
+	}
+
+	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		return valueIteration(new HashMap<>(), new HashMap<>(), states, actions, transitionProbabilityFunction,
+				rewardFunction, decayFactor, itercount);
+	}
+
+	public static <S, A> double runPolicy(S startingState, Function<? super S, ? extends A> policy,
+			BiFunction<? super S, ? super A, ? extends S> transitionFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, int times) {
+		double reward = 0;
+		while (times-- > 0) {
+			A action = policy.apply(startingState);
+			S newState = transitionFunction.apply(startingState, action);
+			reward += rewardFunction.run(startingState, action, newState);
+			startingState = newState;
+		}
+		return reward;
 	}
 
 }
