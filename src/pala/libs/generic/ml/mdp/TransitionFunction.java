@@ -48,7 +48,7 @@ public final class TransitionFunction<S, A> {
 	public static final class Builder<S, A> {
 		private final Map<S, Map<A, Map<S, Double>>> transitions = new HashMap<>();
 
-		public void putProb(S fromState, A action, S toState, double prob) {
+		public void putTransition(S fromState, A action, S toState, double prob) {
 			if (prob > 1 || prob < 0)
 				throw new IllegalArgumentException("Provided probability is out of bounds.");
 			JavaTools.putIntoTripleMap(transitions, fromState, action, toState, prob);
