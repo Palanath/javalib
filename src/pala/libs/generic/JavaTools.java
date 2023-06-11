@@ -2422,62 +2422,37 @@ public final class JavaTools {
 		assert !actions.isEmpty() : "Set of actions cannot be empty.";
 
 		Map<S, A> policy = new HashMap<>();
-
-		if (valueFunction.isEmpty())
+		if (valueFunction == null) {
+			valueFunction = new HashMap<>();
 			for (S s : states)
 				valueFunction.put(s, 0d); // Initialize value function.
+		} else if (valueFunction.isEmpty())
+			for (S s : states)
+				valueFunction.put(s, 0d);
 
-		BiDoubleFunction<S, A> discountedRewards = (first, second) -> {
+		Box<Map<S, Double>> valfunCopy = new Box<>(new HashMap<>(valueFunction));
+
+		// Calculates the sum of discounted rewards for a certain (given) state and
+		// given action. This does not just grab an element from valueFunction.
+		BiDoubleFunction<S, A> discountedRewards = (fromState, actionTaken) -> {
 			double tot = 0;
 			for (S s : states)
-				tot += transitionProbabilityFunction.run(first, second, s)
-						* (rewardFunction.run(first, second, s) + decayFactor * valueFunction.get(s));
+				tot += transitionProbabilityFunction.run(fromState, actionTaken, s)
+						* (rewardFunction.run(fromState, actionTaken, s) + decayFactor * valfunCopy.value.get(s));
 			return tot;
 		};
 
-		while (itercount-- > 0)
-			for (S s : states) {
-				Iterator<? extends A> aitr = actions.iterator();
-				A ac = aitr.next();
-				double max = 0;
-				for (S newState : states)
-					max += transitionProbabilityFunction.run(s, ac, newState)
-							* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
+		while (itercount-- > 0) {
+			for (S s : states)
+				// Update value function.
+				valueFunction.put(s, max(a -> discountedRewards.apply(s, a), actions));
 
-				while (aitr.hasNext()) {
-					ac = aitr.next();
-					double tot = 0;
-					for (S newState : states)
-						tot += transitionProbabilityFunction.run(s, ac, newState)
-								* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
-					if (max < tot)
-						max = tot;
-				}
-				valueFunction.put(s, max);
-			}
-
-		for (S s : states) {
-			Iterator<? extends A> aitr = actions.iterator();
-			A ac = aitr.next();
-			double max = 0;
-			A maxac = ac;
-			for (S newState : states)
-				max += transitionProbabilityFunction.run(s, ac, newState)
-						* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
-
-			while (aitr.hasNext()) {
-				ac = aitr.next();
-				double tot = 0;
-				for (S newState : states)
-					tot += transitionProbabilityFunction.run(s, ac, newState)
-							* (rewardFunction.run(s, ac, newState) + decayFactor * valueFunction.get(newState));
-				if (max < tot) {
-					max = tot;
-					maxac = ac;
-				}
-			}
-			policy.put(s, maxac);
+			valfunCopy.value = new HashMap<S, Double>(valueFunction);// Recopy the new, updated value function.
 		}
+
+		// Policy extraction
+		for (S s : states)
+			policy.put(s, argmax(a -> discountedRewards.apply(s, a), actions));
 
 		return policy;
 	}
