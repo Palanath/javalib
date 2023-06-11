@@ -2432,29 +2432,31 @@ public final class JavaTools {
 
 		Box<Map<S, Double>> valfunCopy = new Box<>(new HashMap<>(valueFunction));
 
-		// Calculates the sum of discounted rewards for a certain (given) state and
-		// given action. This does not just grab an element from valueFunction.
-		BiDoubleFunction<S, A> discountedRewards = (fromState, actionTaken) -> {
-			double tot = 0;
-			for (S s : states)
-				tot += transitionProbabilityFunction.run(fromState, actionTaken, s)
-						* (rewardFunction.run(fromState, actionTaken, s) + decayFactor * valfunCopy.value.get(s));
-			return tot;
-		};
-
 		while (itercount-- > 0) {
 			for (S s : states)
 				// Update value function.
-				valueFunction.put(s, max(a -> discountedRewards.apply(s, a), actions));
-
+				valueFunction.put(s, max(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+						rewardFunction, decayFactor, valfunCopy.value), actions));
 			valfunCopy.value = new HashMap<S, Double>(valueFunction);// Recopy the new, updated value function.
 		}
 
 		// Policy extraction
 		for (S s : states)
-			policy.put(s, argmax(a -> discountedRewards.apply(s, a), actions));
+			policy.put(s, argmax(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+					rewardFunction, decayFactor, valfunCopy.value), actions));
 
 		return policy;
+	}
+
+	public static <S, A> double evaluateDiscountedRewardsSum(S fromState, A actionTaken, Collection<? extends S> states,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor,
+			Map<? super S, ? extends Double> valueFunction) {
+		double tot = 0;
+		for (S s : states)
+			tot += transitionProbabilityFunction.run(fromState, actionTaken, s)
+					* (rewardFunction.run(fromState, actionTaken, s) + decayFactor * valueFunction.get(s));
+		return tot;
 	}
 
 	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
