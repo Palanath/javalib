@@ -2284,8 +2284,6 @@ public final class JavaTools {
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
 		assert !states.isEmpty() : "Set of states cannot be empty.";
 		assert !actions.isEmpty() : "Set of actions cannot be empty.";
-		for (S s : states)
-			valueFunction.put(s, 0d); // Initialize value function.
 
 		while (itercount-- > 0)
 			for (S s : states) {
@@ -2337,7 +2335,10 @@ public final class JavaTools {
 	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
-		return valueIteration(new HashMap<>(), new HashMap<>(), states, actions, transitionProbabilityFunction,
+		HashMap<S, Double> valueFunction = new HashMap<>();
+		for (S s : states)
+			valueFunction.put(s, 0d); // Initialize value function.
+		return valueIteration(new HashMap<>(), valueFunction, states, actions, transitionProbabilityFunction,
 				rewardFunction, decayFactor, itercount);
 	}
 
