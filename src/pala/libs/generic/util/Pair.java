@@ -15,4 +15,14 @@ public class Pair<F, S> {
 	public Pair<S, F> swap() {
 		return new Pair<>(second, first);
 	}
+
+	public Pair<F, S> setFirst(F first) {
+		this.first = first;
+		return this;
+	}
+
+	public Pair<F, S> setSecond(S second) {
+		this.second = second;
+		return this;
+	}
 }
