@@ -2462,8 +2462,7 @@ public final class JavaTools {
 	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
-		HashMap<S, Double> valueFunction = new HashMap<>();
-		return new MDPSolution<>(valueFunction, valueIteration(valueFunction, states, actions,
+		return new MDPSolution<>(new HashMap<>(), valueIteration(new HashMap<>(), states, actions,
 				transitionProbabilityFunction, rewardFunction, decayFactor, itercount));
 	}
 
