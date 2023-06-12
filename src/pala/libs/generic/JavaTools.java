@@ -2463,8 +2463,55 @@ public final class JavaTools {
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
 		HashMap<S, Double> valueFunction = new HashMap<>();
-		return new MDPSolution<S, A>(valueFunction, valueIteration(valueFunction, states, actions,
+		return new MDPSolution<>(valueFunction, valueIteration(valueFunction, states, actions,
 				transitionProbabilityFunction, rewardFunction, decayFactor, itercount));
+	}
+
+	public static <S, A> MDPSolution<S, A> policyIteration(Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		return policyIteration(null, null, states, actions, transitionProbabilityFunction, rewardFunction, decayFactor,
+				itercount);
+	}
+
+	public static <S, A> MDPSolution<S, A> policyIteration(Map<S, A> policy, Map<S, Double> valueFunction,
+			Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		assert !states.isEmpty() : "Set of states cannot be empty.";
+		assert !actions.isEmpty() : "Set of actions cannot be empty.";
+
+		A arbitraryAction = actions.iterator().next();
+
+		if (policy == null) {
+			policy = new HashMap<>();
+			for (S s : states)
+				policy.put(s, arbitraryAction);
+		} else
+			for (S s : states)
+				policy.put(s, arbitraryAction);
+
+		if (valueFunction == null) {
+			valueFunction = new HashMap<>();
+			for (S s : states)
+				valueFunction.put(s, 0d); // Initialize value function.
+		} else if (valueFunction.isEmpty())
+			for (S s : states)
+				valueFunction.put(s, 0d);
+
+		Box<Map<S, Double>> valfun = new Box<>(valueFunction);
+
+		while (itercount-- > 0) {
+			for (S s : states)
+				// Update value function.
+				valueFunction.put(s, evaluateDiscountedRewardsSum(s, policy.get(s), states,
+						transitionProbabilityFunction, rewardFunction, decayFactor, valfun.value));
+			for (S s : states)
+				policy.put(s, argmax(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+						rewardFunction, decayFactor, valfun.value), actions));
+		}
+
+		return new MDPSolution<>(valueFunction, policy);
 	}
 
 	public static <S, A> double runPolicy(S startingState, Function<? super S, ? extends A> policy,
