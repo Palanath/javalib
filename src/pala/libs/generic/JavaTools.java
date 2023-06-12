@@ -2313,7 +2313,7 @@ public final class JavaTools {
 		V m = function.apply(amax);
 		while (arguments.hasNext()) {
 			A n = arguments.next();
-			V nv = function.apply(amax);
+			V nv = function.apply(n);
 			if (comparator.compare(m, nv) < 0) {
 				amax = n;
 				m = nv;
@@ -2430,20 +2430,21 @@ public final class JavaTools {
 			for (S s : states)
 				valueFunction.put(s, 0d);
 
-		Box<Map<S, Double>> valfunCopy = new Box<>(new HashMap<>(valueFunction));
+		Box<Map<S, Double>> valfunCopy = new Box<>();
 
 		while (itercount-- > 0) {
+			valfunCopy.value = new HashMap<>(valueFunction);// Copy the new, updated value function.
 			for (S s : states)
 				// Update value function.
 				valueFunction.put(s, max(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
 						rewardFunction, decayFactor, valfunCopy.value), actions));
-			valfunCopy.value = new HashMap<S, Double>(valueFunction);// Recopy the new, updated value function.
 		}
 
 		// Policy extraction
+		final Map<S, Double> vf = valueFunction;
 		for (S s : states)
 			policy.put(s, argmax(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
-					rewardFunction, decayFactor, valfunCopy.value), actions));
+					rewardFunction, decayFactor, vf), actions));
 
 		return policy;
 	}
@@ -2456,13 +2457,15 @@ public final class JavaTools {
 		for (S s : states)
 			tot += transitionProbabilityFunction.run(fromState, actionTaken, s)
 					* (rewardFunction.run(fromState, actionTaken, s) + decayFactor * valueFunction.get(s));
+
 		return tot;
 	}
 
 	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
 			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
 			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
-		return new MDPSolution<>(new HashMap<>(), valueIteration(new HashMap<>(), states, actions,
+		HashMap<S, Double> valueFunction = new HashMap<>();
+		return new MDPSolution<>(valueFunction, valueIteration(valueFunction, states, actions,
 				transitionProbabilityFunction, rewardFunction, decayFactor, itercount));
 	}
 
