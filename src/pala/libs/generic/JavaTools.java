@@ -30,6 +30,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.Stack;
 import java.util.function.BiConsumer;
@@ -40,11 +41,13 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import pala.libs.generic.ml.mdp.MDPSolution;
 import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 import pala.libs.generic.util.functions.BiBooleanFunction;
 import pala.libs.generic.util.functions.BiDoubleFunction;
+import pala.libs.generic.util.functions.TriDoubleFunction;
 
 public final class JavaTools {
 
@@ -2107,12 +2110,19 @@ public final class JavaTools {
 		return true;
 	}
 
-	public static <K1, K2, V> V putIntoDoubleMap(Map<? super K1, Map<? super K2, V>> doubleMap, K1 key1, K2 key2,
-			V value) {
-		Map<? super K2, V> inner;
+	public static <K1, K2, V> V putIntoDoubleMap(Map<? super K1, Map<K2, V>> doubleMap, K1 key1, K2 key2, V value) {
+		Map<K2, V> inner;
 		if ((inner = doubleMap.get(key1)) == null)
 			doubleMap.put(key1, inner = new HashMap<>());
 		return inner.put(key2, value);
+	}
+
+	public static <K1, K2, K3, V> V putIntoTripleMap(Map<? super K1, Map<K2, Map<K3, V>>> tripleMap, K1 key1, K2 key2,
+			K3 key3, V value) {
+		Map<K2, Map<K3, V>> inner;
+		if ((inner = tripleMap.get(key1)) == null)
+			tripleMap.put(key1, inner = new HashMap<>());
+		return putIntoDoubleMap(inner, key2, key3, value);
 	}
 
 	public static double[] addVectors(double[] first, double... second) {
@@ -2266,6 +2276,257 @@ public final class JavaTools {
 			subtractVectorFrom(startPos, multiply(stepFactor.run(startPos, gradient.apply(startPos)), grad));
 		}
 		return startPos;
+	}
+
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			Iterable<? extends A> arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			Iterator<? extends A> arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	@SafeVarargs
+	public static <A, V extends Comparable<? super V>> A argmax(Function<? super A, ? extends V> function,
+			A... arguments) {
+		return argmax(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			Iterable<? extends A> arguments) {
+		return argmax(function, comparator, arguments.iterator());
+	}
+
+	@SafeVarargs
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			A... arguments) {
+		return argmax(function, comparator, iterator(arguments));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A, V> A argmax(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			Iterator<? extends A> arguments) {
+		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
+		A amax = arguments.next();
+		V m = function.apply(amax);
+		while (arguments.hasNext()) {
+			A n = arguments.next();
+			V nv = function.apply(n);
+			if (comparator.compare(m, nv) < 0) {
+				amax = n;
+				m = nv;
+			}
+		}
+		return amax;
+	}
+
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			Iterable<? extends A> arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			Iterator<? extends A> arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	@SafeVarargs
+	public static <A, V extends Comparable<? super V>> V max(Function<? super A, ? extends V> function,
+			A... arguments) {
+		return max(function, Comparator.naturalOrder(), arguments);
+	}
+
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			Iterable<? extends A> arguments) {
+		return max(function, comparator, arguments.iterator());
+	}
+
+	@SafeVarargs
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			A... arguments) {
+		return max(function, comparator, iterator(arguments));
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <A, V> V max(Function<? super A, ? extends V> function, Comparator<? super V> comparator,
+			Iterator<? extends A> arguments) {
+		comparator = comparator == null ? (Comparator<V>) Comparator.naturalOrder() : comparator;
+		V m = function.apply(arguments.next());
+		while (arguments.hasNext()) {
+			V nv = function.apply(arguments.next());
+			if (comparator.compare(m, nv) < 0)
+				m = nv;
+		}
+		return m;
+	}
+
+	/**
+	 * <p>
+	 * Performs value iteration on the provided policy and value functions. This
+	 * method optimizes the value function in a loop, <code>itercount</code> times,
+	 * and then performs a policy-extraction step where it finds the optimal policy
+	 * based on the values. The value function provided, as a {@link Map}, should be
+	 * modifiable. This method updates it and then extracts and returns a
+	 * corresponding policy based off of it.
+	 * </p>
+	 * 
+	 * @param <S>                           The type of the states.
+	 * @param <A>                           The type of the actions.
+	 * @param valueFunction                 A {@link Map} of discounted reward sums
+	 *                                      keyed by states. This is provided as an
+	 *                                      argument, rather than created in and
+	 *                                      returned by the function, so that
+	 *                                      callers that have already partially
+	 *                                      optimized the value function can provide
+	 *                                      their partially optimized instance. It
+	 *                                      will be optimized <code>itercount</code>
+	 *                                      times (it will be modified).
+	 * @param states                        The set of states in the Markov Decision
+	 *                                      Process.
+	 * @param actions                       The set of actions in the Markov
+	 *                                      Decision Process.
+	 * @param transitionProbabilityFunction A probability function that, when given
+	 *                                      a <i>current state</i> and a chosen
+	 *                                      <i>action</i>, and a <i>desired
+	 *                                      state</i>, returns the probability of
+	 *                                      arriving in the <i>desired state</i>
+	 *                                      from the <i>current state</i> if the
+	 *                                      provided <i>action</i> is taken. This is
+	 *                                      a function of three arguments:
+	 *                                      <code>(currentState, action, desiredState)</code>
+	 *                                      (in that order) that returns a
+	 *                                      <code>double</code> between
+	 *                                      <code>0</code> and <i>1</i> inclusive.
+	 * @param rewardFunction                A function that returns the reward that
+	 *                                      an actor would gain for transitioning
+	 *                                      from state <code>currentState</code> by
+	 *                                      taking action <code>action</code> to
+	 *                                      arrive at <code>desiredState</code>. The
+	 *                                      arguments are in that order.
+	 * @param decayFactor                   A constant <code>double</code> usually
+	 *                                      between <code>0</code> and
+	 *                                      <code>1</code>, near <code>1</code>. It
+	 *                                      discounts the value of a reward in the
+	 *                                      future.
+	 * @param itercount                     The number of times to update the value
+	 *                                      function before extracting the policy
+	 *                                      function.
+	 * @return The
+	 */
+	public static <S, A> Map<S, A> valueIteration(Map<S, Double> valueFunction, Set<? extends S> states,
+			Set<? extends A> actions, TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		assert !states.isEmpty() : "Set of states cannot be empty.";
+		assert !actions.isEmpty() : "Set of actions cannot be empty.";
+
+		Map<S, A> policy = new HashMap<>();
+		if (valueFunction == null) {
+			valueFunction = new HashMap<>();
+			for (S s : states)
+				valueFunction.put(s, 0d); // Initialize value function.
+		} else if (valueFunction.isEmpty())
+			for (S s : states)
+				valueFunction.put(s, 0d);
+
+		Box<Map<S, Double>> valfunCopy = new Box<>();
+
+		while (itercount-- > 0) {
+			valfunCopy.value = new HashMap<>(valueFunction);// Copy the new, updated value function.
+			for (S s : states)
+				// Update value function.
+				valueFunction.put(s, max(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+						rewardFunction, decayFactor, valfunCopy.value), actions));
+		}
+
+		// Policy extraction
+		final Map<S, Double> vf = valueFunction;
+		for (S s : states)
+			policy.put(s, argmax(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+					rewardFunction, decayFactor, vf), actions));
+
+		return policy;
+	}
+
+	public static <S, A> double evaluateDiscountedRewardsSum(S fromState, A actionTaken, Collection<? extends S> states,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor,
+			Map<? super S, ? extends Double> valueFunction) {
+		double tot = 0;
+		for (S s : states)
+			tot += transitionProbabilityFunction.run(fromState, actionTaken, s)
+					* (rewardFunction.run(fromState, actionTaken, s) + decayFactor * valueFunction.get(s));
+
+		return tot;
+	}
+
+	public static <S, A> MDPSolution<S, A> valueIteration(Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		HashMap<S, Double> valueFunction = new HashMap<>();
+		return new MDPSolution<>(valueFunction, valueIteration(valueFunction, states, actions,
+				transitionProbabilityFunction, rewardFunction, decayFactor, itercount));
+	}
+
+	public static <S, A> MDPSolution<S, A> policyIteration(Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		return policyIteration(null, null, states, actions, transitionProbabilityFunction, rewardFunction, decayFactor,
+				itercount);
+	}
+
+	public static <S, A> MDPSolution<S, A> policyIteration(Map<S, A> policy, Map<S, Double> valueFunction,
+			Set<? extends S> states, Set<? extends A> actions,
+			TriDoubleFunction<? super S, ? super A, ? super S> transitionProbabilityFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, double decayFactor, int itercount) {
+		assert !states.isEmpty() : "Set of states cannot be empty.";
+		assert !actions.isEmpty() : "Set of actions cannot be empty.";
+
+		A arbitraryAction = actions.iterator().next();
+
+		if (policy == null) {
+			policy = new HashMap<>();
+			for (S s : states)
+				policy.put(s, arbitraryAction);
+		} else
+			for (S s : states)
+				policy.put(s, arbitraryAction);
+
+		if (valueFunction == null) {
+			valueFunction = new HashMap<>();
+			for (S s : states)
+				valueFunction.put(s, 0d); // Initialize value function.
+		} else if (valueFunction.isEmpty())
+			for (S s : states)
+				valueFunction.put(s, 0d);
+
+		Box<Map<S, Double>> valfun = new Box<>(valueFunction);
+
+		while (itercount-- > 0) {
+			for (S s : states)
+				// Update value function.
+				valueFunction.put(s, evaluateDiscountedRewardsSum(s, policy.get(s), states,
+						transitionProbabilityFunction, rewardFunction, decayFactor, valfun.value));
+			for (S s : states)
+				policy.put(s, argmax(a -> evaluateDiscountedRewardsSum(s, a, states, transitionProbabilityFunction,
+						rewardFunction, decayFactor, valfun.value), actions));
+		}
+
+		return new MDPSolution<>(valueFunction, policy);
+	}
+
+	public static <S, A> double runPolicy(S startingState, Function<? super S, ? extends A> policy,
+			BiFunction<? super S, ? super A, ? extends S> transitionFunction,
+			TriDoubleFunction<? super S, ? super A, ? super S> rewardFunction, int times) {
+		double reward = 0;
+		while (times-- > 0) {
+			A action = policy.apply(startingState);
+			S newState = transitionFunction.apply(startingState, action);
+			reward += rewardFunction.run(startingState, action, newState);
+			startingState = newState;
+		}
+		return reward;
 	}
 
 }
