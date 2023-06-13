@@ -10,7 +10,15 @@ public class NeuralNetwork {
 	private final List<Layer> layers = new ArrayList<>();
 	private final List<double[][]> connections = new ArrayList<>();
 
+	public NeuralNetwork(Neuron... firstLayer) {
+		Layer l = new Layer();
+		layers.add(l);
+		for (Neuron n : firstLayer)
+			l.neurons.add(n);
+	}
+
 	public Layer addLayer(Neuron... neurons) {
+		connections.add(new double[layers.get(layers.size() - 1).neurons.size()][neurons.length]);
 		Layer l = new Layer();
 		layers.add(l);
 		for (Neuron n : neurons)
