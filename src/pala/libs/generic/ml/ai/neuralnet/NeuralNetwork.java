@@ -3,9 +3,12 @@ package pala.libs.generic.ml.ai.neuralnet;
 import java.util.ArrayList;
 import java.util.List;
 
+import pala.libs.generic.JavaTools;
+
 public class NeuralNetwork {
 
 	private final List<Layer> layers = new ArrayList<>();
+	private final List<double[][]> connections = new ArrayList<>();
 
 	public Layer addLayer(Neuron... neurons) {
 		Layer l = new Layer();
@@ -40,8 +43,16 @@ public class NeuralNetwork {
 	 * @return The outputs of the output layer.
 	 */
 	public double[] propagate(double... inputs) {
-		for (Layer l : layers)
-			inputs = l.propagate(inputs);
+		if (!layers.isEmpty()) {
+			inputs = layers.get(0).propagate(inputs);
+			for (int i = 0; i < connections.size(); i++) {
+				double[] res = new double[inputs.length];
+				for (int j = 0; j < res.length; j++)
+					res[j] = JavaTools.dotProduct(inputs, connections.get(i)[j]);
+				inputs = layers.get(i + 1).propagate(res);
+			}
+		}
 		return inputs;
 	}
+
 }
