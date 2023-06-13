@@ -9,7 +9,21 @@ package pala.libs.generic.ml.ai.neuralnet;
  *
  */
 public interface DifferentiableFunction {
+	/**
+	 * Evaluates this function on the provided point. The size of the provided
+	 * vector should match the input size of this function.
+	 * 
+	 * @param input The point to evaluate the function on.
+	 * @return The result of the evaluation.
+	 */
 	double evaluate(double... input);
 
+	/**
+	 * Evaluates this function's derivative on the provided point. The size of the
+	 * provided vector should match the input size of this function.
+	 * 
+	 * @param input The point to evaluate the derivative on.
+	 * @return The derivative.
+	 */
 	double evaluateDerivative(double... input);
 }
