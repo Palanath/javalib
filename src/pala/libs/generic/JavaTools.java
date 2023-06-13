@@ -2537,4 +2537,11 @@ public final class JavaTools {
 		return tot;
 	}
 
+	public static double sum(double... inputs) {
+		double d = 0;
+		for (int i = 0; i < inputs.length; i++)
+			d += inputs[i];
+		return d;
+	}
+
 }
