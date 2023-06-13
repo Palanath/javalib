@@ -2530,6 +2530,7 @@ public final class JavaTools {
 	}
 
 	public static double dotProduct(double[] v1, double... v2) {
+		assert v1.length == v2.length : "Dot product invoked with double-arrays of different length.";
 		double tot = 0;
 		for (int i = 0; i < v2.length; i++)
 			tot += v1[i] * v2[i];
