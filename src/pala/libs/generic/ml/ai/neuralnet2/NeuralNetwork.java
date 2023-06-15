@@ -35,7 +35,8 @@ public class NeuralNetwork {
 	 * </p>
 	 * <p>
 	 * Note that the weights in the network will all simply be initialized to
-	 * <code>0</code>.
+	 * <code>0</code>. To randomize the weights, {@link #randomizeWeights()} should
+	 * be called after instantiating the {@link NeuralNetwork}.
 	 * </p>
 	 * 
 	 * @param inputNodes  The number of input nodes (exactly equal to the size of
