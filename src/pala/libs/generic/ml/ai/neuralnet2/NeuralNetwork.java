@@ -3,10 +3,26 @@ package pala.libs.generic.ml.ai.neuralnet2;
 public class NeuralNetwork {
 	private final double[][][] weights;
 
-	private double[][] randomWeights(int fromLayerSize, int toLayerSize) {
-		double[][] weights = new double[fromLayerSize][toLayerSize];
-		randomize(weights);
-		return weights;
+	/**
+	 * Performs the dot product of the <code>inputVec</code> with each of the
+	 * <code>dotVecs</code> and stores each <code>double</code> result in the
+	 * returned <code>double</code> array. The order of the <code>double</code>s in
+	 * the result is the same as the <code>double[]</code> <code>dotVecs</code>
+	 * provided.
+	 * 
+	 * @param inputVec The input vector to dot product with each vector in
+	 *                 <code>dotVecs</code>.
+	 * @param dotVecs  The vectors to dot-product with <code>inputVec</code>.
+	 * @return The result of the dot products.
+	 */
+	private static double[] dotEach(double inputVec[], double[]... dotVecs) {
+		double[] res = new double[dotVecs.length];// One result per vector being dotted.
+
+		for (int i = 0; i < dotVecs.length; i++)
+			// For each vector being dotted, calc the dot product:
+			for (int j = 0; j < dotVecs[i].length; j++)// Go over each component of inputVec and of dotVecs[i].
+				res[i] += inputVec[j] * dotVecs[i][j];
+		return res;
 	}
 
 	/**
@@ -52,9 +68,9 @@ public class NeuralNetwork {
 	 *                    gives its output to the output layer.)
 	 */
 	public NeuralNetwork(int inputNodes, int outputNodes, int... hiddenNodes) {
-		if (hiddenNodes.length == 0) {
+		if (hiddenNodes.length == 0)
 			weights = new double[1][inputNodes][outputNodes];
-		} else {
+		else {
 			weights = new double[hiddenNodes.length + 1][][];
 			weights[0] = new double[inputNodes][hiddenNodes[0]];
 			for (int i = 1; i < weights.length; i++)
