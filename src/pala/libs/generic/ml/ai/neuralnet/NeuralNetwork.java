@@ -2,6 +2,7 @@ package pala.libs.generic.ml.ai.neuralnet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import pala.libs.generic.JavaTools;
 
@@ -61,6 +62,44 @@ public class NeuralNetwork {
 			}
 		}
 		return inputs;
+	}
+
+	public double evaluate(Function<double[], Double> lossFunction, double... inputs) {
+		return lossFunction.apply(propagate(inputs));
+	}
+
+	private static final DifferentiableFunction AVG = new DifferentiableFunction() {
+
+		@Override
+		public double evaluateDerivative(double... input) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public double evaluate(double... input) {
+			return 1 / (1 + Math.pow(Math.E, -JavaTools.sum(input)));
+		}
+	};
+
+	public static Neuron createNeuron() {
+		return new Neuron(new DifferentiableFunction() {
+
+			@Override
+			public double evaluateDerivative(double... input) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public double evaluate(double... input) {
+				return JavaTools.sum(input);
+			}
+		});
+	}
+
+	public static void main(String[] args) {
+		NeuralNetwork nn;
 	}
 
 }
