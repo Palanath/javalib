@@ -3,6 +3,27 @@ package pala.libs.generic.ml.ai.neuralnet2;
 public class NeuralNetwork {
 	private final double[][][] weights;
 
+	private double[][] randomWeights(int fromLayerSize, int toLayerSize) {
+		double[][] weights = new double[fromLayerSize][toLayerSize];
+		randomize(weights);
+		return weights;
+	}
+
+	/**
+	 * Sets the weights of the network to random values between <code>0</code> and
+	 * <code>1</code>.
+	 */
+	public void randomizeWeights() {
+		for (double[][] d : weights)
+			randomize(d);
+	}
+
+	private void randomize(double[]... weights) {
+		for (int i = 0; i < weights.length; i++)
+			for (int j = 0; j < weights[i].length; j++)
+				weights[i][j] = Math.random();
+	}
+
 	/**
 	 * <p>
 	 * Creates a new, simple {@link NeuralNetwork} with the specified number of
