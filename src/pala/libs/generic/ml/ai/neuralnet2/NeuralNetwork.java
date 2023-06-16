@@ -17,6 +17,19 @@ public class NeuralNetwork {
 		return res;
 	}
 
+	public double loss(double[] pred, double... correctAnswers) {
+		return mseEach(pred, correctAnswers);// Mean squared error between predictions & correct answers.
+	}
+
+	private static double mseEach(double[] v1, double... v2) {
+		double res = 0;
+		for (int i = 0; i < v1.length; i++) {
+			double err = v1[i] - v2[i];
+			res += err * err;
+		}
+		return res / v1.length;
+	}
+
 	/**
 	 * Performs the dot product of the <code>inputVec</code> with each of the
 	 * <code>dotVecs</code> and stores each <code>double</code> result in the
