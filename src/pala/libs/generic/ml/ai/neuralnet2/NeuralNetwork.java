@@ -3,6 +3,20 @@ package pala.libs.generic.ml.ai.neuralnet2;
 public class NeuralNetwork {
 	private final double[][][] weights;
 
+	public double[] evaluate(double... input) {
+		for (int i = 0; i < weights.length; i++)
+			input = sigmoidEachInPlace(dotEach(input, weights[i]));
+		// input now contains the predictions.
+		return input;
+	}
+
+	public double[][] evaluate(double[]... inputs) {
+		double[][] res = new double[inputs.length][];
+		for (int i = 0; i < res.length; i++)
+			res[i] = evaluate(inputs[i]);
+		return res;
+	}
+
 	/**
 	 * Performs the dot product of the <code>inputVec</code> with each of the
 	 * <code>dotVecs</code> and stores each <code>double</code> result in the
