@@ -26,6 +26,30 @@ public class NeuralNetwork {
 	}
 
 	/**
+	 * Overwrites each value in the provided array of <code>double</code>s with the
+	 * sigmoid of that value. The provided, modified array is returned.
+	 * 
+	 * @param values The values to sigmoid.
+	 * @return The given array, after it is modified.
+	 */
+	private static double[] sigmoidEachInPlace(double... values) {
+		for (int i = 0; i < values.length; i++)
+			values[i] = 1 / (1 + Math.exp(-values[i]));
+		return values;
+	}
+
+	/**
+	 * Performs the mathematical sigmoid function on each provided
+	 * <code>double</code> and returns the results as an array.
+	 * 
+	 * @param values The values to sigmoid.
+	 * @return The result of each application of the sigmoid function.
+	 */
+	private static double[] sigmoidEach(double... values) {
+		return sigmoidEachInPlace(values.clone());
+	}
+
+	/**
 	 * Sets the weights of the network to random values between <code>0</code> and
 	 * <code>1</code>.
 	 */
