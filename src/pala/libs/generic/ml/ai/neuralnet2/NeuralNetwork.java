@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet2;
 
+import pala.libs.generic.JavaTools;
+
 public class NeuralNetwork {
 	private final double[][][] weights;
 
@@ -17,6 +19,58 @@ public class NeuralNetwork {
 		return res;
 	}
 
+	/**
+	 * Evaluates the gradient of the loss function with respect to every weight and
+	 * returns the result. The shape of the result is the exact same as that of this
+	 * network's weights.
+	 * 
+	 * @param input          The input to perform the forward and backward passes
+	 *                       on. It should have the same number of elements as what
+	 *                       the number of nodes in the first layer.
+	 * @param correctAnswers The correct outputs for the input.
+	 * @return The result of the gradient computation.
+	 */
+	private double[][][] grad(double[] input, double... correctAnswers) {
+		// Perform forward pass
+		double[][] layerOutputs = new double[weights.length + 1][];
+		layerOutputs[0] = input;
+
+		for (int i = 0; i < weights.length; i++) {
+			double[] weightedSum = dotEach(layerOutputs[i], weights[i]);
+			layerOutputs[i + 1] = sigmoidEachInPlace(weightedSum);
+		}
+
+		// Perform backward pass and compute gradients
+		double[][][] gradients = new double[weights.length][][];
+		double[] delta = subtract(layerOutputs[weights.length], correctAnswers);
+
+		for (int i = weights.length - 1; i >= 0; i--) {
+			double[] sigmoidDerivatives = sigmoidDerivativeEach(layerOutputs[i + 1]);
+			double[][] weightGradients = outerProduct(delta, layerOutputs[i]);
+			gradients[i] = multiply(sigmoidDerivatives, weightGradients);
+			delta = dotProduct(delta, transpose(weights[i]));
+		}
+
+		return gradients;
+	}
+
+	private static double[][] multiply(double[] vec1, double[]... multiplicands) {
+		double[][] res = new double[vec1.length][multiplicands[0].length];
+		for (int i = 0; i < multiplicands.length; i++)
+			for (int j = 0; j < vec1.length; j++)
+				res[i][j] = vec1[i] * multiplicands[i][j];
+		return res;
+		// TODO Check
+	}
+
+	private static double[][] outerProduct(double[] v1, double... v2) {
+		double[][] res = new double[v1.length][v2.length];
+		for (int i = 0; i < v1.length; i++)
+			for (int j = 0; j < v2.length; j++)
+				res[i][j] = v1[i] * v2[j];
+		return res;
+	}
+
 	public double loss(double[] pred, double... correctAnswers) {
 		return mseEach(pred, correctAnswers);// Mean squared error between predictions & correct answers.
 	}
@@ -28,6 +82,27 @@ public class NeuralNetwork {
 			res += err * err;
 		}
 		return res / v1.length;
+	}
+
+	private static double[] scale(double scale, double... vec) {
+		double[] res = new double[vec.length];
+		for (int i = 0; i < res.length; i++)
+			res[i] = vec[i] * scale;
+		return res;
+	}
+
+	private static double[] multiplyElementWise(double[] v1, double... v2) {
+		double[] res = new double[v1.length];
+		for (int i = 0; i < res.length; i++)
+			res[i] = v1[i] * v2[i];
+		return res;
+	}
+
+	private static double[] subtract(double[] v1, double... v2) {
+		double[] res = new double[v1.length];
+		for (int i = 0; i < res.length; i++)
+			res[i] = v1[i] - v2[i];
+		return res;
 	}
 
 	/**
@@ -74,6 +149,18 @@ public class NeuralNetwork {
 	 */
 	private static double[] sigmoidEach(double... values) {
 		return sigmoidEachInPlace(values.clone());
+	}
+
+	private static double[] sigmoidDerivativeEachInPlace(double... values) {
+		for (int i = 0; i < values.length; i++) {
+			double sig = 1 / (1 + Math.exp(-values[i]));
+			values[i] = sig * (1 - sig);
+		}
+		return values;
+	}
+
+	private static double[] sigmoidDerivativeEach(double... values) {
+		return sigmoidDerivativeEachInPlace(values.clone());
 	}
 
 	/**
