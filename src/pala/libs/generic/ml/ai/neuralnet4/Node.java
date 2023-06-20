@@ -37,4 +37,35 @@ public interface Node {
 	 * @return The outputs of evaluating the {@link Node} on the inputs.
 	 */
 	double[] evaluate(double... input);
+
+	/**
+	 * Creates a {@link Node} whose result is the evaluation of each of the provided
+	 * {@link Node}s, in order. This is equivalent to function composition.
+	 * 
+	 * @param nodes The {@link Node}s to chain together.
+	 * @return The resulting chain {@link Node}.
+	 */
+	static Node chain(Node... nodes) {
+		for (int i = 0; i < nodes.length - 1; i++)
+			assert nodes[i].outputs() == nodes[i + 1].inputs() : "Invalid size for provided nodes.";
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return nodes[nodes.length - 1].outputs();
+			}
+
+			@Override
+			public int inputs() {
+				return nodes[0].inputs();
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				for (Node node : nodes)
+					input = node.evaluate(input);// The sizes must match for this to work.
+				return input;
+			}
+		};
+	}
 }
