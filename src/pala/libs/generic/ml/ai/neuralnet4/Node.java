@@ -75,7 +75,7 @@ public interface Node {
 		};
 	}
 
-	static Node map(Node[] from, Node[] to) {
+	static @Deprecated Node map(Node[] from, Node[] to) {
 		int fromOutputs = 0, toInputs = 0, fromInputs = 0, toOutputs = 0;
 		for (int i = 0; i < from.length; i++) {
 			fromOutputs += from[i].outputs();
@@ -128,7 +128,7 @@ public interface Node {
 
 	}
 
-	public static Node add(int inputs) {
+	static Node add(int inputs) {
 		return new Node() {
 
 			@Override
@@ -144,6 +144,60 @@ public interface Node {
 			@Override
 			public double[] evaluate(double... input) {
 				return new double[] { JavaTools.sum(input) };
+			}
+		};
+	}
+
+	/**
+	 * <p>
+	 * Returns a map {@link Node} that does nothing more than map inputs to outputs.
+	 * </p>
+	 * <p>
+	 * The <code>n<sup>th</sup></code> element of the provided <code>mapping</code>
+	 * array is the index of the input to map from. The <code>mapping</code> array
+	 * therefore represents a map from output to input, where:
+	 * </p>
+	 * <ul>
+	 * <li><i>The index used to access an element in <code>mapping</code></i> is the
+	 * output node to map to, and</li>
+	 * <li><i>the value stored in <code>mapping</code> at that index</i> is the
+	 * input node to map from.</li>
+	 * </ul>
+	 * <p>
+	 * For example, if every element in <code>mapping</code> was <code>0</code>,
+	 * then every output in a call to {@link #evaluate(double...)} would be the
+	 * input element at index <code>0</code>.
+	 * </p>
+	 * <p>
+	 * Every output should be mapped to an input meaning that the
+	 * <code>mapping</code> array should have exactly <code>outputs</code> elements.
+	 * </p>
+	 * 
+	 * @param inputs  The number of inputs of the returned {@link Node}.
+	 * @param outputs The number of outputs of the returned {@link Node}.
+	 * @param mapping A mapping from each output to an input.
+	 * @return The new {@link Node}.
+	 */
+	static Node map(int inputs, int outputs, int... mapping) {
+		assert mapping.length == outputs;
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return outputs;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				double[] res = new double[outputs];
+				for (int i = 0; i < mapping.length; i++)
+					res[i] = input[mapping[i]];
+				return res;
 			}
 		};
 	}
