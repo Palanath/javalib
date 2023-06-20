@@ -1,8 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import pala.libs.generic.JavaTools;
 
@@ -129,12 +127,7 @@ public interface Node {
 	}
 
 	static Node add(int inputs) {
-		return new Node() {
-
-			@Override
-			public int outputs() {
-				return 1;
-			}
+		return new SimpleNode() {
 
 			@Override
 			public int inputs() {
@@ -203,12 +196,7 @@ public interface Node {
 	}
 
 	static Node multiply(int inputs) {
-		return new Node() {
-
-			@Override
-			public int outputs() {
-				return 1;
-			}
+		return new SimpleNode() {
 
 			@Override
 			public int inputs() {
