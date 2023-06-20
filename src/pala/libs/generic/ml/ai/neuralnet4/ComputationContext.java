@@ -5,6 +5,13 @@ import java.util.Stack;
 
 public interface ComputationContext {
 
+	/**
+	 * Used when {@link Node#evaluate(ComputationContext, double...)} is called
+	 * without intent to perform a corresponding backward pass. This
+	 * {@link ComputationContext} does nothing when {@link #save(Object)} is called.
+	 * When {@link #popImpl()} is called, it returns <code>null</code>, though only
+	 * its {@link #save(Object)} method should ever be called.
+	 */
 	ComputationContext DUMMY = new ComputationContext() {
 		@Override
 		public void save(Object o) {
