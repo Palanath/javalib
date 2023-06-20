@@ -266,21 +266,4 @@ public interface Node {
 		return Arrays.toString(evaluate(inputs));
 	}
 
-	public static void main(String[] args) {
-		Node x = add(2);
-		Node y = multiply(2);
-		// 4 total
-		System.out.println("ADD (2 --> 1) " + x.evalToString(3, 5));
-		System.out.println("MUL (2 --> 1) " + y.evalToString(3, 5));
-		Node comb = combine(x, y);
-		System.out.println("COM (4 --> 2) " + comb.evalToString(3, 5, 3, 5));
-		System.out.println("CHN (2 --> 1) " + chain(comb, x).evalToString(3, 5, 3, 5));
-
-		Node m = map(1, 0, 0, 0, 0);
-		System.out.println("MAP (1 --> 4) " + m.evalToString(3));
-		Node c = chain(m, comb);
-		System.out.println("COM (1 --> 2) " + c.evalToString(3));
-
-	}
-
 }
