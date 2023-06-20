@@ -162,22 +162,24 @@ public interface Node {
 	 * input element at index <code>0</code>.
 	 * </p>
 	 * <p>
-	 * Every output should be mapped to an input meaning that the
-	 * <code>mapping</code> array should have exactly <code>outputs</code> elements.
+	 * The number of outputs the resulting {@link Node} will have is equal to the
+	 * length of the provided <code>mapping</code> array.
 	 * </p>
 	 * 
 	 * @param inputs  The number of inputs of the returned {@link Node}.
-	 * @param outputs The number of outputs of the returned {@link Node}.
-	 * @param mapping A mapping from each output to an input.
+	 * @param mapping A mapping from each output to an input. Note that the array is
+	 *                <b>not copied</b> and so subsequent changes to it will be
+	 *                reflected by the map {@link Node} that gets returned. Care
+	 *                should be taken not to change the array during operation,
+	 *                particularly between a forward and backward pass.
 	 * @return The new {@link Node}.
 	 */
-	static Node map(int inputs, int outputs, int... mapping) {
-		assert mapping.length == outputs;
+	static Node map(int inputs, int... mapping) {
 		return new Node() {
 
 			@Override
 			public int outputs() {
-				return outputs;
+				return mapping.length;
 			}
 
 			@Override
@@ -187,7 +189,7 @@ public interface Node {
 
 			@Override
 			public double[] evaluate(double... input) {
-				double[] res = new double[outputs];
+				double[] res = new double[mapping.length];
 				for (int i = 0; i < mapping.length; i++)
 					res[i] = input[mapping[i]];
 				return res;
@@ -258,6 +260,10 @@ public interface Node {
 				return o;
 			}
 		};
+	}
+
+	default String evalToString(double... inputs) {
+		return Arrays.toString(evaluate(inputs));
 	}
 
 }
