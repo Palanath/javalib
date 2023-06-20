@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
+import java.util.Stack;
+
 public interface ComputationContext {
 	/**
 	 * Pushes the provided {@link Object} onto the context.
@@ -30,5 +32,20 @@ public interface ComputationContext {
 	 * @return The next item in the context.
 	 */
 	Object popImpl();
+
+	static ComputationContext fromStack(Stack<? super Object> stack) {
+		return new ComputationContext() {
+
+			@Override
+			public void save(Object o) {
+				stack.push(o);
+			}
+
+			@Override
+			public Object popImpl() {
+				return stack.pop();
+			}
+		};
+	}
 
 }
