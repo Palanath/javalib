@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.compgraph;
 
-public class Node {
+public interface Node {
+	int getInputs();
 
+	int getOutputs();
 }
