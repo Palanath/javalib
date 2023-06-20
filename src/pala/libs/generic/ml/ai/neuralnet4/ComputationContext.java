@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 
 public interface ComputationContext {
@@ -44,6 +46,21 @@ public interface ComputationContext {
 			@Override
 			public Object popImpl() {
 				return stack.pop();
+			}
+		};
+	}
+
+	static ComputationContext fromList(List<? super Object> list) {
+		return new ComputationContext() {
+
+			@Override
+			public void save(Object o) {
+				list.add(o);
+			}
+
+			@Override
+			public Object popImpl() {
+				return list.remove(list.size() - 1);
 			}
 		};
 	}
