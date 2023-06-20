@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import pala.libs.generic.JavaTools;
+
 public interface Node {
 	/**
 	 * <p>
@@ -125,4 +127,25 @@ public interface Node {
 		};
 
 	}
+
+	public static Node add(int inputs) {
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return 1;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				return new double[] { JavaTools.sum(input) };
+			}
+		};
+	}
+
 }
