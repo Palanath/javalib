@@ -213,4 +213,51 @@ public interface Node {
 		};
 	}
 
+	/**
+	 * Returns a single combination {@link Node} that has one input for each of the
+	 * inputs of the supplied {@link Node}s and has one output for each of the
+	 * outputs of the supplied nodes. The inputs to the returned combination
+	 * {@link Node} are passed directly to the supplied {@link Node}s when the
+	 * returned {@link Node} is executed, and the outputs of the supplied
+	 * {@link Node}s are provided directly as the output of the returned
+	 * {@link Node}. The order of the supplied {@link Node}s is used for the order
+	 * of the inputs and outputs of this {@link Node}.
+	 * 
+	 * @param nodes The {@link Node}s to combine.
+	 * @return The resulting combination {@link Node}.
+	 */
+	static Node combine(Node... nodes) {
+		int i = 0, o = 0;
+		for (int j = 0; j < nodes.length; j++) {
+			i += nodes[j].inputs();
+			o += nodes[j].outputs();
+		}
+		int inputs = i, outputs = o;
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return outputs;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				double[] o = new double[outputs];
+				int iind = 0, oind = 0;
+				for (int i = 0; i < nodes.length; i++) {
+					double[] subNodeOutput = nodes[i]
+							.evaluate(Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
+					System.arraycopy(subNodeOutput, 0, o, oind, subNodeOutput.length);
+					oind += subNodeOutput.length;
+				}
+				return o;
+			}
+		};
+	}
+
 }
