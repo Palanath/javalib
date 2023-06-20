@@ -1,10 +1,21 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
 public interface ComputationContext {
+
+	ComputationContext DUMMY = new ComputationContext() {
+		@Override
+		public void save(Object o) {
+		}
+
+		@Override
+		public Object popImpl() {
+			return null;
+		}
+	};
+
 	/**
 	 * Pushes the provided {@link Object} onto the context.
 	 * 
