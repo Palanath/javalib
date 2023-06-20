@@ -202,4 +202,27 @@ public interface Node {
 		};
 	}
 
+	static Node multiply(int inputs) {
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return 1;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				double res = 1;
+				for (int i = 0; i < input.length; i++)
+					res *= input[i];
+				return new double[] { res };
+			}
+		};
+	}
+
 }
