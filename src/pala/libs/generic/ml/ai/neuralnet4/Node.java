@@ -1,5 +1,9 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 public interface Node {
 	/**
 	 * <p>
@@ -67,5 +71,58 @@ public interface Node {
 				return input;
 			}
 		};
+	}
+
+	static Node map(Node[] from, Node[] to) {
+		int fromOutputs = 0, toInputs = 0, fromInputs = 0, toOutputs = 0;
+		for (int i = 0; i < from.length; i++) {
+			fromOutputs += from[i].outputs();
+			fromInputs += from[i].inputs();
+		}
+		for (int i = 0; i < to.length; i++) {
+			toInputs += to[i].inputs();
+			toOutputs += to[i].outputs();
+		}
+
+		assert fromOutputs == toInputs : "From nodes total output (" + fromOutputs
+				+ ") does not match To nodes total input (" + toInputs + ").";
+
+		final int toOutputs_ = toOutputs, fromInputs_ = fromInputs, inside = fromOutputs;
+
+		return new Node() {
+
+			@Override
+			public int outputs() {
+				return toOutputs_;
+			}
+
+			@Override
+			public int inputs() {
+				return fromInputs_;
+			}
+
+			@Override
+			public double[] evaluate(double... input) {
+				double[] f = new double[inside];
+				int iind = 0, oind = 0;
+				for (int i = 0; i < from.length; i++) {
+					double[] temp = from[i].evaluate(Arrays.copyOfRange(input, iind, iind += from[i].inputs()));
+					System.arraycopy(temp, 0, f, oind, temp.length);
+					oind += temp.length;
+				}
+
+				double[] res = new double[toOutputs_];
+				iind = 0;
+				oind = 0;
+				for (int i = 0; i < to.length; i++) {
+					double[] temp = to[i].evaluate(Arrays.copyOfRange(f, iind, iind += to[i].inputs()));
+					System.arraycopy(temp, 0, res, oind, temp.length);
+					oind += temp.length;
+				}
+
+				return res;
+			}
+		};
+
 	}
 }
