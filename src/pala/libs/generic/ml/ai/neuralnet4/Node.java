@@ -161,6 +161,12 @@ public interface Node {
 					input = node.evaluate(c, input);// The sizes must match for this to work.
 				return input;
 			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 	}
 
@@ -213,6 +219,12 @@ public interface Node {
 
 				return res;
 			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 
 	}
@@ -228,6 +240,12 @@ public interface Node {
 			@Override
 			public double[] evaluate(ComputationContext c, double... input) {
 				return new double[] { JavaTools.sum(input) };
+			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}
@@ -285,6 +303,12 @@ public interface Node {
 					res[i] = input[mapping[i]];
 				return res;
 			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		};
 	}
 
@@ -302,6 +326,12 @@ public interface Node {
 				for (int i = 0; i < input.length; i++)
 					res *= input[i];
 				return new double[] { res };
+			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				// TODO Auto-generated method stub
+				return null;
 			}
 		};
 	}
