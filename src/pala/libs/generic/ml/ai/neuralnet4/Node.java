@@ -1,6 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Arrays;
+import java.util.Stack;
 
 import pala.libs.generic.JavaTools;
 
@@ -118,7 +119,7 @@ public interface Node {
 
 	double getWeight(int weight);
 
-	double[] evaluate(ComputationContext c, double... input);
+	double[] evaluate(ComputationContext ctx, double... input);
 
 	/**
 	 * Evaluates this {@link Node} on the provided input vector. The provided
@@ -318,7 +319,7 @@ public interface Node {
 	 * @param nodes The {@link Node}s to combine.
 	 * @return The resulting combination {@link Node}.
 	 */
-	static Node combine(Node... nodes) {
+	static SimpleNode combine(Node... nodes) {
 		int i = 0, o = 0;
 		for (int j = 0; j < nodes.length; j++) {
 			i += nodes[j].inputs();
@@ -341,13 +342,31 @@ public interface Node {
 			public double[] evaluate(ComputationContext c, double... input) {
 				double[] o = new double[outputs];
 				int iind = 0, oind = 0;
+				ComputationContext[] subcontexts = new ComputationContext[nodes.length];
 				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeOutput = nodes[i].evaluate(c,
+					double[] subNodeOutput = nodes[i].evaluate(
+							subcontexts[i] = ComputationContext.fromStack(new Stack<>()),
 							Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
 					System.arraycopy(subNodeOutput, 0, o, oind, subNodeOutput.length);
 					oind += subNodeOutput.length;
 				}
+				c.save(subcontexts);
 				return o;
+			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				ComputationContext[] subcontexts = ctx.pop();
+
+				double[] inputGrad = new double[inputs];
+				int iind = 0, oind = 0;
+				for (int i = 0; i < nodes.length; i++) {
+					double[] subNodeGrad = nodes[i].grad(subcontexts[i],
+							Arrays.copyOfRange(outGrad, oind, oind += nodes[i].outputs()));
+					System.arraycopy(subNodeGrad, 0, inputGrad, iind, subNodeGrad.length);
+					iind += subNodeGrad.length;
+				}
+				return inputGrad;
 			}
 		};
 	}
