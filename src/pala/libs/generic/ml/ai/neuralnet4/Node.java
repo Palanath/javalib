@@ -335,6 +335,7 @@ public interface Node {
 
 			@Override
 			public double[] evaluate(ComputationContext c, double... input) {
+				c.save(input);
 				double res = 1;
 				for (int i = 0; i < input.length; i++)
 					res *= input[i];
@@ -343,8 +344,16 @@ public interface Node {
 
 			@Override
 			public double[] grad(ComputationContext ctx, double... outGrad) {
-				// TODO Auto-generated method stub
-				return null;
+				// Derivative of input is each of the other inputs.
+				double[] ins = ctx.pop();
+				double m = outGrad[0];// outputDeriv times each input
+				for (int i = 0; i < inputs; i++)
+					m *= ins[i];
+
+				double[] g = new double[inputs];
+				for (int i = 0; i < g.length; i++)
+					g[i] = m / ins[i];// division removes "this input" from the total multiplication
+				return g;
 			}
 		};
 	}
