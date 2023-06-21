@@ -3,7 +3,7 @@ package pala.libs.generic.ml.ai.neuralnet4;
 class ContainerImpl implements Container {
 
 	private Object value;
-	private boolean modifyMode;
+	private boolean modifyMode = true;
 
 	public boolean isModifyMode() {
 		return modifyMode;
