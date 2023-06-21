@@ -264,7 +264,7 @@ public interface Computation {
 	}
 
 	static Computation add(int inputs) {
-		return new VectorNode() {
+		return new VectorComputation() {
 
 			@Override
 			public int inputs() {
@@ -355,7 +355,7 @@ public interface Computation {
 	}
 
 	static Computation multiply(int inputs) {
-		return new VectorNode() {
+		return new VectorComputation() {
 
 			@Override
 			public int inputs() {
