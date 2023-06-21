@@ -1,7 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Arrays;
-import java.util.Stack;
 
 import pala.libs.generic.JavaTools;
 
@@ -86,10 +85,14 @@ public interface Computation {
 	 * often, a full matrix-vector multiplication is not needed.
 	 * </p>
 	 * 
-	 * @param ctx           The context containing the information computed and
-	 *                      stored by this {@link Computation}, if any, during the
-	 *                      forward pass (during a call to
-	 *                      {@link #evaluate(ComputationContext, double...)}).
+	 * @param c             A {@link Container} that this method should retrieve
+	 *                      information stored within a forward pass, for the
+	 *                      purpose of computing the gradient, from. This could
+	 *                      include values from the inputs or intermediary
+	 *                      calculations. The {@link Container} can only store one
+	 *                      item at a time, so if multiple data need to be stored,
+	 *                      it must be packaged (e.g. in an instance of a local
+	 *                      class).
 	 * @param weightStorage An object used to collect and store the weights of each
 	 *                      {@link Node} along the graph as gradients are
 	 *                      calculated.
@@ -98,7 +101,7 @@ public interface Computation {
 	 * @return The gradient of the loss with respect to each of the inputs of this
 	 *         {@link Computation}.
 	 */
-	double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad);
+	double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad);
 
 	/**
 	 * <p>
@@ -128,7 +131,7 @@ public interface Computation {
 	 */
 	int outputs();
 
-	double[] evaluate(ComputationContext ctx, double... input);
+	double[] evaluate(Container c, double... input);
 
 	/**
 	 * Evaluates this {@link Computation} on the provided input vector. The provided
@@ -139,7 +142,7 @@ public interface Computation {
 	 * @return The outputs of evaluating the {@link Computation} on the inputs.
 	 */
 	default double[] eval(double... input) {
-		return evaluate(ComputationContext.DUMMY, input);
+		return evaluate(Container.DUMMY, input);
 	}
 
 	/**
@@ -166,21 +169,21 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
-				ComputationContext[] subcontexts = new ComputationContext[nodes.length];
+			public double[] evaluate(Container c, double... input) {
+				Container[] subcontexts = new ContainerImpl[nodes.length];
 				for (int i = 0; i < nodes.length; i++)
 					// The sizes must match for this to work. (Previous node's output = next node's
 					// input.)
-					input = nodes[i].evaluate(subcontexts[i] = ComputationContext.fromStack(new Stack<>()), input);
-				c.save(subcontexts);
+					input = nodes[i].evaluate(subcontexts[i] = new ContainerImpl(), input);
+				c.set(subcontexts);
 				return input;
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
-				ComputationContext[] subcontexts = ctx.pop();
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
+				ContainerImpl[] subcontexts = ctx.get();
 				for (int i = nodes.length - 1; i >= 0; i--)
-					outGrad = nodes[i].grad(subcontexts[i], weightStorage, outGrad);
+					outGrad = nodes[i].grad(subcontexts[i].disableModification(), weightStorage, outGrad);
 				return outGrad;
 			}
 		};
@@ -215,7 +218,7 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
+			public double[] evaluate(Container c, double... input) {
 				double[] f = new double[inside];
 				int iind = 0, oind = 0;
 				for (int i = 0; i < from.length; i++) {
@@ -237,7 +240,7 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
 				// TODO Auto-generated method stub
 				return null;
 			}
@@ -254,12 +257,12 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
+			public double[] evaluate(Container c, double... input) {
 				return new double[] { JavaTools.sum(input) };
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
 				double[] res = new double[inputs];
 				Arrays.fill(res, outGrad[0]);
 				return res;
@@ -315,7 +318,7 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
+			public double[] evaluate(Container c, double... input) {
 				double[] res = new double[mapping.length];
 				for (int i = 0; i < mapping.length; i++)
 					res[i] = input[mapping[i]];
@@ -323,7 +326,7 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
 				// Each output that a single input is sent to increases the gradient of that
 				// input by the gradient of the output.
 				// If one input points to two outputs, with derivatives 5 and 3, respectively,
@@ -345,8 +348,8 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
-				c.save(input);
+			public double[] evaluate(Container c, double... input) {
+				c.set(input);
 				double res = 1;
 				for (int i = 0; i < input.length; i++)
 					res *= input[i];
@@ -354,9 +357,9 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
 				// Derivative of input is each of the other inputs.
-				double[] ins = ctx.pop();
+				double[] ins = ctx.get();
 				double m = outGrad[0];// outputDeriv times each input
 				for (int i = 0; i < inputs; i++)
 					m *= ins[i];
@@ -403,29 +406,28 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
+			public double[] evaluate(Container c, double... input) {
 				double[] o = new double[outputs];
 				int iind = 0, oind = 0;
-				ComputationContext[] subcontexts = new ComputationContext[nodes.length];
+				Container[] subcontexts = new ContainerImpl[nodes.length];
 				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeOutput = nodes[i].evaluate(
-							subcontexts[i] = ComputationContext.fromStack(new Stack<>()),
+					double[] subNodeOutput = nodes[i].evaluate(subcontexts[i] = new ContainerImpl(),
 							Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
 					System.arraycopy(subNodeOutput, 0, o, oind, subNodeOutput.length);
 					oind += subNodeOutput.length;
 				}
-				c.save(subcontexts);
+				c.set(subcontexts);
 				return o;
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
-				ComputationContext[] subcontexts = ctx.pop();
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
+				ContainerImpl[] subcontexts = ctx.get();
 
 				double[] inputGrad = new double[inputs];
 				int iind = 0, oind = 0;
 				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeGrad = nodes[i].grad(subcontexts[i], weightStorage,
+					double[] subNodeGrad = nodes[i].grad(subcontexts[i].disableModification(), weightStorage,
 							Arrays.copyOfRange(outGrad, oind, oind += nodes[i].outputs()));
 					System.arraycopy(subNodeGrad, 0, inputGrad, iind, subNodeGrad.length);
 					iind += subNodeGrad.length;
@@ -456,8 +458,8 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] grad(ComputationContext ctx, WeightGradStorage weightStorage, double... outGrad) {
-				boolean[] data = ctx.pop();
+			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
+				boolean[] data = ctx.get();
 				double[] res = new double[outGrad.length];
 				for (int i = 0; i < res.length; i++)
 					if (data[i])
@@ -466,19 +468,19 @@ public interface Computation {
 			}
 
 			@Override
-			public double[] evaluate(ComputationContext c, double... input) {
+			public double[] evaluate(Container c, double... input) {
 				double[] res = new double[input.length];
 				boolean[] data = new boolean[input.length];
 				for (int i = 0; i < input.length; i++)
 					if (data[i] = (input[i] > 0))
 						res[i] = input[i];
-				c.save(data);
+				c.set(data);
 				return res;
 			}
 		};
 	}
 
-	default String evalToString(ComputationContext c, double... inputs) {
+	default String evalToString(Container c, double... inputs) {
 		return Arrays.toString(evaluate(c, inputs));
 	}
 
