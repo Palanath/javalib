@@ -6,7 +6,7 @@ import java.util.Stack;
 public interface ComputationContext {
 
 	/**
-	 * Used when {@link Node#evaluate(ComputationContext, double...)} is called
+	 * Used when {@link Computation#evaluate(ComputationContext, double...)} is called
 	 * without intent to perform a corresponding backward pass. This
 	 * {@link ComputationContext} does nothing when {@link #save(Object)} is called.
 	 * When {@link #popImpl()} is called, it returns <code>null</code>, though only
@@ -25,7 +25,7 @@ public interface ComputationContext {
 
 	/**
 	 * Pushes the provided {@link Object} onto the context. This should be called at
-	 * maximum, once by each {@link Node}. {@link Node}s are free to package any
+	 * maximum, once by each {@link Computation}. {@link Computation}s are free to package any
 	 * data they need into the {@link Object} they push to the context.
 	 * 
 	 * @param o The data to push to the context.
@@ -34,8 +34,8 @@ public interface ComputationContext {
 
 	/**
 	 * Pops the next object off of the context. This should be called in
-	 * coordination with {@link #save(Object)} for a {@link Node} to recover the
-	 * data it needs for a backward pass. The {@link Node} should always pop off the
+	 * coordination with {@link #save(Object)} for a {@link Computation} to recover the
+	 * data it needs for a backward pass. The {@link Computation} should always pop off the
 	 * datum it previously {@link #save(Object) saved} in the corresponding forward
 	 * evaluation.
 	 * 
