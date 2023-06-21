@@ -352,6 +352,49 @@ public interface Node {
 		};
 	}
 
+	/**
+	 * Returns a {@link SimpleNode} that performs element-wise ReLU.
+	 * 
+	 * @param inputs The number of inputs to the {@link Node}.
+	 * @return The new {@link SimpleNode}. The {@link SimpleNode} has the same
+	 *         number of outputs as inputs.
+	 */
+	static SimpleNode relu(int inputs) {
+		return new SimpleNode() {
+
+			@Override
+			public int outputs() {
+				return inputs;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] grad(ComputationContext ctx, double... outGrad) {
+				boolean[] data = ctx.pop();
+				double[] res = new double[outGrad.length];
+				for (int i = 0; i < res.length; i++)
+					if (data[i])
+						res[i] = outGrad[i];
+				return res;
+			}
+
+			@Override
+			public double[] evaluate(ComputationContext c, double... input) {
+				double[] res = new double[input.length];
+				boolean[] data = new boolean[input.length];
+				for (int i = 0; i < input.length; i++)
+					if (data[i] = (input[i] > 0))
+						res[i] = input[i];
+				c.save(data);
+				return res;
+			}
+		};
+	}
+
 	default String evalToString(ComputationContext c, double... inputs) {
 		return Arrays.toString(evaluate(c, inputs));
 	}
