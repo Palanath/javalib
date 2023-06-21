@@ -5,6 +5,9 @@ import java.util.Arrays;
 import pala.libs.generic.JavaTools;
 
 public interface Node {
+	
+	
+	
 	/**
 	 * <p>
 	 * Returns the number of scalars that this {@link Node} requires as input. The
