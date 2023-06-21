@@ -9,8 +9,35 @@ package pala.libs.generic.ml.ai.neuralnet4;
  *
  */
 public interface SimpleNode extends Node {
+	double[] EMPTY_DOUBLE_ARRAY = {};
+
 	@Override
-	default int weights() {
-		return 0;
+	default double[] weights() {
+		return EMPTY_DOUBLE_ARRAY;
+	}
+
+	class IllegalOperationException extends RuntimeException {
+
+		/**
+		 * Serial UID
+		 */
+		private static final long serialVersionUID = 1L;
+
+		private IllegalOperationException(String message) {
+			super(message);
+		}
+
+	}
+
+	@Override
+	default double getWeight(int weight) {
+		throw new IllegalOperationException(
+				"Can't get weights from a SimpleNode; SimpleNodes have no weights. Weight ind: " + weight);
+	}
+
+	@Override
+	default void setWeight(int weight, double value) {
+		throw new IllegalOperationException("Can't set weights of a SimpleNode; SimpleNodes have no weights. Index: "
+				+ weight + " Value: " + value);
 	}
 }

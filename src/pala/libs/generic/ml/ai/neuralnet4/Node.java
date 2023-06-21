@@ -31,8 +31,22 @@ public interface Node {
 	 * @return The number of output values of this {@link Node}.
 	 */
 	int outputs();
-	
-	int weights();
+
+	/**
+	 * Returns the values stored in this {@link Node} that are modifiable. The
+	 * returned array may be a copy of the weights or may be the actual weights
+	 * stored by this {@link Node}.
+	 * 
+	 * @return A <code>double</code> array containing the values of the weights in
+	 *         this {@link Node}. Weights can be modified by calling
+	 *         {@link #setWeight(int, double)} and retrieved individually by calling
+	 *         {@link #getWeight(int)}.
+	 */
+	double[] weights();
+
+	void setWeight(int weight, double value);
+
+	double getWeight(int weight);
 
 	double[] evaluate(ComputationContext c, double... input);
 
@@ -58,7 +72,7 @@ public interface Node {
 	static Node chain(Node... nodes) {
 		for (int i = 0; i < nodes.length - 1; i++)
 			assert nodes[i].outputs() == nodes[i + 1].inputs() : "Invalid size for provided nodes.";
-		return new Node() {
+		return new SimpleNode() {
 
 			@Override
 			public int outputs() {
@@ -95,7 +109,7 @@ public interface Node {
 
 		final int toOutputs_ = toOutputs, fromInputs_ = fromInputs, inside = fromOutputs;
 
-		return new Node() {
+		return new SimpleNode() {
 
 			@Override
 			public int outputs() {
@@ -181,7 +195,7 @@ public interface Node {
 	 * @return The new {@link Node}.
 	 */
 	static Node map(int inputs, int... mapping) {
-		return new Node() {
+		return new SimpleNode() {
 
 			@Override
 			public int outputs() {
@@ -241,7 +255,7 @@ public interface Node {
 			o += nodes[j].outputs();
 		}
 		int inputs = i, outputs = o;
-		return new Node() {
+		return new SimpleNode() {
 
 			@Override
 			public int outputs() {
