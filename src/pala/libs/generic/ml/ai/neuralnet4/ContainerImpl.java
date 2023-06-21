@@ -9,8 +9,9 @@ class ContainerImpl implements Container {
 		return modifyMode;
 	}
 
-	public void setModifyMode(boolean modifiable) {
+	public ContainerImpl setModifyMode(boolean modifiable) {
 		this.modifyMode = modifiable;
+		return this;
 	}
 
 	@Override
