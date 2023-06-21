@@ -17,6 +17,15 @@ import pala.libs.generic.JavaTools;
  * forward pass and can have gradients propagated through them in a backward
  * pass.
  * </p>
+ * <p>
+ * <b>{@link Computation}s should not be used more than once within the same
+ * computational graph unless explicitly allowed</b> for the sake of
+ * backpropagation. In particular, {@link Node}s, which contain state (weights)
+ * should not be used more than once within the same computational graph,
+ * otherwise {@link #grad(Container, WeightGradStorage, double...)} will recover
+ * two sets of gradients for the {@link Node}'s weights, the former of which
+ * will be overwritten by the latter.
+ * </p>
  * 
  * @author Palanath
  *
@@ -83,6 +92,12 @@ public interface Computation {
 	 * (e.g. addition or multiplication) do not need to compute a full matrix and
 	 * perform a matrix-vector multiplication to achieve the same result. Most
 	 * often, a full matrix-vector multiplication is not needed.
+	 * </p>
+	 * <p>
+	 * If this {@link Computation} is a {@link Node} and thus, has weights, this
+	 * method should also calculate the gradient of the weights with respect to the
+	 * loss and store the result of that within the {@link WeightGradStorage}
+	 * object.
 	 * </p>
 	 * 
 	 * @param c             A {@link Container} that this method should retrieve
