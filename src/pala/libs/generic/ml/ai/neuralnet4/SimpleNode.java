@@ -9,11 +9,10 @@ package pala.libs.generic.ml.ai.neuralnet4;
  *
  */
 public interface SimpleNode extends Node {
-	double[] EMPTY_DOUBLE_ARRAY = {};
 
 	@Override
-	default double[] weights() {
-		return EMPTY_DOUBLE_ARRAY;
+	default int weights() {
+		return 0;
 	}
 
 	class IllegalOperationException extends RuntimeException {

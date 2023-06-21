@@ -33,16 +33,14 @@ public interface Node {
 	int outputs();
 
 	/**
-	 * Returns the values stored in this {@link Node} that are modifiable. The
-	 * returned array may be a copy of the weights or may be the actual weights
-	 * stored by this {@link Node}.
+	 * Returns the number of weights that this {@link Node} contains. It may be
+	 * <code>0</code>.
 	 * 
-	 * @return A <code>double</code> array containing the values of the weights in
-	 *         this {@link Node}. Weights can be modified by calling
-	 *         {@link #setWeight(int, double)} and retrieved individually by calling
+	 * @return The number of weights contained by this {@link Node}. Weights can be
+	 *         set with {@link #setWeight(int, double)} and obtained with
 	 *         {@link #getWeight(int)}.
 	 */
-	double[] weights();
+	int weights();
 
 	void setWeight(int weight, double value);
 
