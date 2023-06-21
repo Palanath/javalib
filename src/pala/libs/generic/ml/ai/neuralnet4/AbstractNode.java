@@ -26,7 +26,7 @@ package pala.libs.generic.ml.ai.neuralnet4;
  * @author Palanath
  *
  */
-public abstract class AbstractNode implements Node {
+public abstract class AbstractNode implements WeightedNode {
 
 	protected final double[] weights;
 	private final int inputs, outputs;
