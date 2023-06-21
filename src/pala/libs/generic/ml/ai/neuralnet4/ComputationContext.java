@@ -24,18 +24,20 @@ public interface ComputationContext {
 	};
 
 	/**
-	 * Pushes the provided {@link Object} onto the context.
+	 * Pushes the provided {@link Object} onto the context. This should be called at
+	 * maximum, once by each {@link Node}. {@link Node}s are free to package any
+	 * data they need into the {@link Object} they push to the context.
 	 * 
-	 * @param o The context to push.
+	 * @param o The data to push to the context.
 	 */
 	void save(Object o);
 
 	/**
 	 * Pops the next object off of the context. This should be called in
 	 * coordination with {@link #save(Object)} for a {@link Node} to recover the
-	 * data it needs for a backward pass. The {@link Node} should always pop off all
-	 * the data it previously {@link #save(Object) saved} in the corresponding
-	 * forward evaluation.
+	 * data it needs for a backward pass. The {@link Node} should always pop off the
+	 * datum it previously {@link #save(Object) saved} in the corresponding forward
+	 * evaluation.
 	 * 
 	 * @param <O> The type of the value to pop off. An unchecked cast is performed
 	 *            to this type before this method returns the value.
