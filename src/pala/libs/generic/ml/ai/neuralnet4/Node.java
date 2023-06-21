@@ -157,15 +157,20 @@ public interface Node {
 
 			@Override
 			public double[] evaluate(ComputationContext c, double... input) {
-				for (Node node : nodes)
-					input = node.evaluate(c, input);// The sizes must match for this to work.
+				ComputationContext[] subcontexts = new ComputationContext[nodes.length];
+				for (int i = 0; i < nodes.length; i++)
+					// The sizes must match for this to work. (Previous node's output = next node's input.)
+					input = nodes[i].evaluate(subcontexts[i] = ComputationContext.fromStack(new Stack<>()), input);
+				c.save(subcontexts);
 				return input;
 			}
 
 			@Override
 			public double[] grad(ComputationContext ctx, double... outGrad) {
-				// TODO Auto-generated method stub
-				return null;
+				ComputationContext[] subcontexts = ctx.pop();
+				for (int i = nodes.length - 1; i >= 0; i--)
+					outGrad = nodes[i].grad(subcontexts[i], outGrad);
+				return outGrad;
 			}
 		};
 	}
