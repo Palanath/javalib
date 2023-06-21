@@ -31,6 +31,8 @@ public interface Node {
 	 * @return The number of output values of this {@link Node}.
 	 */
 	int outputs();
+	
+	int weights();
 
 	double[] evaluate(ComputationContext c, double... input);
 
@@ -131,7 +133,7 @@ public interface Node {
 	}
 
 	static Node add(int inputs) {
-		return new SimpleNode() {
+		return new VectorNode() {
 
 			@Override
 			public int inputs() {
@@ -202,7 +204,7 @@ public interface Node {
 	}
 
 	static Node multiply(int inputs) {
-		return new SimpleNode() {
+		return new VectorNode() {
 
 			@Override
 			public int inputs() {
