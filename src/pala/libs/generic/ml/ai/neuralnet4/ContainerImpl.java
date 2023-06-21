@@ -14,6 +14,10 @@ class ContainerImpl implements Container {
 		return this;
 	}
 
+	public ContainerImpl disableModification() {
+		return setModifyMode(false);
+	}
+
 	@Override
 	public void set(Object v) {
 		if (!isModifyMode())
