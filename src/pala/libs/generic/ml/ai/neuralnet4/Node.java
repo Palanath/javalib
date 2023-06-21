@@ -5,9 +5,78 @@ import java.util.Arrays;
 import pala.libs.generic.JavaTools;
 
 public interface Node {
-	
-	
-	
+
+	/**
+	 * <p>
+	 * This method receives a {@link ComputationContext} and an array of size
+	 * {@link #outputs()} where each element is the derivative of the respective
+	 * output of this node with respect to the loss of the computational graph that
+	 * this {@link Node} is a part of. The {@link Node} is expected to utilize the
+	 * {@link ComputationContext} and its own operation to return a
+	 * <code>double</code> array, each element being:
+	 * </p>
+	 * <ul>
+	 * <li>the derivative of the respective input with respect to the loss of the
+	 * network that this {@link Node} is a part of.</li>
+	 * </ul>
+	 * <p>
+	 * To do this, this node needs to be able to evaluate the derivative of each of
+	 * its inputs with respect to each of its outputs (most generally resulting in a
+	 * matrix, conceptually), and then utilize this and the provided gradient
+	 * <code>outGrad</code> to compute the derivative of each of its inputs with
+	 * respect to the loss.
+	 * </p>
+	 * <img src="doc-files/node.png" width=500px>
+	 * <p>
+	 * For the example computational node with two outputs (y<sub>1</sub> and
+	 * y<sub>2</sub>), and three inputs (x<sub>1</sub>, x<sub>2</sub>, and
+	 * x<sub>3</sub>), the result of the gradient with respect to loss will be a
+	 * vector (<code>double</code> array) of size 3. It is a vector that contains
+	 * the derivative of each of this {@link Node}'s inputs with respect to the
+	 * loss. To compute such vector from the gradient of this {@link Node}'s
+	 * outputs, most generally, a <code>grad</code> method will need to determine a
+	 * Jacobian matrix representing the derivative of each input of this
+	 * {@link Node} with respect to each output of this {@link Node}. This results
+	 * in a matrix of size {@link #inputs()} by {@link #outputs()}.
+	 * </p>
+	 * <p>
+	 * From a chain rule perspective, this method is provided with
+	 * <code>dL/dy</code>, which is a vector since <code>L</code> (the loss) is a
+	 * scalar and <code>y</code>, (the outputs), is a vector. It is expected to
+	 * compute <code>dy/dx</code> which is a matrix, since <code>x</code> (the
+	 * inputs) and <code>y</code> (the outputs) are both vectors. Finally, it is
+	 * expected to return the vector <code>dL/dx</code>, which is obtainable by the
+	 * matrix-vector multiplication:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>dy/dx * dL/dy</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * That is, this method is expected to perform a matrix multiplication
+	 * (<code>dy/dx</code>) to the vector it is provided (<code>dL/dy</code>), and
+	 * return the result.
+	 * </p>
+	 * <p>
+	 * The matrix multiplication this method is expected to perform can (very) often
+	 * be done more efficiently without performing a full matrix multiplication. For
+	 * simple {@link Node}s, such as those that perform simple operations (e.g.
+	 * addition or multiplication) do not need to compute a full matrix and perform
+	 * a matrix-vector multiplication to achieve the same result. Most often, a full
+	 * matrix-vector multiplication is not needed.
+	 * </p>
+	 * 
+	 * @param ctx     The context containing the information computed and stored by
+	 *                this {@link Node}, if any, during the forward pass (during a
+	 *                call to {@link #evaluate(ComputationContext, double...)}).
+	 * @param outGrad The gradient of the loss with respect to each of the outputs
+	 *                of this {@link Node}.
+	 * @return The gradient of the loss with respect to each of the inputs of this
+	 *         {@link Node}.
+	 */
+	double[] grad(ComputationContext ctx, double... outGrad);
+
 	/**
 	 * <p>
 	 * Returns the number of scalars that this {@link Node} requires as input. The
