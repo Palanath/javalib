@@ -159,7 +159,8 @@ public interface Node {
 			public double[] evaluate(ComputationContext c, double... input) {
 				ComputationContext[] subcontexts = new ComputationContext[nodes.length];
 				for (int i = 0; i < nodes.length; i++)
-					// The sizes must match for this to work. (Previous node's output = next node's input.)
+					// The sizes must match for this to work. (Previous node's output = next node's
+					// input.)
 					input = nodes[i].evaluate(subcontexts[i] = ComputationContext.fromStack(new Stack<>()), input);
 				c.save(subcontexts);
 				return input;
@@ -249,8 +250,9 @@ public interface Node {
 
 			@Override
 			public double[] grad(ComputationContext ctx, double... outGrad) {
-				// TODO Auto-generated method stub
-				return null;
+				double[] res = new double[inputs];
+				Arrays.fill(res, outGrad[0]);
+				return res;
 			}
 		};
 	}
@@ -311,8 +313,14 @@ public interface Node {
 
 			@Override
 			public double[] grad(ComputationContext ctx, double... outGrad) {
-				// TODO Auto-generated method stub
-				return null;
+				// Each output that a single input is sent to increases the gradient of that
+				// input by the gradient of the output.
+				// If one input points to two outputs, with derivatives 5 and 3, respectively,
+				// the input's derivative will be 8.
+				double[] g = new double[inputs];
+				for (int i = 0; i < mapping.length; i++)
+					g[mapping[i]] += outGrad[i];
+				return g;
 			}
 		};
 	}
