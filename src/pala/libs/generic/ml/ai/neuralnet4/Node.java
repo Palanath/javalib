@@ -32,6 +32,8 @@ public interface Node {
 	 */
 	int outputs();
 
+	double[] evaluate(ComputationContext c, double... input);
+
 	/**
 	 * Evaluates this {@link Node} on the provided input vector. The provided
 	 * <code>input</code> vector should be of size {@link #inputs()} and the method
@@ -40,7 +42,9 @@ public interface Node {
 	 * @param input The inputs.
 	 * @return The outputs of evaluating the {@link Node} on the inputs.
 	 */
-	double[] evaluate(double... input);
+	default double[] eval(double... input) {
+		return evaluate(ComputationContext.DUMMY, input);
+	}
 
 	/**
 	 * Creates a {@link Node} whose result is the evaluation of each of the provided
@@ -65,9 +69,9 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				for (Node node : nodes)
-					input = node.evaluate(input);// The sizes must match for this to work.
+					input = node.evaluate(c, input);// The sizes must match for this to work.
 				return input;
 			}
 		};
@@ -102,11 +106,11 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				double[] f = new double[inside];
 				int iind = 0, oind = 0;
 				for (int i = 0; i < from.length; i++) {
-					double[] temp = from[i].evaluate(Arrays.copyOfRange(input, iind, iind += from[i].inputs()));
+					double[] temp = from[i].evaluate(c, Arrays.copyOfRange(input, iind, iind += from[i].inputs()));
 					System.arraycopy(temp, 0, f, oind, temp.length);
 					oind += temp.length;
 				}
@@ -115,7 +119,7 @@ public interface Node {
 				iind = 0;
 				oind = 0;
 				for (int i = 0; i < to.length; i++) {
-					double[] temp = to[i].evaluate(Arrays.copyOfRange(f, iind, iind += to[i].inputs()));
+					double[] temp = to[i].evaluate(c, Arrays.copyOfRange(f, iind, iind += to[i].inputs()));
 					System.arraycopy(temp, 0, res, oind, temp.length);
 					oind += temp.length;
 				}
@@ -135,7 +139,7 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				return new double[] { JavaTools.sum(input) };
 			}
 		};
@@ -188,7 +192,7 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				double[] res = new double[mapping.length];
 				for (int i = 0; i < mapping.length; i++)
 					res[i] = input[mapping[i]];
@@ -206,7 +210,7 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				double res = 1;
 				for (int i = 0; i < input.length; i++)
 					res *= input[i];
@@ -248,12 +252,12 @@ public interface Node {
 			}
 
 			@Override
-			public double[] evaluate(double... input) {
+			public double[] evaluate(ComputationContext c, double... input) {
 				double[] o = new double[outputs];
 				int iind = 0, oind = 0;
 				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeOutput = nodes[i]
-							.evaluate(Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
+					double[] subNodeOutput = nodes[i].evaluate(c,
+							Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
 					System.arraycopy(subNodeOutput, 0, o, oind, subNodeOutput.length);
 					oind += subNodeOutput.length;
 				}
@@ -262,8 +266,8 @@ public interface Node {
 		};
 	}
 
-	default String evalToString(double... inputs) {
-		return Arrays.toString(evaluate(inputs));
+	default String evalToString(ComputationContext c, double... inputs) {
+		return Arrays.toString(evaluate(c, inputs));
 	}
 
 }
