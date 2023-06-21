@@ -7,7 +7,7 @@ package pala.libs.generic.ml.ai.neuralnet4;
  * @author Palanath
  *
  */
-public interface VectorNode extends Computation {
+public interface VectorComputation extends Computation {
 	@Override
 	default int outputs() {
 		return 1;
