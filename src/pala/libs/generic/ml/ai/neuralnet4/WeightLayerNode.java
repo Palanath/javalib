@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
+import java.util.Random;
+
 /**
  * A computational {@link Node} that is synonymous to the weights between two
  * layers in a standard neural network. The number of neurons in front of the
@@ -14,6 +16,10 @@ package pala.libs.generic.ml.ai.neuralnet4;
  *
  */
 public class WeightLayerNode extends Node {
+
+	public WeightLayerNode(Random weightRandomizer, int inputs, int outputs) {
+		super(weightRandomizer, inputs, outputs, inputs * outputs);
+	}
 
 	public WeightLayerNode(int inputs, int outputs) {
 		super(inputs, outputs, inputs * outputs);
