@@ -26,6 +26,11 @@ import pala.libs.generic.JavaTools;
  * two sets of gradients for the {@link Node}'s weights, the former of which
  * will be overwritten by the latter.
  * </p>
+ * <p>
+ * Most premade implementations of stateless {@link Computation}s can be
+ * obtained using the factory methods of this type. Most stateful
+ * implementations will have their own class, like {@link WeightLayerNode}.
+ * </p>
  * 
  * @author Palanath
  *
