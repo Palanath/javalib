@@ -1,5 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnet4.api;
 
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -36,7 +37,7 @@ import java.util.Random;
  * @author Palanath
  *
  */
-public abstract class Node implements Computation {
+public abstract class Node implements Computation, Snapshottable {
 
 	protected final double[] weights;
 	private final int inputs, outputs;
@@ -110,6 +111,16 @@ public abstract class Node implements Computation {
 
 	public final int weights() {
 		return weights.length;
+	}
+
+	public void save(Snapshot snapshot) {
+		snapshot.getWeightMapping().put(this, Arrays.copyOf(weights, weights.length));
+	}
+
+	public void restore(Snapshot snapshot) {
+		double[] ws = snapshot.getWeightMapping().get(this);
+		assert ws != null && ws.length == weights.length;
+		System.arraycopy(snapshot.getWeightMapping().get(this), 0, weights, 0, weights.length);
 	}
 
 	/**
