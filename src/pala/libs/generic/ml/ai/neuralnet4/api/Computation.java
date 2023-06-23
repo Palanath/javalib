@@ -5,6 +5,7 @@ import java.util.Arrays;
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
+import pala.libs.generic.ml.ai.neuralnet4.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
 
@@ -173,87 +174,8 @@ public interface Computation {
 		return evaluate(Container.DUMMY, input);
 	}
 
-	static @Deprecated Computation map(Computation[] from, Computation[] to) {
-		int fromOutputs = 0, toInputs = 0, fromInputs = 0, toOutputs = 0;
-		for (int i = 0; i < from.length; i++) {
-			fromOutputs += from[i].outputs();
-			fromInputs += from[i].inputs();
-		}
-		for (int i = 0; i < to.length; i++) {
-			toInputs += to[i].inputs();
-			toOutputs += to[i].outputs();
-		}
-
-		assert fromOutputs == toInputs : "From nodes total output (" + fromOutputs
-				+ ") does not match To nodes total input (" + toInputs + ").";
-
-		final int toOutputs_ = toOutputs, fromInputs_ = fromInputs, inside = fromOutputs;
-
-		return new Operation() {
-
-			@Override
-			public int outputs() {
-				return toOutputs_;
-			}
-
-			@Override
-			public int inputs() {
-				return fromInputs_;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				double[] f = new double[inside];
-				int iind = 0, oind = 0;
-				for (int i = 0; i < from.length; i++) {
-					double[] temp = from[i].evaluate(c, Arrays.copyOfRange(input, iind, iind += from[i].inputs()));
-					System.arraycopy(temp, 0, f, oind, temp.length);
-					oind += temp.length;
-				}
-
-				double[] res = new double[toOutputs_];
-				iind = 0;
-				oind = 0;
-				for (int i = 0; i < to.length; i++) {
-					double[] temp = to[i].evaluate(c, Arrays.copyOfRange(f, iind, iind += to[i].inputs()));
-					System.arraycopy(temp, 0, res, oind, temp.length);
-					oind += temp.length;
-				}
-
-				return res;
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-
-	}
-
 	static Computation add(int inputs) {
-		return new VectorComputation() {
-
-			@Override
-			public int inputs() {
-				return inputs;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				assert input.length == inputs : "Invalid input for add computation.";
-				return new double[] { JavaTools.sum(input) };
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				assert outGrad.length == 1 : "Invalid output gradient for add computation.";
-				double[] res = new double[inputs];
-				Arrays.fill(res, outGrad[0]);
-				return res;
-			}
-		};
+		return new SumComputation(inputs);
 	}
 
 	/**
