@@ -35,4 +35,18 @@ public abstract class Optimizer {
 	public abstract void optimize(Computation networkToOptimize,
 			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples);
 
+	/**
+	 * Invokes {@link #optimize(Computation, Pair...)} <code>iterations</code>
+	 * times.
+	 * 
+	 * @param iterations        The number of times to invoke
+	 *                          {@link #optimize(Computation, Pair...)}.
+	 * @param networkToOptimize The {@link Computation} to optimize.
+	 * @param labeledSamples    The array of samples to use for training.
+	 */
+	public final void optimize(int iterations, Computation networkToOptimize,
+			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples) {
+
+	}
+
 }
