@@ -55,6 +55,14 @@ public class WeightLayerNode extends Node {
 		return res;
 	}
 
+	public final double getWeight(int input, int output) {
+		return weights[input * outputs() + output];
+	}
+
+	public final void setWeight(int input, int output, double newValue) {
+		weights[input * outputs() + output] = newValue;
+	}
+
 	@Override
 	public double[] evaluate(Container c, double... input) {
 		c.set(input);
