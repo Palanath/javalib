@@ -5,6 +5,7 @@ import java.util.Arrays;
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
+import pala.libs.generic.ml.ai.neuralnet4.computations.MapComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
@@ -213,38 +214,7 @@ public interface Computation {
 	 * @return The new {@link Computation}.
 	 */
 	static Computation map(int inputs, int... mapping) {
-		return new Operation() {
-
-			@Override
-			public int outputs() {
-				return mapping.length;
-			}
-
-			@Override
-			public int inputs() {
-				return inputs;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				double[] res = new double[mapping.length];
-				for (int i = 0; i < mapping.length; i++)
-					res[i] = input[mapping[i]];
-				return res;
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				// Each output that a single input is sent to increases the gradient of that
-				// input by the gradient of the output.
-				// If one input points to two outputs, with derivatives 5 and 3, respectively,
-				// the input's derivative will be 8.
-				double[] g = new double[inputs];
-				for (int i = 0; i < mapping.length; i++)
-					g[mapping[i]] += outGrad[i];
-				return g;
-			}
-		};
+		return new MapComputation(inputs, mapping);
 	}
 
 	static Computation multiply(int inputs) {
