@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4.optimizers;
 
+import java.util.Iterator;
+
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 import pala.libs.generic.util.Pair;
@@ -28,14 +30,16 @@ public class GradientDescent extends Optimizer {
 		this.learningRate = learningRate;
 	}
 
-	@SafeVarargs
 	@Override
-	public final void optimize(Computation networkToOptimize, Pair<double[], double[]>... labeledSamples) {
-		for (Pair<double[], double[]> pair : labeledSamples)
+	public final void optimize(Computation networkToOptimize,
+			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSamples) {
+		while (labeledSamples.hasNext()) {
+			Pair<? extends double[], ? extends double[]> pair = labeledSamples.next();
 			networkToOptimize.calculateWeightGrads(getLossFunction(), pair.first, pair.second).forEach(a -> {
 				for (int i = 0; i < a.first.length; i++)
 					a.first[i] -= learningRate * a.second[i];
 			});
+		}
 	}
 
 }
