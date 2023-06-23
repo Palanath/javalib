@@ -540,15 +540,15 @@ public interface Computation {
 	}
 
 	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
-		Container c = new ContainerImpl();
+		ContainerImpl c = new ContainerImpl();
 		double[] prediction = evaluate(c, input);
 		WeightGradStorage store = new WeightGradStorage();
 
-		Container lc = new ContainerImpl();
+		ContainerImpl lc = new ContainerImpl();
 		lossFunction.evaluateLoss(lc, correctAnswer, prediction);
-		double[] lossGrad = lossFunction.grad(lc);
+		double[] lossGrad = lossFunction.grad(lc.disableModification());
 
-		grad(c, store, lossGrad);
+		grad(c.disableModification(), store, lossGrad);
 		return store;
 	}
 
