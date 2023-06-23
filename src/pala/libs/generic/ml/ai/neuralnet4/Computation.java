@@ -539,7 +539,7 @@ public interface Computation {
 		};
 	}
 
-	default WeightGradStorage calculateWeightGrads(double[] input, LossFunction lossFunction) {
+	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double... input) {
 		Container c = new ContainerImpl();
 		double[] prediction = evaluate(c, input);
 		WeightGradStorage store = new WeightGradStorage();
@@ -553,7 +553,7 @@ public interface Computation {
 	}
 
 	default void train(LossFunction lossFunction, double learningRate, double... input) {
-		WeightGradStorage wgs = calculateWeightGrads(input, lossFunction);
+		WeightGradStorage wgs = calculateWeightGrads(lossFunction, input);
 		for (Pair<Node, double[]> x : wgs)
 			for (int i = 0; i < x.first.weights.length; i++)
 				x.first.weights[i] -= x.second[i] * learningRate;
