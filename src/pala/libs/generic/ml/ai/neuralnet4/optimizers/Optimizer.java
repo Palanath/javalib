@@ -1,5 +1,8 @@
 package pala.libs.generic.ml.ai.neuralnet4.optimizers;
 
+import java.util.Iterator;
+
+import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 import pala.libs.generic.util.Pair;
@@ -32,8 +35,19 @@ public abstract class Optimizer {
 	 * @param networkToOptimize The {@link Computation} to optimize.
 	 * @param labeledSamples    An array of samples to use for training.
 	 */
-	public abstract void optimize(Computation networkToOptimize,
-			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples);
+	public final void optimize(Computation networkToOptimize,
+			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples) {
+		optimize(networkToOptimize, JavaTools.iterator(labeledSamples));
+	}
+
+	public abstract void optimize(Computation networkToOptimze,
+			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator);
+
+	public final void optimize(int iterations, Computation networkToOptimze,
+			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator) {
+		for (int i = 0; i < iterations; i++)
+			optimize(networkToOptimze, labeledSampleGenerator);
+	}
 
 	/**
 	 * Invokes {@link #optimize(Computation, Pair...)} <code>iterations</code>
@@ -44,9 +58,11 @@ public abstract class Optimizer {
 	 * @param networkToOptimize The {@link Computation} to optimize.
 	 * @param labeledSamples    The array of samples to use for training.
 	 */
+	@SafeVarargs
 	public final void optimize(int iterations, Computation networkToOptimize,
-			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples) {
-
+			Pair<double[], double[]>... labeledSamples) {
+		for (int i = 0; i < iterations; i++)
+			optimize(networkToOptimize, labeledSamples);
 	}
 
 }
