@@ -35,8 +35,8 @@ public abstract class Optimizer {
 	 * @param networkToOptimize The {@link Computation} to optimize.
 	 * @param labeledSamples    An array of samples to use for training.
 	 */
-	public final void optimize(Computation networkToOptimize,
-			@SuppressWarnings("unchecked") Pair<double[], double[]>... labeledSamples) {
+	@SafeVarargs
+	public final void optimize(Computation networkToOptimize, Pair<double[], double[]>... labeledSamples) {
 		optimize(networkToOptimize, JavaTools.iterator(labeledSamples));
 	}
 
