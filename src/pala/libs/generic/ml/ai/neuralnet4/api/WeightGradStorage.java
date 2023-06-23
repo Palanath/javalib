@@ -9,9 +9,11 @@ import pala.libs.generic.JavaTools;
 import pala.libs.generic.util.Pair;
 
 /**
+ * <p>
  * A simple class used to store the gradients of the weights of {@link Node}s in
  * a map-like form. This is used during a backward pass for {@link Node}s to
  * store the derivatives of the loss w.r.t. their weights.
+ * </p>
  * 
  * @author Palanath
  *
@@ -33,10 +35,17 @@ public class WeightGradStorage implements Iterable<Pair<double[], double[]>>, Cl
 	}
 
 	/**
+	 * <p>
 	 * Returns an {@link Iterator} over {@link Pair}s of <code>node weights</code>
 	 * against <code>calculated gradients</code> for those weights. To obtain an
 	 * {@link Iterable} of each {@link Node} against its weight-gradients, use
 	 * {@link #all()}.
+	 * </p>
+	 * <p>
+	 * The {@link Pair#first first value} of the {@link Pair} is a {@link Node}'s
+	 * {@link Node#weights weight array}, and the {@link Pair#second second} is the
+	 * gradients of the weights of that {@link Node}.
+	 * </p>
 	 */
 	@Override
 	public Iterator<Pair<double[], double[]>> iterator() {
