@@ -2,6 +2,10 @@ package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Random;
 
+import pala.libs.generic.ml.ai.neuralnet4.api.Container;
+import pala.libs.generic.ml.ai.neuralnet4.api.Node;
+import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
+
 /**
  * A computational {@link Node} that is synonymous to the weights between two
  * layers in a standard neural network. The number of neurons in front of the

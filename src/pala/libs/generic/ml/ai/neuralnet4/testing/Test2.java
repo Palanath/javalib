@@ -2,8 +2,8 @@ package pala.libs.generic.ml.ai.neuralnet4.testing;
 
 import java.util.Arrays;
 
-import pala.libs.generic.ml.ai.neuralnet4.LossFunction;
 import pala.libs.generic.ml.ai.neuralnet4.WeightLayerNode;
+import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 
 public class Test2 {
 	public static void main(String[] args) {

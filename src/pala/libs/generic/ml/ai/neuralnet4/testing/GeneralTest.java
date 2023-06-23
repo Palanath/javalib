@@ -6,9 +6,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.ToDoubleFunction;
 
 import pala.libs.generic.JavaTools;
-import pala.libs.generic.ml.ai.neuralnet4.Computation;
-import pala.libs.generic.ml.ai.neuralnet4.LossFunction;
 import pala.libs.generic.ml.ai.neuralnet4.WeightLayerNode;
+import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
+import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 
 public class GeneralTest {
 

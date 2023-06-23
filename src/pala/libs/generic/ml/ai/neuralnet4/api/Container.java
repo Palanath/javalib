@@ -1,4 +1,4 @@
-package pala.libs.generic.ml.ai.neuralnet4;
+package pala.libs.generic.ml.ai.neuralnet4.api;
 
 public interface Container {
 	void set(Object v);

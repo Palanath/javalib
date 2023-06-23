@@ -1,4 +1,4 @@
-package pala.libs.generic.ml.ai.neuralnet4;
+package pala.libs.generic.ml.ai.neuralnet4.api;
 
 class ContainerImpl implements Container {
 

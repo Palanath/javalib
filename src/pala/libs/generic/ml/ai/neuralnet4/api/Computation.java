@@ -1,8 +1,10 @@
-package pala.libs.generic.ml.ai.neuralnet4;
+package pala.libs.generic.ml.ai.neuralnet4.api;
 
 import java.util.Arrays;
 
 import pala.libs.generic.JavaTools;
+import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
+import pala.libs.generic.ml.ai.neuralnet4.WeightLayerNode;
 import pala.libs.generic.util.Pair;
 
 /**
@@ -542,6 +544,21 @@ public interface Computation {
 			}
 		};
 	}
+
+	/**
+	 * Saves the state of this {@link Computation} into the {@link Snapshot}. If
+	 * this {@link Computation} does not, itself, have state, but is composed of
+	 * {@link Computation}s that do, it will need to override this method to make
+	 * sure that those nodes are snapshotted appropriately.
+	 * 
+	 * @param snapshot
+	 */
+	default void snapshot(Snapshot snapshot) {
+	}
+
+	default void restore(Snapshot snapshot) {
+	}
+
 
 	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
 		ContainerImpl c = new ContainerImpl();

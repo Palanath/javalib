@@ -1,4 +1,4 @@
-package pala.libs.generic.ml.ai.neuralnet4;
+package pala.libs.generic.ml.ai.neuralnet4.api;
 
 /**
  * A {@link Computation} with only one output, but (generally) more than one
