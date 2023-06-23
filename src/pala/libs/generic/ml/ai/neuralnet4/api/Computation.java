@@ -168,50 +168,6 @@ public interface Computation {
 		return evaluate(Container.DUMMY, input);
 	}
 
-	/**
-	 * Creates a {@link Computation} whose result is the evaluation of each of the
-	 * provided {@link Computation}s, in order. This is equivalent to function
-	 * composition.
-	 * 
-	 * @param nodes The {@link Computation}s to chain together.
-	 * @return The resulting chain {@link Computation}.
-	 */
-	static Computation chain(Computation... nodes) {
-		for (int i = 0; i < nodes.length - 1; i++)
-			assert nodes[i].outputs() == nodes[i + 1].inputs() : "Invalid size for provided nodes.";
-		return new Operation() {
-
-			@Override
-			public int outputs() {
-				return nodes[nodes.length - 1].outputs();
-			}
-
-			@Override
-			public int inputs() {
-				return nodes[0].inputs();
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				Container[] subcontexts = new ContainerImpl[nodes.length];
-				for (int i = 0; i < nodes.length; i++)
-					// The sizes must match for this to work. (Previous node's output = next node's
-					// input.)
-					input = nodes[i].evaluate(subcontexts[i] = new ContainerImpl(), input);
-				c.set(subcontexts);
-				return input;
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				ContainerImpl[] subcontexts = ctx.get();
-				for (int i = nodes.length - 1; i >= 0; i--)
-					outGrad = nodes[i].grad(subcontexts[i].disableModification(), weightStorage, outGrad);
-				return outGrad;
-			}
-		};
-	}
-
 	static @Deprecated Computation map(Computation[] from, Computation[] to) {
 		int fromOutputs = 0, toInputs = 0, fromInputs = 0, toOutputs = 0;
 		for (int i = 0; i < from.length; i++) {
@@ -558,7 +514,6 @@ public interface Computation {
 
 	default void restore(Snapshot snapshot) {
 	}
-
 
 	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
 		ContainerImpl c = new ContainerImpl();
