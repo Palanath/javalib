@@ -8,6 +8,7 @@ import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.CombineComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.MapComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ProductComputation;
+import pala.libs.generic.ml.ai.neuralnet4.computations.ReluComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
@@ -248,40 +249,8 @@ public interface Computation {
 	 * @return The new {@link Operation}. The {@link Operation} has the same number
 	 *         of outputs as inputs.
 	 */
-	static Operation relu(int inputs) {
-		return new Operation() {
-
-			@Override
-			public int outputs() {
-				return inputs;
-			}
-
-			@Override
-			public int inputs() {
-				return inputs;
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				boolean[] data = ctx.get();
-				double[] res = new double[outGrad.length];
-				for (int i = 0; i < res.length; i++)
-					if (data[i])
-						res[i] = outGrad[i];
-				return res;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				double[] res = new double[input.length];
-				boolean[] data = new boolean[input.length];
-				for (int i = 0; i < input.length; i++)
-					if (data[i] = (input[i] > 0))
-						res[i] = input[i];
-				c.set(data);
-				return res;
-			}
-		};
+	static Computation relu(int inputs) {
+		return new ReluComputation(inputs);
 	}
 
 	default String evalToString(Container c, double... inputs) {
