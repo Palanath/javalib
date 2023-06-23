@@ -260,6 +260,19 @@ public interface Computation {
 		return new SigmoidComputation(inputs);
 	}
 
+	/**
+	 * Calculates the gradients, with respect to each weight, of this
+	 * {@link Computation}. The gradients are stored within the returned
+	 * {@link WeightGradStorage}.
+	 * 
+	 * @param lossFunction  The loss function to compute the gradient against.
+	 * @param correctAnswer The expected output of the {@link Computation}; the
+	 *                      correct answer to train against.
+	 * @param input         The input values to the {@link Computation} to run the
+	 *                      {@link Computation} on.
+	 * @return A {@link WeightGradStorage} that contains the derivative of the loss
+	 *         with respect to each weight.
+	 */
 	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
 		ContainerImpl c = new ContainerImpl();
 		double[] prediction = evaluate(c, input);
