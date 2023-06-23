@@ -539,21 +539,21 @@ public interface Computation {
 		};
 	}
 
-	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double... input) {
+	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
 		Container c = new ContainerImpl();
 		double[] prediction = evaluate(c, input);
 		WeightGradStorage store = new WeightGradStorage();
 
 		Container lc = new ContainerImpl();
-		lossFunction.evaluate(lc, prediction);
+		lossFunction.evaluateLoss(lc, correctAnswer, prediction);
 		double[] lossGrad = lossFunction.grad(lc);
 
 		grad(c, store, lossGrad);
 		return store;
 	}
 
-	default void train(LossFunction lossFunction, double learningRate, double... input) {
-		WeightGradStorage wgs = calculateWeightGrads(lossFunction, input);
+	default void train(LossFunction lossFunction, double learningRate, double[] correctAnswer, double... input) {
+		WeightGradStorage wgs = calculateWeightGrads(lossFunction, correctAnswer, input);
 		for (Pair<Node, double[]> x : wgs)
 			for (int i = 0; i < x.first.weights.length; i++)
 				x.first.weights[i] -= x.second[i] * learningRate;
