@@ -5,6 +5,7 @@ import java.util.Arrays;
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
+import pala.libs.generic.ml.ai.neuralnet4.computations.CombineComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.MapComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ProductComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.SumComputation;
@@ -236,55 +237,8 @@ public interface Computation {
 	 * @param nodes The {@link Computation}s to combine.
 	 * @return The resulting combination {@link Computation}.
 	 */
-	static Operation combine(Computation... nodes) {
-		int i = 0, o = 0;
-		for (int j = 0; j < nodes.length; j++) {
-			i += nodes[j].inputs();
-			o += nodes[j].outputs();
-		}
-		int inputs = i, outputs = o;
-		return new Operation() {
-
-			@Override
-			public int outputs() {
-				return outputs;
-			}
-
-			@Override
-			public int inputs() {
-				return inputs;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				double[] o = new double[outputs];
-				int iind = 0, oind = 0;
-				Container[] subcontexts = new ContainerImpl[nodes.length];
-				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeOutput = nodes[i].evaluate(subcontexts[i] = new ContainerImpl(),
-							Arrays.copyOfRange(input, iind, iind += nodes[i].inputs()));
-					System.arraycopy(subNodeOutput, 0, o, oind, subNodeOutput.length);
-					oind += subNodeOutput.length;
-				}
-				c.set(subcontexts);
-				return o;
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				ContainerImpl[] subcontexts = ctx.get();
-
-				double[] inputGrad = new double[inputs];
-				int iind = 0, oind = 0;
-				for (int i = 0; i < nodes.length; i++) {
-					double[] subNodeGrad = nodes[i].grad(subcontexts[i].disableModification(), weightStorage,
-							Arrays.copyOfRange(outGrad, oind, oind += nodes[i].outputs()));
-					System.arraycopy(subNodeGrad, 0, inputGrad, iind, subNodeGrad.length);
-					iind += subNodeGrad.length;
-				}
-				return inputGrad;
-			}
-		};
+	static Computation combine(Computation... nodes) {
+		return new CombineComputation(nodes);
 	}
 
 	/**
