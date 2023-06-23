@@ -36,6 +36,7 @@ import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -2542,6 +2543,12 @@ public final class JavaTools {
 		for (int i = 0; i < inputs.length; i++)
 			d += inputs[i];
 		return d;
+	}
+
+	public static double[] makeArray(int size, DoubleSupplier supplier) {
+		double[] res = new double[size];
+		Arrays.setAll(res, a -> supplier.getAsDouble());
+		return res;
 	}
 
 }
