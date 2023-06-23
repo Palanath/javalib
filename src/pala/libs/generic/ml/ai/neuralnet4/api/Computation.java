@@ -262,20 +262,6 @@ public interface Computation {
 		return new SigmoidComputation(inputs);
 	}
 
-	/**
-	 * Saves the state of this {@link Computation} into the {@link Snapshot}. If
-	 * this {@link Computation} does not, itself, have state, but is composed of
-	 * {@link Computation}s that do, it will need to override this method to make
-	 * sure that those nodes are snapshotted appropriately.
-	 * 
-	 * @param snapshot
-	 */
-	default void snapshot(Snapshot snapshot) {
-	}
-
-	default void restore(Snapshot snapshot) {
-	}
-
 	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
 		ContainerImpl c = new ContainerImpl();
 		double[] prediction = evaluate(c, input);
