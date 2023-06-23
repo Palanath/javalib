@@ -2,6 +2,7 @@ package pala.libs.generic.ml.ai.neuralnet4.api;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.function.IntToDoubleFunction;
 
 /**
  * <p>
@@ -41,6 +42,11 @@ public abstract class Node implements Computation, Snapshottable {
 
 	protected final double[] weights;
 	private final int inputs, outputs;
+
+	public void populateWeights(IntToDoubleFunction populator) {
+		for (int i = 0; i < weights.length; i++)
+			weights[i] = populator.applyAsDouble(i);
+	}
 
 	public Node(int inputs, int outputs, double... weights) {
 		this(false, inputs, outputs, weights);
