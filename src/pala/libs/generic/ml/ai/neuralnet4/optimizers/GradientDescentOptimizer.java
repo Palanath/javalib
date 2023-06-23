@@ -7,13 +7,15 @@ import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 import pala.libs.generic.util.Pair;
 
 /**
- * The most trivial implementation of a {@link GradientDescent} optimizer. This
- * optimizer takes in
+ * The most trivial implementation of a {@link GradientDescentOptimizer}
+ * optimizer. This optimizer takes a {@link #learningRate} parameter which the
+ * gradient is multiplied by before being subtracted from the weights in an
+ * update step.
  * 
  * @author Palanath
  *
  */
-public class GradientDescent extends Optimizer {
+public class GradientDescentOptimizer extends Optimizer {
 
 	private double learningRate;
 
@@ -25,7 +27,7 @@ public class GradientDescent extends Optimizer {
 		this.learningRate = learningRate;
 	}
 
-	public GradientDescent(LossFunction lossFunction, double learningRate) {
+	public GradientDescentOptimizer(LossFunction lossFunction, double learningRate) {
 		super(lossFunction);
 		this.learningRate = learningRate;
 	}
