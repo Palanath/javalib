@@ -15,7 +15,7 @@ import pala.libs.generic.util.Pair;
  * @author Palanath
  *
  */
-public class WeightGradStorage implements Iterable<Pair<Node, double[]>> {
+public class WeightGradStorage implements Iterable<Pair<double[], double[]>> {
 	private final Map<Node, double[]> weightGrads = new HashMap<>();
 
 	public void put(Node node, double... weightGrads) {
@@ -31,8 +31,14 @@ public class WeightGradStorage implements Iterable<Pair<Node, double[]>> {
 		return JavaTools.mask(weightGrads.entrySet(), a -> new Pair<>(a.getKey(), a.getValue()));
 	}
 
+	/**
+	 * Returns an {@link Iterator} over {@link Pair}s of <code>node weights</code>
+	 * against <code>calculated gradients</code> for those weights. To obtain an
+	 * {@link Iterable} of each {@link Node} against its weight-gradients, use
+	 * {@link #all()}.
+	 */
 	@Override
-	public Iterator<Pair<Node, double[]>> iterator() {
-		return JavaTools.mask(weightGrads.entrySet().iterator(), a -> new Pair<>(a.getKey(), a.getValue()));
+	public Iterator<Pair<double[], double[]>> iterator() {
+		return JavaTools.mask(weightGrads.entrySet().iterator(), a -> new Pair<>(a.getKey().weights, a.getValue()));
 	}
 }
