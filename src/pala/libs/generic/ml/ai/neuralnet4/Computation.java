@@ -1,8 +1,11 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Arrays;
+import java.util.function.DoubleFunction;
 
 import pala.libs.generic.JavaTools;
+import pala.libs.generic.util.Pair;
+import pala.libs.generic.util.functions.BiDoubleFunction;
 
 /**
  * <p>
@@ -534,6 +537,26 @@ public interface Computation {
 				return res;
 			}
 		};
+	}
+
+	default WeightGradStorage calculateWeightGrads(double[] input, LossFunction lossFunction) {
+		Container c = new ContainerImpl();
+		double[] prediction = evaluate(c, input);
+		WeightGradStorage store = new WeightGradStorage();
+
+		Container lc = new ContainerImpl();
+		lossFunction.evaluate(lc, prediction);
+		double[] lossGrad = lossFunction.grad(lc);
+
+		grad(c, store, lossGrad);
+		return store;
+	}
+
+	default void train(double[] input, LossFunction lossFunction, double learningRate) {
+		WeightGradStorage wgs = calculateWeightGrads(input, lossFunction);
+		for (Pair<Node, double[]> x : wgs)
+			for (int i = 0; i < x.first.weights.length; i++)
+				x.first.weights[i] -= x.second[i] * learningRate;
 	}
 
 }
