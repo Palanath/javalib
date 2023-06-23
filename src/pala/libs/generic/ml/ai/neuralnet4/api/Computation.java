@@ -6,6 +6,7 @@ import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.MapComputation;
+import pala.libs.generic.ml.ai.neuralnet4.computations.ProductComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
@@ -218,39 +219,7 @@ public interface Computation {
 	}
 
 	static Computation multiply(int inputs) {
-		return new VectorComputation() {
-
-			@Override
-			public int inputs() {
-				return inputs;
-			}
-
-			@Override
-			public double[] evaluate(Container c, double... input) {
-				assert input.length == inputs : "Invalid input for multiply computation.";
-				c.set(input);
-				double res = 1;
-				for (int i = 0; i < input.length; i++)
-					res *= input[i];
-				return new double[] { res };
-			}
-
-			@Override
-			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-				assert outGrad.length == 1 : "Invalid output gradient for multiply computation.";
-
-				// Derivative of input is each of the other inputs.
-				double[] ins = ctx.get();
-				double m = outGrad[0];// outputDeriv times each input
-				for (int i = 0; i < inputs; i++)
-					m *= ins[i];
-
-				double[] g = new double[inputs];
-				for (int i = 0; i < g.length; i++)
-					g[i] = m / ins[i];// division removes "this input" from the total multiplication
-				return g;
-			}
-		};
+		return new ProductComputation(inputs);
 	}
 
 	/**
