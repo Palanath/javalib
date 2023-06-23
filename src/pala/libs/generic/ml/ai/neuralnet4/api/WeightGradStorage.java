@@ -60,6 +60,9 @@ public class WeightGradStorage implements Iterable<Pair<double[], double[]>>, Cl
 		for (int i = 1; i < items.length; i++) {
 			final int ind = i;
 			res.all().forEach(a -> {
+				assert items[ind].weightGrads.get(a.first).length == a.second.length : "The " + ind
+						+ "th WeightGradStorage has a weight gradient array that does not match the length of the previous WeightGradStorages ("
+						+ a.second.length + ").";
 				for (int j = 0; j < a.second.length; j++)
 					a.second[j] += items[ind].weightGrads.get(a.first)[j];
 			});
