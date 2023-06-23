@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
-import pala.libs.generic.ml.ai.neuralnet4.WeightLayerNode;
+import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
 
 /**

@@ -3,9 +3,9 @@ package pala.libs.generic.ml.ai.neuralnet4.testing;
 import java.util.Arrays;
 import java.util.Random;
 
-import pala.libs.generic.ml.ai.neuralnet4.WeightLayerNode;
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
+import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 
 public class Test {
 
