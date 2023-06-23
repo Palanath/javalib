@@ -1,12 +1,16 @@
 package pala.libs.generic.ml.ai.neuralnet4.computations;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.Container;
 import pala.libs.generic.ml.ai.neuralnet4.api.ContainerImpl;
 import pala.libs.generic.ml.ai.neuralnet4.api.Operation;
 import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 
-public class ChainComputation implements Operation {
+public class ChainComputation implements Operation, CompositeComputation {
 
 	private final Computation[] nodes;
 
@@ -50,6 +54,11 @@ public class ChainComputation implements Operation {
 		for (int i = nodes.length - 1; i >= 0; i--)
 			outGrad = nodes[i].grad(subcontexts[i].disableModification(), weightStorage, outGrad);
 		return outGrad;
+	}
+
+	@Override
+	public List<? extends Computation> getSubComputations() {
+		return Collections.unmodifiableList(Arrays.asList(nodes));
 	}
 
 }

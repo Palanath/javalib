@@ -1,13 +1,15 @@
 package pala.libs.generic.ml.ai.neuralnet4.computations;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.Container;
 import pala.libs.generic.ml.ai.neuralnet4.api.ContainerImpl;
 import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 
-public class CombineComputation implements Computation {
+public class CombineComputation implements CompositeComputation {
 
 	private final int inputs, outputs;
 	private final Computation[] nodes;
@@ -61,6 +63,11 @@ public class CombineComputation implements Computation {
 			iind += subNodeGrad.length;
 		}
 		return inputGrad;
+	}
+
+	@Override
+	public List<? extends Computation> getSubComputations() {
+		return Collections.unmodifiableList(Arrays.asList(nodes));
 	}
 
 }
