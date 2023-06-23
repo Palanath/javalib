@@ -112,12 +112,12 @@ public abstract class Node implements Computation {
 		return weights.length;
 	}
 
-	public final void setWeight(int weight, double value) {
-		weights[weight] = value;
+	public final double getWeight(int input, int output) {
+		return weights[input * outputs + output];
 	}
 
-	public final double getWeight(int weight) {
-		return weights[weight];
+	public final void setWeight(int input, int output, double newValue) {
+		weights[input * outputs + output] = newValue;
 	}
 
 	/**
@@ -126,7 +126,7 @@ public abstract class Node implements Computation {
 	 * 
 	 * @return The backing weights of this {@link Node}.
 	 */
-	public double[] getBackingWeights() {
+	public final double[] getBackingWeights() {
 		return weights;
 	}
 
