@@ -9,14 +9,19 @@ public interface LossFunction {
 	/**
 	 * Evaluates this loss function on the provided inputs.
 	 * 
-	 * @param c      The {@link Container} to store the forward pass information in.
-	 * @param inputs The inputs to pass to this function.
+	 * @param c             The {@link Container} to store the forward pass
+	 *                      information in.
+	 * @param prediction    A sample, prediction, or guess to compare against the
+	 *                      correct answer. The loss, which indicates how far off
+	 *                      this prediction was from the correct answer, is what is
+	 *                      returned.
+	 * @param correctAnswer The correct answer to compare the prediction against.
 	 * @return The loss.
 	 */
-	double evaluate(Container c, double... inputs);
+	double evaluateLoss(Container c, double[] correctAnswer, double... prediction);
 
-	default double eval(double... inputs) {
-		return evaluate(Container.DUMMY, inputs);
+	default double evalLoss(double[] correctAnswer, double... inputs) {
+		return evaluateLoss(Container.DUMMY, inputs);
 	}
 
 	/**
