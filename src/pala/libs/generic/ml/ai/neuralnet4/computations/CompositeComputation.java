@@ -2,8 +2,9 @@ package pala.libs.generic.ml.ai.neuralnet4.computations;
 
 import java.util.List;
 
-import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
+import pala.libs.generic.ml.ai.neuralnet4.api.Snapshot;
+import pala.libs.generic.ml.ai.neuralnet4.api.Snapshottable;
 
 /**
  * A supertype of any {@link Computation} that utilizes other
@@ -13,7 +14,20 @@ import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
  * @author Palanath
  *
  */
-public interface CompositeComputation extends Computation {
+public interface CompositeComputation extends Computation, Snapshottable {
 	List<? extends Computation> getSubComputations();
 
+	@Override
+	default void save(Snapshot snapshot) {
+		for (Computation c : getSubComputations())
+			if (c instanceof Snapshottable)
+				((Snapshottable) c).save(snapshot);
+	}
+
+	@Override
+	default void restore(Snapshot snapshot) {
+		for (Computation c : getSubComputations())
+			if (c instanceof Snapshottable)
+				((Snapshottable) c).restore(snapshot);
+	}
 }
