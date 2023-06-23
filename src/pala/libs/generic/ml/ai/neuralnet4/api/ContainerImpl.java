@@ -1,6 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnet4.api;
 
-class ContainerImpl implements Container {
+public class ContainerImpl implements Container {
 
 	private Object value;
 	private boolean modifyMode = true;
