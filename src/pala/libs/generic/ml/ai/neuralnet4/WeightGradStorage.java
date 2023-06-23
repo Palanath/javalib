@@ -1,6 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import pala.libs.generic.JavaTools;
@@ -14,7 +15,7 @@ import pala.libs.generic.util.Pair;
  * @author Palanath
  *
  */
-public class WeightGradStorage {
+public class WeightGradStorage implements Iterable<Pair<Node, double[]>> {
 	private final Map<Node, double[]> weightGrads = new HashMap<>();
 
 	public void put(Node node, double... weightGrads) {
@@ -28,5 +29,10 @@ public class WeightGradStorage {
 
 	public Iterable<Pair<Node, double[]>> all() {
 		return JavaTools.mask(weightGrads.entrySet(), a -> new Pair<>(a.getKey(), a.getValue()));
+	}
+
+	@Override
+	public Iterator<Pair<Node, double[]>> iterator() {
+		return JavaTools.mask(weightGrads.entrySet().iterator(), a -> new Pair<>(a.getKey(), a.getValue()));
 	}
 }
