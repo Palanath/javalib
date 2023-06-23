@@ -1,11 +1,9 @@
 package pala.libs.generic.ml.ai.neuralnet4;
 
 import java.util.Arrays;
-import java.util.function.DoubleFunction;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.util.Pair;
-import pala.libs.generic.util.functions.BiDoubleFunction;
 
 /**
  * <p>
@@ -281,11 +279,13 @@ public interface Computation {
 
 			@Override
 			public double[] evaluate(Container c, double... input) {
+				assert input.length == inputs : "Invalid input for add computation.";
 				return new double[] { JavaTools.sum(input) };
 			}
 
 			@Override
 			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
+				assert outGrad.length == 1 : "Invalid output gradient for add computation.";
 				double[] res = new double[inputs];
 				Arrays.fill(res, outGrad[0]);
 				return res;
@@ -372,6 +372,7 @@ public interface Computation {
 
 			@Override
 			public double[] evaluate(Container c, double... input) {
+				assert input.length == inputs : "Invalid input for multiply computation.";
 				c.set(input);
 				double res = 1;
 				for (int i = 0; i < input.length; i++)
@@ -381,6 +382,8 @@ public interface Computation {
 
 			@Override
 			public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
+				assert outGrad.length == 1 : "Invalid output gradient for multiply computation.";
+
 				// Derivative of input is each of the other inputs.
 				double[] ins = ctx.get();
 				double m = outGrad[0];// outputDeriv times each input
@@ -523,7 +526,8 @@ public interface Computation {
 			@Override
 			public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
 				double[] res = new double[inputs], sig = c.get();
-				for (int i = 0; i < res.length; i++)
+				assert sig.length == res.length && sig.length == outGrad.length && sig.length == inputs;
+				for (int i = 0; i < inputs; i++)
 					res[i] = sig[i] * (1 - sig[i]) * outGrad[i];
 				return res;
 			}

@@ -27,6 +27,7 @@ public class WeightLayerNode extends Node {
 
 	@Override
 	public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
+		assert outGrad.length == outputs() : "WeightLayerNode received invalid gradient from subsequent node.";
 		double[] inputs = c.get(), res = new double[inputs()], weightGrad = new double[weights.length];
 		weightStorage.put(this, weightGrad);
 		for (int i = 0; i < res.length; i++) {
@@ -65,6 +66,8 @@ public class WeightLayerNode extends Node {
 
 	@Override
 	public double[] evaluate(Container c, double... input) {
+		assert input.length == inputs() : "Invalid array size for input to WeightLayerNode. Expected: " + inputs()
+				+ " but received " + input.length;
 		c.set(input);
 		final int inputs = inputs();
 		double[] out = new double[outputs()];

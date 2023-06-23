@@ -20,8 +20,8 @@ public interface LossFunction {
 	 */
 	double evaluateLoss(Container c, double[] correctAnswer, double... prediction);
 
-	default double evalLoss(double[] correctAnswer, double... inputs) {
-		return evaluateLoss(Container.DUMMY, inputs);
+	default double evalLoss(double[] correctAnswer, double... prediction) {
+		return evaluateLoss(Container.DUMMY, correctAnswer, prediction);
 	}
 
 	/**
