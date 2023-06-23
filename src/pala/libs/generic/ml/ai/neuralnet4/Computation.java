@@ -552,7 +552,7 @@ public interface Computation {
 		return store;
 	}
 
-	default void train(double[] input, LossFunction lossFunction, double learningRate) {
+	default void train(LossFunction lossFunction, double learningRate, double... input) {
 		WeightGradStorage wgs = calculateWeightGrads(input, lossFunction);
 		for (Pair<Node, double[]> x : wgs)
 			for (int i = 0; i < x.first.weights.length; i++)
