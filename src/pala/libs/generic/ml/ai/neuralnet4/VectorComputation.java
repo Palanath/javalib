@@ -12,4 +12,12 @@ public interface VectorComputation extends Computation {
 	default int outputs() {
 		return 1;
 	}
+
+	default double evalToScalar(double... inputs) {
+		return eval(inputs)[0];
+	}
+
+	default double evaluateToScalar(Container c, double... inputs) {
+		return evaluate(c, inputs)[0];
+	}
 }
