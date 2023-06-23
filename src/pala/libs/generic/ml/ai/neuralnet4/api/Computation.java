@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
+import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.WeightLayerNode;
 import pala.libs.generic.util.Pair;
 
@@ -155,6 +156,10 @@ public interface Computation {
 	int outputs();
 
 	double[] evaluate(Container c, double... input);
+
+	static Computation chain(Computation... nodes) {
+		return new ChainComputation(nodes);
+	}
 
 	/**
 	 * Evaluates this {@link Computation} on the provided input vector. The provided
