@@ -34,4 +34,32 @@ public interface LossFunction {
 	 *         function) with respect to each of the inputs to this function.
 	 */
 	double[] grad(Container c);
+
+	static LossFunction meanSquaredError(int inputs) {
+		return new LossFunction() {
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public double[] grad(Container c) {
+				return c.get();
+			}
+
+			@Override
+			public double evaluateLoss(Container c, double[] correctAnswer, double... prediction) {
+				double[] diffs = new double[inputs];
+				c.set(diffs);
+				double res = 0;
+				for (int i = 0; i < inputs; i++) {
+					diffs[i] = prediction[i] - correctAnswer[i];
+					res += diffs[i] * diffs[i];
+					diffs[i] *= 2d / inputs;
+				}
+				return res / inputs;
+			}
+		};
+	}
 }
