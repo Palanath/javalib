@@ -112,14 +112,6 @@ public abstract class Node implements Computation {
 		return weights.length;
 	}
 
-	public final double getWeight(int input, int output) {
-		return weights[input * outputs + output];
-	}
-
-	public final void setWeight(int input, int output, double newValue) {
-		weights[input * outputs + output] = newValue;
-	}
-
 	/**
 	 * Returns the array of weights backing this {@link Node}. The array can be
 	 * modified and changes will be reflected by the {@link Node}.
