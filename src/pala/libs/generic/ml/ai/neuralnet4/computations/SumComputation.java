@@ -4,11 +4,10 @@ import java.util.Arrays;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.api.Container;
-import pala.libs.generic.ml.ai.neuralnet4.api.Operation;
 import pala.libs.generic.ml.ai.neuralnet4.api.VectorComputation;
 import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 
-public class SumComputation implements VectorComputation, Operation {
+public class SumComputation implements VectorComputation {
 
 	private final int inputs;
 

@@ -7,10 +7,9 @@ import java.util.List;
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.Container;
 import pala.libs.generic.ml.ai.neuralnet4.api.ContainerImpl;
-import pala.libs.generic.ml.ai.neuralnet4.api.Operation;
 import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 
-public class ChainComputation implements Operation, CompositeComputation {
+public class ChainComputation implements CompositeComputation {
 
 	private final Computation[] nodes;
 

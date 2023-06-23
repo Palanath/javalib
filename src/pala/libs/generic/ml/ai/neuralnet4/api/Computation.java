@@ -2,8 +2,6 @@ package pala.libs.generic.ml.ai.neuralnet4.api;
 
 import java.util.Arrays;
 
-import pala.libs.generic.JavaTools;
-import pala.libs.generic.ml.ai.neuralnet4.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.computations.ChainComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.CombineComputation;
 import pala.libs.generic.ml.ai.neuralnet4.computations.MapComputation;
