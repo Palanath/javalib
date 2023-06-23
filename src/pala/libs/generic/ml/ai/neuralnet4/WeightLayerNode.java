@@ -49,7 +49,7 @@ public class WeightLayerNode extends Node {
 				// Also, the change in any weight, w_[i->x], with respect to the output its
 				// connection goes to, O_x, is simply going to be the input that the datum comes
 				// from: dO_x/dw_[i->x] = I_i
-				weightGrad[i * outputs() + x] = inputs[i];
+				weightGrad[i * outputs() + x] = inputs[i] * outGrad[x];
 			}
 		}
 		return res;
