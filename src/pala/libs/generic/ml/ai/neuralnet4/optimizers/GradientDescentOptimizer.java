@@ -33,11 +33,11 @@ public class GradientDescentOptimizer extends Optimizer {
 	}
 
 	@Override
-	public final void optimize(Computation networkToOptimize,
+	public void optimize(Computation networkToOptimize,
 			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSamples) {
 		while (labeledSamples.hasNext()) {
 			Pair<? extends double[], ? extends double[]> pair = labeledSamples.next();
-			networkToOptimize.calculateWeightGrads(getLossFunction(), pair.first, pair.second).forEach(a -> {
+			networkToOptimize.calculateWeightGrads(getLossFunction(), pair.first, (double[]) pair.second).forEach(a -> {
 				for (int i = 0; i < a.first.length; i++)
 					a.first[i] -= learningRate * a.second[i];
 			});
