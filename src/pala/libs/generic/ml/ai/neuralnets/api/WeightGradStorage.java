@@ -14,6 +14,10 @@ import pala.libs.generic.util.Pair;
  * a map-like form. This is used during a backward pass for {@link Node}s to
  * store the derivatives of the loss w.r.t. their weights.
  * </p>
+ * <p>
+ * The first element of each {@link Pair} is the array of weights for a
+ * {@link Node}. The second element is the gradient for those weights.
+ * </p>
  * 
  * @author Palanath
  *
