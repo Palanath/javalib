@@ -62,4 +62,37 @@ public interface LossFunction {
 			}
 		};
 	}
+
+	static LossFunction crossEntropy(int classes) {
+		return crossEntropy(classes, 1e-9);
+	}
+
+	static LossFunction crossEntropy(int classes, double epsilon) {
+		return new LossFunction() {
+
+			@Override
+			public int inputs() {
+				return classes;
+			}
+
+			@Override
+			public double[] grad(Container c) {
+				double[] t[] = c.get(), answers = t[0], pr = t[1], res = answers.clone();
+				for (int i = 0; i < res.length; i++)
+					res[i] /= -(pr[i] + epsilon);
+				return res;
+			}
+
+			@Override
+			public double evaluateLoss(Container c, double[] correctAnswer, double... prediction) {
+				assert correctAnswer.length == classes && classes == prediction.length
+						: "Invalid input array sizes for cross entropy loss func.";
+				c.set(new double[][] { correctAnswer, prediction });
+				double sum = 0;
+				for (int i = 0; i < prediction.length; i++)
+					sum += correctAnswer[i] * Math.log(prediction[i]);
+				return -sum;
+			}
+		};
+	}
 }
