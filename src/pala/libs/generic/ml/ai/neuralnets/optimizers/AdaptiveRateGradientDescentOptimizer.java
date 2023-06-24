@@ -113,6 +113,22 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 				List<? extends LearningRateRecord> learningRateRecord);
 	}
 
+	public static class BestRateSaver implements AdaptiveRateGDResultHandler {
+
+		private double bestRate;
+
+		public double getBestRate() {
+			return bestRate;
+		}
+
+		@Override
+		public void handle(Computation net, Pair<? extends double[], ? extends double[]> sample,
+				List<? extends LearningRateRecord> learningRateRecord) {
+			bestRate = learningRateRecord.get(learningRateRecord.size() - 1).learningRate;
+		}
+
+	}
+
 	@Override
 	public void optimize(Computation networkToOptimize,
 			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator) {
