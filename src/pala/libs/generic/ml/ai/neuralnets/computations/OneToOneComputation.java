@@ -17,12 +17,12 @@ public abstract class OneToOneComputation implements Computation {
 	}
 
 	@Override
-	public int inputs() {
+	public final int inputs() {
 		return inputs;
 	}
 
 	@Override
-	public int outputs() {
+	public final int outputs() {
 		return inputs;
 	}
 }
