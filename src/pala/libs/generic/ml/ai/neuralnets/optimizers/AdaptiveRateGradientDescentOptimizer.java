@@ -115,10 +115,16 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 
 	public static class BestRateSaver implements AdaptiveRateGDResultHandler {
 
-		private double bestRate;
+		private Double bestRate;
 
-		public double getBestRate() {
-			return bestRate;
+		public boolean hasRate() {
+			return bestRate != null;
+		}
+
+		public Double getAndResetBestRate() {
+			double temp = bestRate;
+			bestRate = null;
+			return temp;
 		}
 
 		@Override
