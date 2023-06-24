@@ -201,6 +201,10 @@ public final class JavaTools {
 		return items;
 	}
 
+	public static double[] doubleArray(double... items) {
+		return items;
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <T> int binarySearch(int size, final Function<? super Integer, ? extends T> arrayIndexer,
 			Comparator<? super T> comparator, final T key) {
