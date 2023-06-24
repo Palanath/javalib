@@ -1,11 +1,14 @@
 package pala.libs.generic.ml.ai.neuralnet4.optimizers;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
 import pala.libs.generic.ml.ai.neuralnet4.api.Snapshot;
 import pala.libs.generic.ml.ai.neuralnet4.api.Snapshottable;
+import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 import pala.libs.generic.util.Pair;
 
 /**
@@ -66,6 +69,21 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 		super(lossFunction);
 	}
 
+	public static class LearningRateRecord {
+		public final double learningRate, resultingLoss;
+
+		public LearningRateRecord(double learningRate, double resultingLoss) {
+			this.learningRate = learningRate;
+			this.resultingLoss = resultingLoss;
+		}
+
+		@Override
+		public String toString() {
+			return "[rate=" + learningRate + ", loss=" + resultingLoss + ']';
+		}
+
+	}
+
 	/**
 	 * <p>
 	 * Handler that receives some additional information regardnig the result of an
@@ -84,14 +102,15 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 		 * loss than before any optimization attempt.
 		 * </p>
 		 * 
-		 * @param net          The {@link Computation} that was optimized.
-		 * @param sample       The sample that the {@link Computation} was optimized on.
-		 * @param learningRate The learning rate that ended up being best, or a negative
-		 *                     value if no good learning rate was found (and the network
-		 *                     was restored to the state it was in upon the call to
-		 *                     {@link AdaptiveRateGradientDescentOptimizer#optimize(Computation, Iterator)}).
+		 * @param net                The {@link Computation} that was optimized.
+		 * @param sample             The sample that the {@link Computation} was
+		 *                           optimized on.
+		 * @param learningRateRecord A, possibly empty, {@link List} of records of the
+		 *                           learning rates and the network losses during
+		 *                           optimization.
 		 */
-		void handle(Computation net, Pair<? extends double[], ? extends double[]> sample, double learningRate);
+		void handle(Computation net, Pair<? extends double[], ? extends double[]> sample,
+				List<? extends LearningRateRecord> learningRateRecord);
 	}
 
 	@Override
@@ -102,37 +121,57 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 			Pair<? extends double[], ? extends double[]> sample = labeledSampleGenerator.next();
 			Snapshottable net = (Snapshottable) networkToOptimize;
 
-			double previousRate = -1;
+			List<LearningRateRecord> records = new ArrayList<>();
+
 			double rate = Math.pow(10, -rateGranularity);
 			if (rate == 0)
 				rate = Double.MIN_NORMAL;
 
-			double initialLoss = getLossFunction().evalLoss(sample.first, (double[]) sample.second);
+			// Original state.
+			Snapshot s = new Snapshot();
+			net.save(s);
+			Snapshot bestSnapshot = s;
+			double bestLoss = getLossFunction().evalLoss(sample.first,
+					networkToOptimize.eval((double[]) sample.second));
+
+			// Network is optimal right now for this sample.
+			if (bestLoss == 0)
+				continue;
+
+			// Calculate gradients.
+			WeightGradStorage grads = networkToOptimize.calculateWeightGrads(getLossFunction(), sample.first,
+					(double[]) sample.second);
 
 			for (int i = 0; i < rateGranularity; i++) {
-				Snapshot s = new Snapshot();
-				net.save(s);// Save current model.
-
 				// Attempt optimization at rate.
-				subtractGrads(networkToOptimize.calculateWeightGrads(getLossFunction(), sample.first,
-						(double[]) sample.second), rate);
+				subtractGrads(grads, rate);
 
 				// Gauge performance.
-				double newLoss = getLossFunction().evalLoss(sample.first, (double[]) sample.second);
+				double newLoss = getLossFunction().evalLoss(sample.first,
+						networkToOptimize.eval((double[]) sample.second));
 
 				// Check performance.
-				if (newLoss < initialLoss) {
-					previousRate = rate;
+				if (newLoss < bestLoss) {
+					bestLoss = newLoss;
+					bestSnapshot = new Snapshot();
+					net.save(bestSnapshot);
+
+					// Try the next learning rate from the same state we were in when we started on
+					// this sample.
+					net.restore(s);
+					records.add(new LearningRateRecord(rate, newLoss));
 					rate *= 10;
 				} else {
-					net.restore(s); // If performance was worse, save the iteration count.
+					// Best loss found already. It's at the end of the records list.
 					if (resultHandler != null)
-						resultHandler.handle(networkToOptimize, sample, previousRate);
+						resultHandler.handle(networkToOptimize, sample, records);
+					net.restore(bestSnapshot);
 					continue NEXT_SAMPLE;
 				}
 			}
+			net.restore(bestSnapshot);
 			if (resultHandler != null)
-				resultHandler.handle(networkToOptimize, sample, previousRate);
+				resultHandler.handle(networkToOptimize, sample, records);
 		}
 	}
 
