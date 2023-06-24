@@ -1,6 +1,5 @@
 package pala.libs.generic.ml.ai.neuralnets.testing;
 
-import java.util.Arrays;
 import java.util.Random;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
