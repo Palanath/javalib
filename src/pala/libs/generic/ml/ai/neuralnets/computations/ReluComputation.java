@@ -1,25 +1,12 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
-import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 
-public class ReluComputation implements Computation {
-
-	private final int inputs;
+public class ReluComputation extends OneToOneComputation {
 
 	public ReluComputation(int inputs) {
-		this.inputs = inputs;
-	}
-
-	@Override
-	public int outputs() {
-		return inputs;
-	}
-
-	@Override
-	public int inputs() {
-		return inputs;
+		super(inputs);
 	}
 
 	@Override
