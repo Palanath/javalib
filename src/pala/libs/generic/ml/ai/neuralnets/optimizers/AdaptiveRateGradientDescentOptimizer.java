@@ -121,6 +121,10 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 			return bestRate != null;
 		}
 
+		public Double getBestRate() {
+			return bestRate;
+		}
+
 		public Double getAndResetBestRate() {
 			double temp = bestRate;
 			bestRate = null;
