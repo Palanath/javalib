@@ -124,7 +124,8 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 		@Override
 		public void handle(Computation net, Pair<? extends double[], ? extends double[]> sample,
 				List<? extends LearningRateRecord> learningRateRecord) {
-			bestRate = learningRateRecord.get(learningRateRecord.size() - 1).learningRate;
+			if (!learningRateRecord.isEmpty())
+				bestRate = learningRateRecord.get(learningRateRecord.size() - 1).learningRate;
 		}
 
 	}
