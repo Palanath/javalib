@@ -8,12 +8,17 @@ public class DenseLayerNode extends ChainComputation {
 		return (WeightLayerNode) getSubComputations().get(0);
 	}
 
+	public ShiftNode getBiasNode() {
+		return (ShiftNode) getSubComputations().get(1);
+	}
+
 	public OneToOneComputation getActivationFunction() {
-		return (OneToOneComputation) getSubComputations().get(1);
+		return (OneToOneComputation) getSubComputations().get(2);
 	}
 
 	public DenseLayerNode(int inputs, OneToOneComputation activationFunction) {
-		super(new WeightLayerNode(inputs, activationFunction.inputs()), activationFunction);
+		super(new WeightLayerNode(inputs, activationFunction.inputs()), new ShiftNode(activationFunction.inputs()),
+				activationFunction);
 	}
 
 	public static DenseLayerNode withRelu(int inputs, int outputs) {
@@ -48,5 +53,6 @@ public class DenseLayerNode extends ChainComputation {
 
 	public void populateWeights(IntToDoubleFunction weightPopulator) {
 		getWeightLayerNode().populateWeights(weightPopulator);
+		getBiasNode().populateWeights(weightPopulator);
 	}
 }
