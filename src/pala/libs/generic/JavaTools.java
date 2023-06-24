@@ -201,10 +201,6 @@ public final class JavaTools {
 		return items;
 	}
 
-	public static <T> T[] array(int len) {
-		return Arrays.copyOf(array(), len);
-	}
-
 	@SuppressWarnings("unchecked")
 	public static <T> int binarySearch(int size, final Function<? super Integer, ? extends T> arrayIndexer,
 			Comparator<? super T> comparator, final T key) {
