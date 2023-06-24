@@ -5,6 +5,7 @@ import java.util.Iterator;
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnet4.api.Computation;
 import pala.libs.generic.ml.ai.neuralnet4.api.LossFunction;
+import pala.libs.generic.ml.ai.neuralnet4.api.WeightGradStorage;
 import pala.libs.generic.util.Pair;
 
 public abstract class Optimizer {
@@ -63,6 +64,13 @@ public abstract class Optimizer {
 			Pair<double[], double[]>... labeledSamples) {
 		for (int i = 0; i < iterations; i++)
 			optimize(networkToOptimize, labeledSamples);
+	}
+
+	static void subtractGrads(WeightGradStorage weightGrads, double learningRate) {
+		weightGrads.forEach(a -> {
+			for (int i = 0; i < a.first.length; i++)
+				a.first[i] -= learningRate * a.second[i];
+		});
 	}
 
 }
