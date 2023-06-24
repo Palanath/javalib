@@ -36,6 +36,7 @@ import java.util.Stack;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -2527,6 +2528,27 @@ public final class JavaTools {
 			startingState = newState;
 		}
 		return reward;
+	}
+
+	public static double dotProduct(double[] v1, double... v2) {
+		assert v1.length == v2.length : "Dot product invoked with double-arrays of different length.";
+		double tot = 0;
+		for (int i = 0; i < v2.length; i++)
+			tot += v1[i] * v2[i];
+		return tot;
+	}
+
+	public static double sum(double... inputs) {
+		double d = 0;
+		for (int i = 0; i < inputs.length; i++)
+			d += inputs[i];
+		return d;
+	}
+
+	public static double[] makeArray(int size, DoubleSupplier supplier) {
+		double[] res = new double[size];
+		Arrays.setAll(res, a -> supplier.getAsDouble());
+		return res;
 	}
 
 }
