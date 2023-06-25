@@ -12,10 +12,10 @@ public class SoftmaxComputation extends OneToOneComputation {
 	@Override
 	public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
 		assert outGrad.length == outputs() : "Invalid gradient array size for SoftmaxComputation";
-		double[] inputs = c.get(), res = new double[inputs()];
+		double[] softmaxEvaluations = c.get(), res = new double[inputs()];
 		for (int i = 0; i < res.length; i++)
 			for (int j = 0; j < outGrad.length; j++)
-				res[i] += outGrad[j] * inputs[i] * ((i == j ? 1 : 0) - inputs[i]);
+				res[i] += outGrad[j] * softmaxEvaluations[i] * ((i == j ? 1 : 0) - softmaxEvaluations[j]);
 		return res;
 	}
 
@@ -23,7 +23,6 @@ public class SoftmaxComputation extends OneToOneComputation {
 	public double[] evaluate(Container c, double... input) {
 		assert input.length == inputs() : "Invalid input array size for SoftmaxComputation";
 
-		c.set(input);
 		double total = 0, res[] = new double[inputs()];
 
 		for (int i = 0; i < input.length; i++)
@@ -31,6 +30,7 @@ public class SoftmaxComputation extends OneToOneComputation {
 		for (int i = 0; i < res.length; i++)
 			res[i] /= total;
 
+		c.set(res);
 		return res;
 	}
 
