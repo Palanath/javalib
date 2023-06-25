@@ -1,6 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
 import java.util.Random;
+import java.util.function.IntToDoubleFunction;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
 import pala.libs.generic.ml.ai.neuralnets.api.Node;
@@ -27,6 +28,10 @@ public class WeightLayerNode extends Node {
 
 	public WeightLayerNode(int inputs, int outputs) {
 		super(inputs, outputs, inputs * outputs);
+	}
+
+	public WeightLayerNode(IntToDoubleFunction populator, int inputs, int outputs) {
+		super(populator, inputs, outputs, inputs * outputs);
 	}
 
 	@Override
