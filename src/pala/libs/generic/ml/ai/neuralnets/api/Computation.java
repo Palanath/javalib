@@ -10,6 +10,7 @@ import pala.libs.generic.ml.ai.neuralnets.computations.ReluComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.SigmoidComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.WeightLayerNode;
+import pala.libs.generic.util.Operation;
 import pala.libs.generic.util.Pair;
 
 /**
@@ -273,21 +274,21 @@ public interface Computation {
 	 * @return A {@link WeightGradStorage} that contains the derivative of the loss
 	 *         with respect to each weight.
 	 */
-	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, double[] correctAnswer, double... input) {
+	default WeightGradStorage calculateWeightGrads(LossFunction lossFunction, Sample sample) {
 		ContainerImpl c = new ContainerImpl();
-		double[] prediction = evaluate(c, input);
+		double[] prediction = evaluate(c, sample.getInputs());
 		WeightGradStorage store = new WeightGradStorage();
 
 		ContainerImpl lc = new ContainerImpl();
-		lossFunction.evaluateLoss(lc, correctAnswer, prediction);
+		lossFunction.evaluateLoss(lc, sample.getAnswer(), prediction);
 		double[] lossGrad = lossFunction.grad(lc.disableModification());
 
 		grad(c.disableModification(), store, lossGrad);
 		return store;
 	}
 
-	default void train(LossFunction lossFunction, double learningRate, double[] correctAnswer, double... input) {
-		WeightGradStorage wgs = calculateWeightGrads(lossFunction, correctAnswer, input);
+	default void train(LossFunction lossFunction, double learningRate, Sample sample) {
+		WeightGradStorage wgs = calculateWeightGrads(lossFunction, sample);
 		for (Pair<double[], double[]> x : wgs)
 			for (int i = 0; i < x.first.length; i++)
 				x.first[i] -= x.second[i] * learningRate;
