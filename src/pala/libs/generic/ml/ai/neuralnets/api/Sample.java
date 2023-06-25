@@ -1,11 +1,17 @@
 package pala.libs.generic.ml.ai.neuralnets.api;
 
+import pala.libs.generic.util.Pair;
+
 public class Sample {
 	private final double[] answer, inputs;
 
 	public Sample(double[] answer, double... inputs) {
 		this.answer = answer;
 		this.inputs = inputs;
+	}
+
+	public Sample(Pair<? extends double[], ? extends double[]> sample) {
+		this(sample.first, (double[]) sample.second);
 	}
 
 	/**
