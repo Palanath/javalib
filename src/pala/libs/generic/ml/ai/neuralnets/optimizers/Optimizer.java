@@ -5,6 +5,7 @@ import java.util.Iterator;
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
+import pala.libs.generic.ml.ai.neuralnets.api.Sample;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 import pala.libs.generic.util.Pair;
 
@@ -37,15 +38,14 @@ public abstract class Optimizer {
 	 * @param labeledSamples    An array of samples to use for training.
 	 */
 	@SafeVarargs
-	public final void optimize(Computation networkToOptimize, Pair<double[], double[]>... labeledSamples) {
+	public final void optimize(Computation networkToOptimize, Sample... labeledSamples) {
 		optimize(networkToOptimize, JavaTools.iterator(labeledSamples));
 	}
 
-	public abstract void optimize(Computation networkToOptimze,
-			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator);
+	public abstract void optimize(Computation networkToOptimze, Iterator<? extends Sample> labeledSampleGenerator);
 
 	public final void optimize(int iterations, Computation networkToOptimze,
-			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator) {
+			Iterator<? extends Sample> labeledSampleGenerator) {
 		for (int i = 0; i < iterations; i++)
 			optimize(networkToOptimze, labeledSampleGenerator);
 	}
@@ -60,8 +60,7 @@ public abstract class Optimizer {
 	 * @param labeledSamples    The array of samples to use for training.
 	 */
 	@SafeVarargs
-	public final void optimize(int iterations, Computation networkToOptimize,
-			Pair<double[], double[]>... labeledSamples) {
+	public final void optimize(int iterations, Computation networkToOptimize, Sample... labeledSamples) {
 		for (int i = 0; i < iterations; i++)
 			optimize(networkToOptimize, labeledSamples);
 	}
