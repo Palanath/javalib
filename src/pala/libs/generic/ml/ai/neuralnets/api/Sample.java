@@ -1,5 +1,7 @@
 package pala.libs.generic.ml.ai.neuralnets.api;
 
+import java.util.Arrays;
+
 import pala.libs.generic.util.Pair;
 
 public class Sample {
@@ -32,6 +34,11 @@ public class Sample {
 	 */
 	public double[] getInputs() {
 		return inputs;
+	}
+
+	@Override
+	public String toString() {
+		return "Data: " + Arrays.toString(inputs) + ", Answer: " + Arrays.toString(answer);
 	}
 
 }
