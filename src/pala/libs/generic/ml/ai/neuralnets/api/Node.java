@@ -52,8 +52,9 @@ public abstract class Node implements Computation, Snapshottable {
 		this(false, inputs, outputs, weights);
 	}
 
-	public Node(int inputs, int outputs, int weights) {
+	public Node(IntToDoubleFunction populator, int inputs, int outputs, int weights) {
 		this(inputs, outputs, new double[weights]);
+		populateWeights(populator);
 	}
 
 	public static void randomize(Random rand, double... array) {
