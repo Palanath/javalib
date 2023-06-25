@@ -1,6 +1,8 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
+import java.util.Arrays;
 import java.util.Random;
+import java.util.function.IntToDoubleFunction;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
 import pala.libs.generic.ml.ai.neuralnets.api.Node;
@@ -19,6 +21,10 @@ public class ShiftNode extends Node {
 
 	public ShiftNode(int size) {
 		super(size, size, size);
+	}
+
+	public ShiftNode(IntToDoubleFunction populator, int size) {
+		super(populator, size, size, size);
 	}
 
 	public ShiftNode(Random weightRandomizer, int size) {
@@ -40,6 +46,9 @@ public class ShiftNode extends Node {
 
 	@Override
 	public double[] evaluate(Container c, double... input) {
+		System.out.println("[SHIFT]: Inputs: " + Arrays.toString(input));
+		System.out.println("[SHIFT]: Weights: " + Arrays.toString(weights));
+		assert input.length == weights.length : "Invalid input array for ShiftNode evaluation.";
 		double[] res = input.clone();
 		for (int i = 0; i < input.length; i++)
 			res[i] += weights[i];
