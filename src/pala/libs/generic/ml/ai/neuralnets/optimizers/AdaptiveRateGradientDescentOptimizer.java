@@ -6,10 +6,10 @@ import java.util.List;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
+import pala.libs.generic.ml.ai.neuralnets.api.Sample;
 import pala.libs.generic.ml.ai.neuralnets.api.Snapshot;
 import pala.libs.generic.ml.ai.neuralnets.api.Snapshottable;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
-import pala.libs.generic.util.Pair;
 
 /**
  * The {@link AdaptiveRateGradientDescentOptimizer} attempts to find a good
@@ -109,8 +109,7 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 		 *                           learning rates and the network losses during
 		 *                           optimization.
 		 */
-		void handle(Computation net, Pair<? extends double[], ? extends double[]> sample,
-				List<? extends LearningRateRecord> learningRateRecord);
+		void handle(Computation net, Sample sample, List<? extends LearningRateRecord> learningRateRecord);
 	}
 
 	public static class BestRateSaver implements AdaptiveRateGDResultHandler {
@@ -132,8 +131,7 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 		}
 
 		@Override
-		public void handle(Computation net, Pair<? extends double[], ? extends double[]> sample,
-				List<? extends LearningRateRecord> learningRateRecord) {
+		public void handle(Computation net, Sample sample, List<? extends LearningRateRecord> learningRateRecord) {
 			if (!learningRateRecord.isEmpty())
 				bestRate = learningRateRecord.get(learningRateRecord.size() - 1).learningRate;
 		}
@@ -141,11 +139,10 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 	}
 
 	@Override
-	public void optimize(Computation networkToOptimize,
-			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator) {
+	public void optimize(Computation networkToOptimize, Iterator<? extends Sample> labeledSampleGenerator) {
 		assert networkToOptimize instanceof Snapshottable : "Network can't be optimized.";
 		NEXT_SAMPLE: while (labeledSampleGenerator.hasNext()) {
-			Pair<? extends double[], ? extends double[]> sample = labeledSampleGenerator.next();
+			Sample sample = labeledSampleGenerator.next();
 			Snapshottable net = (Snapshottable) networkToOptimize;
 
 			List<LearningRateRecord> records = new ArrayList<>();
@@ -158,24 +155,23 @@ public class AdaptiveRateGradientDescentOptimizer extends Optimizer {
 			Snapshot s = new Snapshot();
 			net.save(s);
 			Snapshot bestSnapshot = s;
-			double bestLoss = getLossFunction().evalLoss(sample.first,
-					networkToOptimize.eval((double[]) sample.second));
+			double bestLoss = getLossFunction().evalLoss(sample.getAnswer(),
+					networkToOptimize.eval(sample.getInputs()));
 
 			// Network is optimal right now for this sample.
 			if (bestLoss == 0)
 				continue;
 
 			// Calculate gradients.
-			WeightGradStorage grads = networkToOptimize.calculateWeightGrads(getLossFunction(), sample.first,
-					(double[]) sample.second);
+			WeightGradStorage grads = networkToOptimize.calculateWeightGrads(getLossFunction(), sample);
 
 			for (int i = 0; i < rateGranularity; i++) {
 				// Attempt optimization at rate.
 				subtractGrads(grads, rate);
 
 				// Gauge performance.
-				double newLoss = getLossFunction().evalLoss(sample.first,
-						networkToOptimize.eval((double[]) sample.second));
+				double newLoss = getLossFunction().evalLoss(sample.getAnswer(),
+						networkToOptimize.eval(sample.getInputs()));
 
 				// Check performance.
 				if (newLoss < bestLoss) {

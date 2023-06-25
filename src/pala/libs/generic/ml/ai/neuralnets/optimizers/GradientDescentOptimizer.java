@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
-import pala.libs.generic.util.Pair;
+import pala.libs.generic.ml.ai.neuralnets.api.Sample;
 
 /**
  * The most trivial implementation of a {@link GradientDescentOptimizer}
@@ -33,11 +33,9 @@ public class GradientDescentOptimizer extends Optimizer {
 	}
 
 	@Override
-	public void optimize(Computation networkToOptimize,
-			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSamples) {
+	public void optimize(Computation networkToOptimize, Iterator<? extends Sample> labeledSamples) {
 		while (labeledSamples.hasNext()) {
-			Pair<? extends double[], ? extends double[]> pair = labeledSamples.next();
-			networkToOptimize.calculateWeightGrads(getLossFunction(), pair.first, (double[]) pair.second).forEach(a -> {
+			networkToOptimize.calculateWeightGrads(getLossFunction(), labeledSamples.next()).forEach(a -> {
 				for (int i = 0; i < a.first.length; i++)
 					a.first[i] -= learningRate * a.second[i];
 			});

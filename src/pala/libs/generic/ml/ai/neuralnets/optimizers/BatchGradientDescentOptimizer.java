@@ -7,6 +7,7 @@ import java.util.List;
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
 import pala.libs.generic.ml.ai.neuralnets.api.Node;
+import pala.libs.generic.ml.ai.neuralnets.api.Sample;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 import pala.libs.generic.util.Pair;
 
@@ -28,13 +29,10 @@ public class BatchGradientDescentOptimizer extends Optimizer {
 	}
 
 	@Override
-	public void optimize(Computation networkToOptimze,
-			Iterator<? extends Pair<? extends double[], ? extends double[]>> labeledSampleGenerator) {
+	public void optimize(Computation networkToOptimze, Iterator<? extends Sample> labeledSampleGenerator) {
 		List<WeightGradStorage> grads = new ArrayList<>();
-		while (labeledSampleGenerator.hasNext()) {
-			Pair<? extends double[], ? extends double[]> p = labeledSampleGenerator.next();
-			grads.add(networkToOptimze.calculateWeightGrads(getLossFunction(), p.first, (double[]) p.second));
-		}
+		while (labeledSampleGenerator.hasNext())
+			grads.add(networkToOptimze.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next()));
 
 		// Average weight grad storages
 		WeightGradStorage wgs = grads.get(0).clone();
