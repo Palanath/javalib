@@ -1,30 +1,24 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
-import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 
-public class SigmoidComputation extends OneToOneComputation {
+public class SigmoidComputation extends ScalarComputation {
 
 	public SigmoidComputation(int inputs) {
 		super(inputs);
 	}
 
 	@Override
-	public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
-		double[] res = new double[inputs()], sig = c.get();
-		assert sig.length == res.length && sig.length == outGrad.length && sig.length == inputs();
-		for (int i = 0; i < inputs(); i++)
-			res[i] = sig[i] * (1 - sig[i]) * outGrad[i];
-		return res;
+	public double grad(Container c) {
+		double sig = c.get();
+		return sig * (1 - sig);
 	}
 
 	@Override
-	public double[] evaluate(Container c, double... input) {
-		double[] res = new double[inputs()];
-		for (int i = 0; i < res.length; i++)
-			res[i] = 1 / (1 + Math.exp(input[i]));
-		c.set(res);
-		return res;
+	public double eval(Container c, double input) {
+		double sig = 1 / (1 + Math.exp(input));
+		c.set(sig);
+		return sig;
 	}
 
 }
