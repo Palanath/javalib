@@ -2555,4 +2555,17 @@ public final class JavaTools {
 		return res;
 	}
 
+	public static String parseQuotedString(String stringToParse, char escapeChar) {
+		if (stringToParse.isEmpty())
+			throw new IllegalArgumentException(
+					"Provided string to parse can't be empty; it must, at least, have an opening and closing quote character.");
+		char quote = stringToParse.charAt(0);
+		return parseQuotedStringInside(stringToParse.substring(1, stringToParse.length() - 1), quote, escapeChar);
+	}
+
+	public static String parseQuotedStringInside(String stringToParse, char quote, char escape) {
+		return stringToParse.replace(escape + String.valueOf(quote), String.valueOf(quote))
+				.replace(String.valueOf(escape) + escape, String.valueOf(escape));
+	}
+
 }
