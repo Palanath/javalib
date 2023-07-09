@@ -55,6 +55,10 @@ public abstract class Optimizer {
 		optimize(iterations, networkToOptimize, labeledSamples.iterator());
 	}
 
+	public final void optimize(Computation networkToOptimize, Iterable<? extends Sample> labeledSamples) {
+		optimize(networkToOptimize, labeledSamples.iterator());
+	}
+
 	/**
 	 * Invokes {@link #optimize(Computation, Pair...)} <code>iterations</code>
 	 * times.
