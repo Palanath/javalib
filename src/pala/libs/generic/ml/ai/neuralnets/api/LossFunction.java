@@ -35,6 +35,35 @@ public interface LossFunction {
 	 */
 	double[] grad(Container c);
 
+	/**
+	 * Like {@link #meanSquaredError(int)}, but with one input. This
+	 * {@link LossFunction} simply returns the square of the error.
+	 * 
+	 * @return A {@link LossFunction} that simply returns the square of the error.
+	 */
+	static LossFunction squaredError() {
+		return new LossFunction() {
+
+			@Override
+			public int inputs() {
+				return 1;
+			}
+
+			@Override
+			public double[] grad(Container c) {
+				return new double[] { 2 * (double) c.get() };
+			}
+
+			@Override
+			public double evaluateLoss(Container c, double[] correctAnswer, double... prediction) {
+				assert correctAnswer.length == 1 && prediction.length == 1 : "Invalid length for provided arrays.";
+				double diff = prediction[0] - correctAnswer[0];
+				c.set(diff);
+				return diff * diff;
+			}
+		};
+	}
+
 	static LossFunction meanSquaredError(int inputs) {
 		return new LossFunction() {
 
