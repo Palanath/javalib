@@ -60,4 +60,8 @@ public class ChainComputation implements CompositeComputation {
 		return Collections.unmodifiableList(Arrays.asList(nodes));
 	}
 
+	public static ChainComputation of(Computation... computations) {
+		return new ChainComputation(computations);
+	}
+
 }
