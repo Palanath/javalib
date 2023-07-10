@@ -1580,6 +1580,16 @@ public final class JavaTools {
 	}
 
 	@SafeVarargs
+	public static <I, O> O[] forEach(Function<? super I, ? extends O> processor, Class<? extends O> resultComponentType,
+			I... inputs) {
+		@SuppressWarnings("unchecked")
+		O[] res = (O[]) Array.newInstance(resultComponentType, inputs.length);
+		for (int i = 0; i < inputs.length; i++)
+			res[i] = processor.apply(inputs[i]);
+		return res;
+	}
+
+	@SafeVarargs
 	public static <I> void doForEach(Consumer<? super I> processor, I... inputs) {
 		for (I i : inputs)
 			processor.accept(i);
@@ -2566,6 +2576,36 @@ public final class JavaTools {
 	public static String parseQuotedStringInside(String stringToParse, char quote, char escape) {
 		return stringToParse.replace(escape + String.valueOf(quote), String.valueOf(quote))
 				.replace(String.valueOf(escape) + escape, String.valueOf(escape));
+	}
+
+	public static <T> boolean isSorted(Iterable<? extends T> itr, Comparator<? super T> comparator) {
+		return isSorted(itr.iterator(), comparator);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> boolean isSorted(Iterator<? extends T> itr, Comparator<? super T> comparator) {
+		if (!itr.hasNext())
+			return true;
+		if (comparator == null)
+			comparator = (Comparator<? super T>) Comparator.naturalOrder();
+		T first = itr.next();
+		if (!itr.hasNext())
+			return true;
+		while (itr.hasNext()) {
+			T second = itr.next();
+			if (comparator.compare(first, second) > 0)
+				return false;
+			first = second;
+		}
+		return true;
+	}
+
+	public static <T extends Comparable<? super T>> boolean isSorted(Iterable<? extends T> itr) {
+		return isSorted(itr, Comparator.naturalOrder());
+	}
+
+	public static <T extends Comparable<? super T>> boolean isSorted(Iterator<? extends T> itr) {
+		return isSorted(itr, Comparator.naturalOrder());
 	}
 
 }
