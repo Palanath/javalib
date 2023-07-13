@@ -6,10 +6,10 @@ import pala.libs.generic.ml.ai.neuralnets.computations.ChainComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.CombineComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.MapComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.ProductComputation;
-import pala.libs.generic.ml.ai.neuralnets.computations.ReluComputation;
-import pala.libs.generic.ml.ai.neuralnets.computations.SigmoidComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.SumComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.WeightLayerNode;
+import pala.libs.generic.ml.ai.neuralnets.computations.scalar.ReluComputation;
+import pala.libs.generic.ml.ai.neuralnets.computations.scalar.SigmoidComputation;
 import pala.libs.generic.util.Operation;
 import pala.libs.generic.util.Pair;
 

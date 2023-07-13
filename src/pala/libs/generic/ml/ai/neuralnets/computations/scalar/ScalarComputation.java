@@ -1,9 +1,10 @@
-package pala.libs.generic.ml.ai.neuralnets.computations;
+package pala.libs.generic.ml.ai.neuralnets.computations.scalar;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
 import pala.libs.generic.ml.ai.neuralnets.api.ContainerImpl;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
+import pala.libs.generic.ml.ai.neuralnets.computations.OneToOneComputation;
 
 /**
  * <p>

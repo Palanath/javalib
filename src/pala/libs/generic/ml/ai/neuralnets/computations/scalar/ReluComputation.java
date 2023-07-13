@@ -1,4 +1,4 @@
-package pala.libs.generic.ml.ai.neuralnets.computations;
+package pala.libs.generic.ml.ai.neuralnets.computations.scalar;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
 

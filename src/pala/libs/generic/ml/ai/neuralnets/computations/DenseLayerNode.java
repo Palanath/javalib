@@ -2,6 +2,10 @@ package pala.libs.generic.ml.ai.neuralnets.computations;
 
 import java.util.function.IntToDoubleFunction;
 
+import pala.libs.generic.ml.ai.neuralnets.computations.scalar.ReluComputation;
+import pala.libs.generic.ml.ai.neuralnets.computations.scalar.SigmoidComputation;
+import pala.libs.generic.ml.ai.neuralnets.computations.scalar.TanhComputation;
+
 public class DenseLayerNode extends ChainComputation {
 
 	public WeightLayerNode getWeightLayerNode() {
