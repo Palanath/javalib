@@ -3,12 +3,18 @@ package pala.libs.generic.ml.ai.neuralnets.computations;
 import java.util.Random;
 import java.util.function.IntToDoubleFunction;
 
-public class ConvolutionalNode extends WeightLayerNode {
+import pala.libs.generic.ml.ai.neuralnets.api.Container;
+import pala.libs.generic.ml.ai.neuralnets.api.Node;
+import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
+
+public class ConvolutionalNode extends Node {
 
 	private final int inputWidth, kernelWidth;
 
 	public ConvolutionalNode(int inputWidth, int inputHeight, int kernelWidth, int kernelHeight) {
-		this((IntToDoubleFunction) null, inputWidth, inputHeight, kernelWidth, kernelHeight);
+		super(inputWidth, inputHeight, kernelWidth, kernelHeight);
+		this.inputWidth = inputWidth;
+		this.kernelWidth = kernelWidth;
 	}
 
 	public int getInputWidth() {
@@ -29,9 +35,8 @@ public class ConvolutionalNode extends WeightLayerNode {
 
 	public ConvolutionalNode(IntToDoubleFunction populator, int inputWidth, int inputHeight, int kernelWidth,
 			int kernelHeight) {
-		super(populator, inputWidth * inputHeight, (inputWidth - kernelWidth + 1) * (inputHeight - kernelHeight + 1));
-		this.inputWidth = inputWidth;
-		this.kernelWidth = kernelWidth;
+		this(inputWidth, inputHeight, kernelWidth, kernelHeight);
+		populateWeights(populator);
 	}
 
 	public ConvolutionalNode(Random weightRandomizer, int inputWidth, int inputHeight, int kernelWidth,
@@ -40,6 +45,18 @@ public class ConvolutionalNode extends WeightLayerNode {
 				(inputWidth - kernelWidth + 1) * (inputHeight - kernelHeight + 1));
 		this.inputWidth = inputWidth;
 		this.kernelWidth = kernelWidth;
+	}
+
+	@Override
+	public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double[] evaluate(Container c, double... input) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
