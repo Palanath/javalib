@@ -74,7 +74,7 @@ public abstract class Optimizer {
 			optimize(networkToOptimize, labeledSamples);
 	}
 
-	static void subtractGrads(WeightGradStorage weightGrads, double learningRate) {
+	void subtractGrads(WeightGradStorage weightGrads, double learningRate) {
 		weightGrads.forEach(a -> {
 			for (int i = 0; i < a.first.length; i++)
 				a.first[i] -= learningRate * a.second[i];
