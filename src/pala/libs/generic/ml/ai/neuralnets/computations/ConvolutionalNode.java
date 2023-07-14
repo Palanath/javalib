@@ -33,6 +33,14 @@ public class ConvolutionalNode extends Node {
 		return -(outputs() / (inputWidth - kernelWidth + 1) - 1 - getInputHeight());
 	}
 
+	public int getOutputWidth() {
+		return inputWidth - kernelWidth + 1;
+	}
+
+	public int getOutputHeight() {
+		return outputs() / getOutputWidth();
+	}
+
 	public ConvolutionalNode(IntToDoubleFunction populator, int inputWidth, int inputHeight, int kernelWidth,
 			int kernelHeight) {
 		this(inputWidth, inputHeight, kernelWidth, kernelHeight);
@@ -55,7 +63,6 @@ public class ConvolutionalNode extends Node {
 
 	@Override
 	public double[] evaluate(Container c, double... input) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
