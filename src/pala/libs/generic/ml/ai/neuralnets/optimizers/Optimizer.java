@@ -15,6 +15,14 @@ public abstract class Optimizer {
 	private LossFunction lossFunction;
 	private BiFunction<Node, Integer, Double> zeroWeightAdjuster;
 
+	public BiFunction<Node, Integer, Double> getZeroWeightAdjuster() {
+		return zeroWeightAdjuster;
+	}
+
+	public void setZeroWeightAdjuster(BiFunction<Node, Integer, Double> zeroWeightAdjuster) {
+		this.zeroWeightAdjuster = zeroWeightAdjuster;
+	}
+
 	public LossFunction getLossFunction() {
 		return lossFunction;
 	}
