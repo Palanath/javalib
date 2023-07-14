@@ -502,7 +502,11 @@ public final class JavaTools {
 
 	@SafeVarargs
 	public static <T> T[] combine(T[] array1, T... array2) {
-		return combine(array(array1, array2));
+		@SuppressWarnings("unchecked")
+		T[] res = (T[]) Array.newInstance(array1.getClass().getComponentType(), array1.length + array2.length);
+		System.arraycopy(array1, 0, res, 0, array1.length);
+		System.arraycopy(array2, 0, res, array1.length, array2.length);
+		return res;
 	}
 
 	@SafeVarargs
