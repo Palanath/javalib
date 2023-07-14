@@ -1,16 +1,19 @@
 package pala.libs.generic.ml.ai.neuralnets.optimizers;
 
 import java.util.Iterator;
+import java.util.function.BiFunction;
 
 import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
+import pala.libs.generic.ml.ai.neuralnets.api.Node;
 import pala.libs.generic.ml.ai.neuralnets.api.Sample;
 import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 import pala.libs.generic.util.Pair;
 
 public abstract class Optimizer {
 	private LossFunction lossFunction;
+	private BiFunction<Node, Integer, Double> zeroWeightAdjuster;
 
 	public LossFunction getLossFunction() {
 		return lossFunction;
@@ -75,10 +78,10 @@ public abstract class Optimizer {
 	}
 
 	void subtractGrads(WeightGradStorage weightGrads, double learningRate) {
-		weightGrads.forEach(a -> {
-			for (int i = 0; i < a.first.length; i++)
-				a.first[i] -= learningRate * a.second[i];
-		});
+		for (Pair<Node, double[]> v : weightGrads.all())
+			for (int i = 0; i < v.first.weights(); i++)
+				if (zeroWeightAdjuster != null & (v.first.getBackingWeights()[i] -= learningRate * v.second[i]) == 0)
+					v.first.getBackingWeights()[i] = zeroWeightAdjuster.apply(v.first, i);
 	}
 
 }
