@@ -57,13 +57,39 @@ public class ConvolutionalNode extends Node {
 
 	@Override
 	public double[] grad(Container c, WeightGradStorage weightStorage, double... outGrad) {
-		// TODO Auto-generated method stub
-		return null;
+		double[] inputs = c.get();
+		double[] weightgrads = new double[weights()], ingrads = new double[inputs()];
+		weightStorage.put(this, weightgrads);
+
+		// Calculate weight gradients.
+		int owidth = getOutputWidth(), oheight = getOutputHeight(), kernelHeight = getKernelHeight();
+		for (int ox = 0; ox < owidth; ox++)
+			for (int oy = 0; oy < oheight; oy++)
+				// Convolve
+				for (int kx = 0; kx < kernelWidth; kx++)
+					for (int ky = 0; ky < kernelHeight; ky++) {
+						weightgrads[kx + ky * kernelWidth] += inputs[ox + kx + (oy + ky) * inputWidth]
+								* outGrad[ox + oy * owidth];
+						ingrads[ox + kx + (oy + ky) * getInputHeight()] += weights[kx + ky * kernelWidth]
+								* outGrad[ox + oy * owidth];
+					}
+		return ingrads;
 	}
 
 	@Override
 	public double[] evaluate(Container c, double... input) {
-		return null;
+		double[] res = new double[outputs()];
+		int owidth = getOutputWidth(), oheight = getOutputHeight(), kernelHeight = getKernelHeight();
+
+		for (int ox = 0; ox < owidth; ox++)
+			for (int oy = 0; oy < oheight; oy++)
+				// Convolve
+				for (int kx = 0; kx < kernelWidth; kx++)
+					for (int ky = 0; ky < kernelHeight; ky++)
+						res[ox + oy * owidth] += weights[kx + ky * kernelWidth]
+								* input[ox + kx + (oy + ky) * inputWidth];
+		c.set(input);
+		return res;
 	}
 
 }
