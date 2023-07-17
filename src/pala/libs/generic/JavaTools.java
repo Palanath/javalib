@@ -49,6 +49,7 @@ import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
 import pala.libs.generic.util.functions.BiBooleanFunction;
 import pala.libs.generic.util.functions.BiDoubleFunction;
+import pala.libs.generic.util.functions.IntToBooleanFunction;
 import pala.libs.generic.util.functions.TriDoubleFunction;
 
 public final class JavaTools {
@@ -2655,6 +2656,31 @@ public final class JavaTools {
 			sb.append('\n');
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * <p>
+	 * Loops over each character in the provided {@link String}, in order, until the
+	 * provided {@link IntToBooleanFunction} returns <code>true</code>. If the end
+	 * of the string is reached, <code>-1</code> is returned, otherwise the index of
+	 * the character provided to the {@link IntToBooleanFunction} is returned.
+	 * </p>
+	 * <p>
+	 * This is a more generalized form of {@link String#indexOf(int))}.
+	 * </p>
+	 * 
+	 * @param string  The string to loop over.
+	 * @param matches The predicate, determining if the character being searched for
+	 *                has been found.
+	 * @return the index that the provided {@link IntToBooleanFunction} returns
+	 *         <code>true</code> at, or <code>-1</code> if it never returns
+	 *         <code>true</code>.
+	 */
+	public static int indexOf(String string, IntToBooleanFunction matches) {
+		for (int i = 0; i < string.length(); i++)
+			if (matches.run(string.charAt(i)))
+				return i;
+		return -1;
 	}
 
 }
