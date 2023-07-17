@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -2610,6 +2611,50 @@ public final class JavaTools {
 
 	public static <T extends Comparable<? super T>> boolean isSorted(Iterator<? extends T> itr) {
 		return isSorted(itr, Comparator.naturalOrder());
+	}
+
+	public static void toCSVRows(Writer out, Iterable<? extends Iterable<? extends String>> rows) throws IOException {
+		for (Iterable<? extends String> r : rows) {
+			Iterator<? extends String> i = r.iterator();
+			if (i.hasNext()) {
+				String s = i.next();
+				if (s.indexOf('"') != -1 || s.indexOf(',') != -1)
+					out.append('"').append(s.replace("\"", "\"\"")).append('"');
+				else
+					out.append(s);
+				while (i.hasNext()) {
+					s = i.next();
+					if (s.indexOf('"') != -1 || s.indexOf(',') != -1)
+						out.append('"').append(s.replace("\"", "\"\"")).append("\",");
+					else
+						out.append(s).append(',');
+				}
+			}
+			out.append('\n');
+		}
+	}
+
+	public static String toCSVRows(Iterable<? extends Iterable<? extends String>> rows) {
+		StringBuilder sb = new StringBuilder();
+		for (Iterable<? extends String> r : rows) {
+			Iterator<? extends String> i = r.iterator();
+			if (i.hasNext()) {
+				String s = i.next();
+				if (s.indexOf('"') != -1 || s.indexOf(',') != -1)
+					sb.append('"').append(s.replace("\"", "\"\"")).append('"');
+				else
+					sb.append(s);
+				while (i.hasNext()) {
+					s = i.next();
+					if (s.indexOf('"') != -1 || s.indexOf(',') != -1)
+						sb.append('"').append(s.replace("\"", "\"\"")).append("\",");
+					else
+						sb.append(s).append(',');
+				}
+			}
+			sb.append('\n');
+		}
+		return sb.toString();
 	}
 
 }
