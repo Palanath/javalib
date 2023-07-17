@@ -1,5 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.function.IntToDoubleFunction;
 
@@ -12,7 +13,8 @@ public class ConvolutionalNode extends Node {
 	private final int inputWidth, kernelWidth;
 
 	public ConvolutionalNode(int inputWidth, int inputHeight, int kernelWidth, int kernelHeight) {
-		super(inputWidth, inputHeight, kernelWidth, kernelHeight);
+		super(inputWidth * inputHeight, (inputWidth - kernelWidth + 1) * (inputHeight - kernelHeight + 1),
+				kernelWidth * kernelHeight);
 		this.inputWidth = inputWidth;
 		this.kernelWidth = kernelWidth;
 	}
@@ -50,7 +52,7 @@ public class ConvolutionalNode extends Node {
 	public ConvolutionalNode(Random weightRandomizer, int inputWidth, int inputHeight, int kernelWidth,
 			int kernelHeight) {
 		super(weightRandomizer, inputWidth * inputHeight,
-				(inputWidth - kernelWidth + 1) * (inputHeight - kernelHeight + 1));
+				(inputWidth - kernelWidth + 1) * (inputHeight - kernelHeight + 1), kernelWidth * kernelHeight);
 		this.inputWidth = inputWidth;
 		this.kernelWidth = kernelWidth;
 	}
