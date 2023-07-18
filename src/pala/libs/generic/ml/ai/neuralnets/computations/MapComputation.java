@@ -1,10 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnets.computations;
 
-import pala.libs.generic.ml.ai.neuralnets.api.Computation;
-import pala.libs.generic.ml.ai.neuralnets.api.Container;
-import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
-
-public class MapComputation implements Computation {
+public class MapComputation implements GenericMapComputation {
 
 	private final int inputs, mapping[];
 
@@ -24,23 +20,8 @@ public class MapComputation implements Computation {
 	}
 
 	@Override
-	public double[] evaluate(Container c, double... input) {
-		double[] res = new double[mapping.length];
-		for (int i = 0; i < mapping.length; i++)
-			res[i] = input[mapping[i]];
-		return res;
-	}
-
-	@Override
-	public double[] grad(Container ctx, WeightGradStorage weightStorage, double... outGrad) {
-		// Each output that a single input is sent to increases the gradient of that
-		// input by the gradient of the output.
-		// If one input points to two outputs, with derivatives 5 and 3, respectively,
-		// the input's derivative will be 8.
-		double[] g = new double[inputs];
-		for (int i = 0; i < mapping.length; i++)
-			g[mapping[i]] += outGrad[i];
-		return g;
+	public int map(int output) {
+		return mapping[output];
 	}
 
 }
