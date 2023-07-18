@@ -1,7 +1,6 @@
 package pala.libs.generic.ml.ai.neuralnets.api.scalarfunctions;
 
 import pala.libs.generic.ml.ai.neuralnets.api.Container;
-import pala.libs.generic.ml.ai.neuralnets.api.WeightGradStorage;
 import pala.libs.generic.ml.ai.neuralnets.computations.scalar.ScalarComputation;
 import pala.libs.generic.ml.ai.neuralnets.computations.scalar.SigmoidComputation;
 
