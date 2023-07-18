@@ -56,11 +56,13 @@ public class BatchGradientDescentOptimizer extends Optimizer {
 			if (callback != null)
 				callback.run();
 			for (Pair<Node, double[]> grads : networkToOptimze
-					.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next()).all()) {
+					.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next()).all())
 				for (int i = 0; i < grads.second.length; i++)
-					wgs.get(grads.first)[i] += grads.second[i] / sampleCount;
-			}
+					wgs.get(grads.first)[i] += grads.second[i];
 		}
+		for (Pair<double[], double[]> g : wgs)
+			for (int i = 0; i < g.second.length; i++)
+				g.second[i] /= sampleCount;
 		subtractGrads(wgs, learningRate);
 	}
 
