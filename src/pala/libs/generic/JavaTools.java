@@ -321,7 +321,7 @@ public final class JavaTools {
 		T[] interpolate(T left, T right);
 	}
 
-	public int max(double... array) {
+	public static int max(double... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -329,7 +329,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(byte... array) {
+	public static int max(byte... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -337,7 +337,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(short... array) {
+	public static int max(short... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -345,7 +345,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(long... array) {
+	public static int max(long... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -353,7 +353,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(int... array) {
+	public static int max(int... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -361,7 +361,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(char... array) {
+	public static int max(char... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
@@ -369,7 +369,7 @@ public final class JavaTools {
 		return m;
 	}
 
-	public int max(float... array) {
+	public static int max(float... array) {
 		int m = 0;
 		for (int i = 1; i < array.length; i++)
 			if (array[i] > array[m])
