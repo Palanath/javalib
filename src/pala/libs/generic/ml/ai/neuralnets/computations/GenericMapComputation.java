@@ -47,4 +47,28 @@ public interface GenericMapComputation extends Computation {
 		return output;
 	}
 
+	interface Mapper {
+		int map(int output);
+	}
+
+	static GenericMapComputation map(int inputs, int outputs, Mapper mapper) {
+		return new GenericMapComputation() {
+
+			@Override
+			public int outputs() {
+				return outputs;
+			}
+
+			@Override
+			public int inputs() {
+				return inputs;
+			}
+
+			@Override
+			public int map(int output) {
+				return mapper.map(output);
+			}
+		};
+	}
+
 }
