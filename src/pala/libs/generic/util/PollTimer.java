@@ -25,7 +25,7 @@ public class PollTimer {
 	 */
 	public boolean poll() {
 		if (System.currentTimeMillis() > millisPeriod + start) {
-			millisPeriod = System.currentTimeMillis();
+			start = System.currentTimeMillis();
 			return true;
 		}
 		return false;
