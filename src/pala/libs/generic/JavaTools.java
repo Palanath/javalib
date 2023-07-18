@@ -329,6 +329,54 @@ public final class JavaTools {
 		return m;
 	}
 
+	public int max(byte... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
+	public int max(short... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
+	public int max(long... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
+	public int max(int... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
+	public int max(char... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
+	public int max(float... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
 	@SafeVarargs
 	public static <T> int max(Comparator<? super T> ranker, T... items) {
 		int maxind = 0;
