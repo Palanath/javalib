@@ -85,6 +85,13 @@ public abstract class Optimizer {
 			optimize(networkToOptimize, labeledSamples);
 	}
 
+	public static void adjustWeights(WeightGradStorage grads, double learningRate) {
+		for (Pair<double[], double[]> p : grads)
+			for (int i = 0; i < p.first.length; i++)
+				p.first[i] -= learningRate * p.second[i];
+
+	}
+
 	void subtractGrads(WeightGradStorage weightGrads, double learningRate) {
 		for (Pair<Node, double[]> v : weightGrads.all())
 			for (int i = 0; i < v.first.weights(); i++)
