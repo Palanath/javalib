@@ -321,6 +321,14 @@ public final class JavaTools {
 		T[] interpolate(T left, T right);
 	}
 
+	public int max(double... array) {
+		int m = 0;
+		for (int i = 1; i < array.length; i++)
+			if (array[i] > array[m])
+				m = i;
+		return m;
+	}
+
 	@SafeVarargs
 	public static <T> int max(Comparator<? super T> ranker, T... items) {
 		int maxind = 0;
