@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import pala.libs.generic.JavaTools;
 import pala.libs.generic.ml.ai.neuralnets.api.Computation;
 import pala.libs.generic.ml.ai.neuralnets.api.LossFunction;
 import pala.libs.generic.ml.ai.neuralnets.api.Node;
@@ -38,6 +39,30 @@ public class BatchGradientDescentOptimizer extends Optimizer {
 	public BatchGradientDescentOptimizer(LossFunction lossFunction, double learningRate) {
 		super(lossFunction);
 		this.learningRate = learningRate;
+	}
+
+	public void optimizeEfficient(Computation networkToOptimze, Iterator<? extends Sample> labeledSampleGenerator,
+			int sampleCount) {
+		if (sampleCount == 0)
+			return;
+		WeightGradStorage wgs = networkToOptimze.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next())
+				.clone();
+		if (callback != null)
+			callback.run();
+		for (Pair<double[], double[]> x : wgs)
+			for (int i = 0; i < x.second.length; i++)
+				x.second[i] /= sampleCount;
+		while (labeledSampleGenerator.hasNext())
+			for (Pair<Node, double[]> grads : networkToOptimze
+					.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next()).all())
+				for (int i = 0; i < grads.second.length; i++)
+					wgs.get(grads.first)[i] += grads.second[i] / sampleCount;
+		subtractGrads(wgs, learningRate);
+	}
+
+	@Override
+	public void optimize(Computation networkToOptimize, Sample... labeledSamples) {
+		optimizeEfficient(networkToOptimize, JavaTools.iterator(labeledSamples), labeledSamples.length);
 	}
 
 	@Override
