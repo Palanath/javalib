@@ -14,6 +14,18 @@ import pala.libs.generic.util.Pair;
 public class BatchGradientDescentOptimizer extends Optimizer {
 
 	private double learningRate;
+	/**
+	 * Gets called every time one sample is completed.
+	 */
+	private Runnable callback;
+
+	public Runnable getCallback() {
+		return callback;
+	}
+
+	public void setCallback(Runnable callback) {
+		this.callback = callback;
+	}
 
 	public double getLearningRate() {
 		return learningRate;
@@ -31,8 +43,11 @@ public class BatchGradientDescentOptimizer extends Optimizer {
 	@Override
 	public void optimize(Computation networkToOptimze, Iterator<? extends Sample> labeledSampleGenerator) {
 		List<WeightGradStorage> grads = new ArrayList<>();
-		while (labeledSampleGenerator.hasNext())
+		while (labeledSampleGenerator.hasNext()) {
 			grads.add(networkToOptimze.calculateWeightGrads(getLossFunction(), labeledSampleGenerator.next()));
+			if (callback != null)
+				callback.run();
+		}
 
 		// Average weight grad storages
 		WeightGradStorage wgs = grads.get(0).clone();
