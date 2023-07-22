@@ -27,7 +27,20 @@ import pala.libs.generic.util.Gateway;
 public final class BindingTools {
 
 	/**
-	 * Keeps two {@link List}s matched, including item index.
+	 * <p>
+	 * Keeps two {@link List}s matched, including item index. A call to this method
+	 * also clears the destination list and replaces all its elements with the
+	 * elements in the source list, converted. This assures that the state of the
+	 * destination list, immediately after a call to the method, is bound to the
+	 * source list.
+	 * </p>
+	 * <p>
+	 * Note that the destination list should not be modified directly after this
+	 * method is called and before the returned {@link Unbindable} is unbound. If
+	 * the destination list is made out of sync with the source list, errors can
+	 * occur (particularly with indexing) when changes from the source list are
+	 * subsequently propagaated to the destination list.
+	 * </p>
 	 * 
 	 * @param <F>       The type of the list to listen to changes on.
 	 * @param <T>       The type of the list to apply changes to (the list that gets
@@ -57,6 +70,8 @@ public final class BindingTools {
 								JavaTools.addAll(c.getAddedSubList(), converter, new ArrayList<>(c.getAddedSize())));
 				}
 		};
+		to.clear();
+		JavaTools.addAll(from, converter, to);
 		from.addListener(listener);
 		return () -> from.removeListener(listener);
 	}
