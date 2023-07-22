@@ -31,6 +31,20 @@ public final class BindingTools {
 		private final Collection<Function<? super T, Boolean>> filters;
 		private final ListChangeListener<T> listener;
 
+		public static <F, T> Unbindable bind(ObservableList<? extends F> from, List<? super T> to,
+				Function<? super F, ? extends T> converter) {
+			ListChangeListener<F> listener = new ListChangeListener<F>() {
+
+				@Override
+				public void onChanged(Change<? extends F> c) {
+					// TODO Auto-generated method stub
+
+				}
+			};
+			from.addListener(listener);
+			return () -> from.removeListener(listener);
+		}
+
 		@SafeVarargs
 		public FilterBinding(final ObservableList<? extends T> container, final List<T> glass,
 				final Function<? super T, Boolean>... filters) {
@@ -208,8 +222,13 @@ public final class BindingTools {
 
 	}
 
-	public interface Unbindable {
+	public interface Unbindable extends Runnable {
 		void unbind();
+
+		@Override
+		default void run() {
+			unbind();
+		}
 	}
 
 	public static <T> Unbindable bind(final Collection<? super T> list, final ObservableListView<? extends T> view) {
