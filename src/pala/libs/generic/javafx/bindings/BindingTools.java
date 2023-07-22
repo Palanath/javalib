@@ -20,30 +20,53 @@ import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import pala.libs.generic.JavaTools;
 import pala.libs.generic.QuickList;
 import pala.libs.generic.util.Gateway;
 
 public final class BindingTools {
+
+	/**
+	 * Keeps two {@link List}s matched, including item index.
+	 * 
+	 * @param <F>       The type of the list to listen to changes on.
+	 * @param <T>       The type of the list to apply changes to (the list that gets
+	 *                  "bound" to the source/from list).
+	 * @param from      The list to listen to changes on.
+	 * @param to        The list to apply changes to (the list that gets "bound" to
+	 *                  the source/from list).
+	 * @param converter A {@link Function} used to convert objects of the source
+	 *                  {@link List}'s type to objects that get put in the
+	 *                  destination {@link List}.
+	 * @return An {@link Unbindable} that, when {@link Unbindable#unbind() invoked},
+	 *         unbinds the destination list from the source list.
+	 */
+	public static <F, T> Unbindable bind(ObservableList<? extends F> from, List<? super T> to,
+			Function<? super F, ? extends T> converter) {
+		ListChangeListener<F> listener = c -> {
+			while (c.next())
+				if (c.wasPermutated()) {
+					to.subList(c.getFrom(), c.getTo()).clear();
+					to.addAll(c.getFrom(), JavaTools.addAll(c.getList().subList(c.getFrom(), c.getTo()), converter,
+							new ArrayList<>(c.getTo() - c.getFrom())));
+				} else {
+					if (c.wasRemoved())
+						to.subList(c.getFrom(), c.getFrom() + c.getRemovedSize()).clear();
+					if (c.wasAdded())
+						to.addAll(c.getFrom(),
+								JavaTools.addAll(c.getAddedSubList(), converter, new ArrayList<>(c.getAddedSize())));
+				}
+		};
+		from.addListener(listener);
+		return () -> from.removeListener(listener);
+	}
+
 	public static final class FilterBinding<T> {
 
 		private final ObservableList<? extends T> container;
 		private final List<T> glass;
 		private final Collection<Function<? super T, Boolean>> filters;
 		private final ListChangeListener<T> listener;
-
-		public static <F, T> Unbindable bind(ObservableList<? extends F> from, List<? super T> to,
-				Function<? super F, ? extends T> converter) {
-			ListChangeListener<F> listener = new ListChangeListener<F>() {
-
-				@Override
-				public void onChanged(Change<? extends F> c) {
-					// TODO Auto-generated method stub
-
-				}
-			};
-			from.addListener(listener);
-			return () -> from.removeListener(listener);
-		}
 
 		@SafeVarargs
 		public FilterBinding(final ObservableList<? extends T> container, final List<T> glass,
