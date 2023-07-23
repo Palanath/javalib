@@ -163,7 +163,6 @@ public class JSONParser {
 	 *               quotation mark.
 	 * @return The parsed {@link String}.
 	 */
-	@SuppressWarnings("incomplete-switch")
 	private JSONString parseHeadlessString(final CharacterSequence stream) {
 		final StringBuilder builder = new StringBuilder();
 		int c;
@@ -345,7 +344,7 @@ public class JSONParser {
 				if (stream.next() != 'u' || stream.next() != 'l' || stream.next() != 'l')
 					throw new IllegalArgumentException("Malformed JSON.");
 				else
-					return JSONConstant.NULL;
+					return null;
 			else if (curr == -1)
 				throw new IllegalArgumentException("End of JSON encountered while parsing value.");
 			else
