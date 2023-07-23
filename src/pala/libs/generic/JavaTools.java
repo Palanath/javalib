@@ -2739,4 +2739,22 @@ public final class JavaTools {
 		return -1;
 	}
 
+	/**
+	 * Returns <code>true</code> if the provided {@link Map} contains entries for
+	 * all of the provided keys, or <code>false</code> otherwise.
+	 * 
+	 * @param <K>  The type of key in the {@link Map}.
+	 * @param map  The {@link Map}.
+	 * @param keys An array of keys to check.
+	 * @return <code>true</code> if there is an entry within the {@link Map} for
+	 *         every provided key. <code>false</code> otherwise.
+	 */
+	@SafeVarargs
+	static <K> boolean hasKeys(Map<? super K, ?> map, K... keys) {
+		for (K k : keys)
+			if (!map.containsKey(k))
+				return false;
+		return true;
+	}
+
 }
