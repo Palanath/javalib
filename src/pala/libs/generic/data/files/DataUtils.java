@@ -2,15 +2,14 @@ package pala.libs.generic.data.files;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+
+import pala.libs.generic.json.JSONSavable;
 
 public class DataUtils {
 	public static <E> List<E> readAll(String extension, Function<? super InputStream, ? extends E> reader,
@@ -180,7 +179,7 @@ public class DataUtils {
 		return readAll(result, reader, filter, traversalMode, null, paths);
 	}
 
-	public static class ObjectLoadingException extends RuntimeException {
+	public static class ObjectIOException extends RuntimeException {
 		/**
 		 * Serial UID
 		 */
@@ -191,12 +190,12 @@ public class DataUtils {
 			return file;
 		}
 
-		public ObjectLoadingException(Throwable cause, File file) {
+		public ObjectIOException(Throwable cause, File file) {
 			super(cause);
 			this.file = file;
 		}
 
-		public ObjectLoadingException(String message, Throwable cause, File file) {
+		public ObjectIOException(String message, Throwable cause, File file) {
 			super(message, cause);
 			this.file = file;
 		}
@@ -204,7 +203,7 @@ public class DataUtils {
 
 	public static <E, L extends List<? super E>> L readAll(L result,
 			Function<? super FileInputStream, ? extends E> reader, Predicate<? super File> filter,
-			TraversalMode traversalMode, Consumer<? super ObjectLoadingException> exceptionHandler, File... paths) {
+			TraversalMode traversalMode, Consumer<? super ObjectIOException> exceptionHandler, File... paths) {
 		for (File f : paths)
 			if (f.isDirectory()) {
 				if (traversalMode == TraversalMode.SHALLOW)
@@ -215,13 +214,33 @@ public class DataUtils {
 				try (FileInputStream fis = new FileInputStream(f)) {
 					result.add(reader.apply(fis));
 				} catch (Exception e) {
-					ObjectLoadingException ole = new ObjectLoadingException(e, f);
+					ObjectIOException ole = new ObjectIOException(e, f);
 					if (exceptionHandler != null)
 						exceptionHandler.accept(ole);
 					else
 						throw ole;
 				}
 		return result;
+	}
+
+	public interface NamedJSONSavable extends JSONSavable {
+		String fileAppropriateName();
+	}
+
+	public static void writeAll(File outDir, String extension, Consumer<? super ObjectIOException> exceptionHandler,
+			NamedJSONSavable... items) {
+		for (NamedJSONSavable v : items) {
+			File f = new File(outDir, v.fileAppropriateName() + extension);
+			try {
+				v.save(f);
+			} catch (Exception e) {
+				ObjectIOException ole = new ObjectIOException(e, f);
+				if (exceptionHandler != null)
+					exceptionHandler.accept(ole);
+				else
+					throw ole;
+			}
+		}
 	}
 
 }
