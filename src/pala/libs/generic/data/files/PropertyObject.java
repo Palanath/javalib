@@ -36,42 +36,62 @@ public abstract class PropertyObject implements JSONSavable {
 	}
 
 	public abstract class DefaultProperty<V> extends Property<V> {
-		private final Predicate<? super V> defaultValueChecker;
+		private final V defaultValue;
+		private final boolean overwriteWithDefault;
 
 		/**
 		 * <p>
-		 * Constructs a new {@link DefaultProperty} with the provided initial value, the
-		 * provided name, and the provided default value checker {@link Predicate}.
+		 * Constructs a new {@link DefaultProperty} with the provided
+		 * <code>defaultValue</code> and <code>name</code>.
 		 * </p>
 		 * <p>
-		 * The {@link DefaultProperty} is initialized so that its initial value is as
-		 * provided. The provided name is used to identify the {@link DefaultProperty}
-		 * when saving and loading the surrounding {@link PropertyObject} from a
-		 * {@link JSONObject}.
+		 * When the {@link DefaultProperty} is constructed, its value is initialized to
+		 * the provided <code>defaultValue</code>. Additionally, whenever surrounding
+		 * {@link PropertyObject} is saved, if this {@link DefaultProperty}'s value is
+		 * <code>defaultValue</code>, it is not written to the {@link PropertyObject}'s
+		 * JSON data. Correspondingly, when the surrounding {@link PropertyObject} is
+		 * being loaded from JSON data, if no value is found for the
+		 * {@link DefaultProperty} (and {@link #overwriteWithDefault} is enabled), the
+		 * property's value becomes the <code>defaultValue</code>.
 		 * </p>
 		 * <p>
-		 * The default value checker {@link Predicate} is used to determine if the
-		 * {@link DefaultProperty} should be saved into the JSON output by
-		 * {@link PropertyObject#toJSON()} during saving. The {@link Predicate} is
-		 * provided the value of the {@link DefaultProperty} during the saving process.
-		 * If the {@link Predicate} returns <code>false</code>, the
-		 * {@link DefaultProperty} is not saved. Otherwise, it is.
+		 * This constructor enables {@link #overwriteWithDefault}.
 		 * </p>
-		 * <p>
-		 * When a {@link PropertyObject} is restored from a {@link JSONObject},
 		 * 
-		 * @param value
-		 * @param name
-		 * @param defaultValueChecker
+		 * @param name         The name of the property.
+		 * @param defaultValue The default value of the property.
 		 */
-		public DefaultProperty(V value, String name, Predicate<? super V> defaultValueChecker) {
-			super(value, name);
-			this.defaultValueChecker = defaultValueChecker;
+		public DefaultProperty(String name, V defaultValue) {
+			this(name, defaultValue, true);
 		}
 
-		public DefaultProperty(String name, Predicate<? super V> defaultValueChecker) {
-			super(name);
-			this.defaultValueChecker = defaultValueChecker;
+		/**
+		 * <p>
+		 * Constructs a new {@link DefaultProperty} with the provided
+		 * <code>defaultValue</code> and <code>name</code>.
+		 * </p>
+		 * <p>
+		 * When the {@link DefaultProperty} is constructed, its value is initialized to
+		 * the provided <code>defaultValue</code>. Additionally, whenever surrounding
+		 * {@link PropertyObject} is saved, if this {@link DefaultProperty}'s value is
+		 * <code>defaultValue</code>, it is not written to the {@link PropertyObject}'s
+		 * JSON data. Correspondingly, when the surrounding {@link PropertyObject} is
+		 * being loaded from JSON data, if no value is found for the
+		 * {@link DefaultProperty} (and {@link #overwriteWithDefault} is enabled), the
+		 * property's value becomes the <code>defaultValue</code>.
+		 * </p>
+		 * 
+		 * @param name                 The property's name.
+		 * @param defaultValue         The default value of the property.
+		 * @param overwriteWithDefault Whether the lack of a value for this property in
+		 *                             JSON data can cause the value of this property to
+		 *                             be overwritten with the <code>defaultValue</code>
+		 *                             provided during loading.
+		 */
+		public DefaultProperty(String name, V defaultValue, boolean overwriteWithDefault) {
+			super(defaultValue, name);
+			this.defaultValue = defaultValue;
+			this.overwriteWithDefault = overwriteWithDefault;
 		}
 
 	}
