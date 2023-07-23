@@ -2750,7 +2750,7 @@ public final class JavaTools {
 	 *         every provided key. <code>false</code> otherwise.
 	 */
 	@SafeVarargs
-	static <K> boolean hasKeys(Map<? super K, ?> map, K... keys) {
+	public static <K> boolean hasKeys(Map<? super K, ?> map, K... keys) {
 		for (K k : keys)
 			if (!map.containsKey(k))
 				return false;
