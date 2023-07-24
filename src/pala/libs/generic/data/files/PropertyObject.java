@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import pala.libs.generic.json.JSONObject;
 import pala.libs.generic.json.JSONSavable;
@@ -41,6 +42,20 @@ public abstract class PropertyObject implements JSONSavable {
 	public abstract class DefaultProperty<V> extends Property<V> {
 		private final V defaultValue;
 		private final boolean overwriteWithDefault;
+
+		protected abstract V read(JSONValue json);
+
+		protected abstract JSONValue write(V value);
+
+		@Override
+		protected V fromJSON(JSONValue json) throws PropertyException {
+			return json == NOT_WRITTEN ? defaultValue : read(json);
+		}
+
+		@Override
+		protected JSONValue toJSON(V value) {
+			return Objects.equals(value, defaultValue) ? NOT_WRITTEN : write(value);
+		}
 
 		/**
 		 * <p>
@@ -204,7 +219,7 @@ public abstract class PropertyObject implements JSONSavable {
 		 * @throws PropertyException If an exception related to the loading of the value
 		 *                           occurs.
 		 */
-		public abstract V fromJSON(JSONValue json) throws PropertyException;
+		protected abstract V fromJSON(JSONValue json) throws PropertyException;
 
 		/**
 		 * <p>
@@ -226,7 +241,7 @@ public abstract class PropertyObject implements JSONSavable {
 		 * @return The JSON value of this property. Can be <code>null</code> or
 		 *         {@link PropertyObject#NOT_WRITTEN}.
 		 */
-		public abstract JSONValue toJSON(V value);
+		protected abstract JSONValue toJSON(V value);
 
 		private JSONValue toJSON() {
 			return toJSON(get());
