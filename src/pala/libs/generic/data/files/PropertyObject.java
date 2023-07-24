@@ -340,6 +340,10 @@ public abstract class PropertyObject implements JSONSavable {
 			p.load(json.containsKey(p.name) ? json : NOT_WRITTEN);
 	}
 
+	/**
+	 * Called whenever this {@link PropertyObject} has been modified and needs to be
+	 * re-saved.
+	 */
 	protected abstract void markDirty();
 
 	public void save(JSONObject json) {
