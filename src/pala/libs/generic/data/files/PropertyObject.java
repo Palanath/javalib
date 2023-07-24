@@ -13,85 +13,6 @@ import pala.libs.generic.json.JSONValue;
 
 public abstract class PropertyObject implements JSONSavable {
 
-	public abstract class DefaultProperty<V> extends Property<V> {
-		private final V defaultValue;
-		private final boolean overwriteWithDefault;
-
-		/**
-		 * <p>
-		 * Constructs a new {@link DefaultProperty} with the provided
-		 * <code>defaultValue</code> and <code>name</code>.
-		 * </p>
-		 * <p>
-		 * When the {@link DefaultProperty} is constructed, its value is initialized to
-		 * the provided <code>defaultValue</code>. Additionally, whenever surrounding
-		 * {@link PropertyObject} is saved, if this {@link DefaultProperty}'s value is
-		 * <code>defaultValue</code>, it is not written to the {@link PropertyObject}'s
-		 * JSON data. Correspondingly, when the surrounding {@link PropertyObject} is
-		 * being loaded from JSON data, if no value is found for the
-		 * {@link DefaultProperty} (and {@link #overwriteWithDefault} is enabled), the
-		 * property's value becomes the <code>defaultValue</code>.
-		 * </p>
-		 * <p>
-		 * This constructor enables {@link #overwriteWithDefault}.
-		 * </p>
-		 * 
-		 * @param name         The name of the property.
-		 * @param defaultValue The default value of the property.
-		 */
-		public DefaultProperty(String name, V defaultValue) {
-			this(name, defaultValue, true);
-		}
-
-		/**
-		 * <p>
-		 * Constructs a new {@link DefaultProperty} with the provided
-		 * <code>defaultValue</code> and <code>name</code>.
-		 * </p>
-		 * <p>
-		 * When the {@link DefaultProperty} is constructed, its value is initialized to
-		 * the provided <code>defaultValue</code>. Additionally, whenever surrounding
-		 * {@link PropertyObject} is saved, if this {@link DefaultProperty}'s value is
-		 * <code>defaultValue</code>, it is not written to the {@link PropertyObject}'s
-		 * JSON data. Correspondingly, when the surrounding {@link PropertyObject} is
-		 * being loaded from JSON data, if no value is found for the
-		 * {@link DefaultProperty} (and {@link #overwriteWithDefault} is enabled), the
-		 * property's value becomes the <code>defaultValue</code>.
-		 * </p>
-		 * 
-		 * @param name                 The property's name.
-		 * @param defaultValue         The default value of the property.
-		 * @param overwriteWithDefault Whether the lack of a value for this property in
-		 *                             JSON data can cause the value of this property to
-		 *                             be overwritten with the <code>defaultValue</code>
-		 *                             provided during loading.
-		 */
-		public DefaultProperty(String name, V defaultValue, boolean overwriteWithDefault) {
-			super(defaultValue, name);
-			this.defaultValue = defaultValue;
-			this.overwriteWithDefault = overwriteWithDefault;
-		}
-
-		@Override
-		protected void load(JSONValue json) throws PropertyException {
-			if (json != NOT_WRITTEN)
-				((Property<V>) this).value = read(json);
-			else if (overwriteWithDefault)
-				((Property<V>) this).value = defaultValue;
-		}
-
-		@Override
-		protected JSONValue save() {
-			return Objects.equals(((Property<V>) this).value, defaultValue) ? NOT_WRITTEN
-					: write(((Property<V>) this).value);
-		}
-
-		protected abstract V read(JSONValue json);
-
-		protected abstract JSONValue write(V value);
-
-	}
-
 	public class Edit {
 		private final Map<Property<?>, Object> changes = new HashMap<>(2);
 
@@ -211,13 +132,82 @@ public abstract class PropertyObject implements JSONSavable {
 	}
 
 	public abstract class SimpleProperty<V> extends Property<V> {
+		private final V defaultValue;
+		private final boolean overwrite, def;
 
+		/**
+		 * <p>
+		 * Creates a required {@link SimpleProperty} (i.e., a property without a default
+		 * value).
+		 * </p>
+		 * <p>
+		 * This {@link SimpleProperty} always writes its value to and reads its value
+		 * from JSON. If an attempt is made to load a {@link PropertyObject} from JSON
+		 * data which does not have an entry for this {@link SimpleProperty}, a
+		 * {@link PropertyRequiredException} may be thrown by
+		 * {@link #fromJSON(JSONValue)} (though this is up to the implementation, as
+		 * some implementations may interpret this as a certain value and return that
+		 * instead).
+		 * </p>
+		 * 
+		 * @param name the name of the property.
+		 */
 		public SimpleProperty(String name) {
 			super(name);
+			overwrite = def = false;
+			defaultValue = null;
 		}
 
-		public SimpleProperty(V value, String name) {
-			super(value, name);
+		/**
+		 * <p>
+		 * Creates a {@link SimpleProperty} with a default value and overwriting enabled.
+		 * </p>
+		 * <p>
+		 * This {@link SimpleProperty} writes its value to JSON data only when its value
+		 * is not equal to the specified <code>defaultValue</code>. When reading from
+		 * JSON data, this {@link SimpleProperty} always updates its value: If the JSON
+		 * data contains an entry for this property, that entry is used, otherwise, this
+		 * {@link SimpleProperty} is updated with the {@link #defaultValue} specified.
+		 * </p>
+		 * 
+		 * @param name         The name of the property.
+		 * @param defaultValue The default value for the property, used to avoid
+		 *                     unnecessary writes and when reading.
+		 */
+		public SimpleProperty(String name, V defaultValue) {
+			this(name, defaultValue, true);
+		}
+
+		/**
+		 * <p>
+		 * Creates a {@link SimpleProperty} with a default value and overwriting enabled
+		 * as specified.
+		 * </p>
+		 * <p>
+		 * This {@link SimpleProperty} writes its value to JOSN data only when its value
+		 * is not equal to the specified <code>defaultValue</code>. When reading from
+		 * JSON data, this {@link SimpleProperty} updates its value if the JSON data
+		 * contains an entry for this property or if {@link #overwrite} is enabled. If
+		 * the JSON data does not contain an entry for this property but
+		 * {@link #overwrite} is enabled, this {@link SimpleProperty} is updated so that
+		 * its value is the specified <code>defaultValue</code>.
+		 * </p>
+		 * 
+		 * @param name         The name of the property.
+		 * @param defaultValue The default value for the property.
+		 * @param overwrite    Whether loading from JSON data which does not contain an
+		 *                     entry for this property should cause this property's
+		 *                     value to become the default value. This essentially
+		 *                     determines whether to interpret missing data in loaded
+		 *                     JSON data as the provided <code>defaultValue</code> or
+		 *                     ignorable data that should not affect the
+		 *                     {@link PropertyObject}.
+		 */
+		public SimpleProperty(String name, V defaultValue, boolean overwrite) {
+			super(defaultValue, name);
+			def = true;
+			this.defaultValue = defaultValue;
+			this.overwrite = overwrite;
 		}
 
 		/**
@@ -298,13 +288,20 @@ public abstract class PropertyObject implements JSONSavable {
 		protected abstract JSONValue toJSON(V value);
 
 		@Override
-		protected final void load(JSONValue json) throws PropertyException {
-			((Property<V>) this).value = fromJSON(json);
+		protected void load(JSONValue json) throws PropertyException {
+			if (def) {
+				if (json != NOT_WRITTEN)
+					((Property<V>) this).value = fromJSON(json);
+				else if (overwrite)
+					((Property<V>) this).value = defaultValue;
+			} else
+				((Property<V>) this).value = fromJSON(json);
 		}
 
 		@Override
-		protected final JSONValue save() {
-			return toJSON(((Property<V>) this).value);
+		protected JSONValue save() {
+			return def && Objects.equals(((Property<V>) this).value, defaultValue) ? NOT_WRITTEN
+					: toJSON(((Property<V>) this).value);
 		}
 	}
 
