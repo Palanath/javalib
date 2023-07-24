@@ -1,15 +1,18 @@
 package pala.libs.generic.data.files;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
 
 import pala.libs.generic.json.JSONObject;
 import pala.libs.generic.json.JSONSavable;
 import pala.libs.generic.json.JSONValue;
 
 public abstract class PropertyObject implements JSONSavable {
+
+	private final List<Property<?>> properties = new ArrayList<>();
 
 	public class Edit {
 		private final Map<Property<?>, Object> changes = new HashMap<>(2);
@@ -122,6 +125,9 @@ public abstract class PropertyObject implements JSONSavable {
 	};
 
 	public abstract class Property<V> {
+		{
+			properties.add(this);
+		}
 		private V value;
 		private final String name;
 
@@ -222,6 +228,14 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		public abstract JSONValue toJSON(V value);
 
+		private JSONValue toJSON() {
+			return toJSON(get());
+		}
+
+		private void set(JSONValue json) throws PropertyException {
+			value = fromJSON(json);
+		}
+
 		/**
 		 * Constructs a {@link Property} with the provided initial value and name.
 		 * Calling this constructor does not mark the surrounding {@link PropertyObject}
@@ -257,10 +271,24 @@ public abstract class PropertyObject implements JSONSavable {
 
 	protected abstract void markDirty();
 
+	public void load(JSONObject json) throws PropertyException {
+		for (Property<?> p : properties)
+			p.set(json.containsKey(p.name) ? json : NOT_WRITTEN);
+	}
+
+	public void save(JSONObject json) {
+		for (Property<?> p : properties) {
+			JSONValue r = p.toJSON();
+			if (r != NOT_WRITTEN)
+				json.put(p.name, r);
+		}
+	}
+
 	@Override
-	public JSONValue toJSON() {
-		// TODO Auto-generated method stub
-		return null;
+	public JSONObject toJSON() {
+		JSONObject res = new JSONObject();
+		save(res);
+		return res;
 	}
 
 }
