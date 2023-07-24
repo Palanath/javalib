@@ -307,11 +307,42 @@ public abstract class PropertyObject implements JSONSavable {
 	}
 
 	public interface PropertyConverter<V> {
+		/**
+		 * <p>
+		 * Converts from JSON to a value indicated by the type of this
+		 * {@link PropertyConverter}.
+		 * </p>
+		 * <p>
+		 * This method may be called with <code>null</code> or with
+		 * {@link PropertyObject#NOT_WRITTEN}.
+		 * </p>
+		 * 
+		 * @param json The JSON data to convert.
+		 * @return The converted value.
+		 * @throws PropertyException An exception if the JSON cannot be converted.
+		 */
 		V fromJSON(JSONValue json) throws PropertyException;
 
+		/**
+		 * Converts the provided property value to JSON data that can be saved. This
+		 * method is free to return <code>null</code> or
+		 * {@link PropertyObject#NOT_WRITTEN}.
+		 * 
+		 * @param value The value to convert to JSON.
+		 * @return The JSON data, possibly <code>null</code> or
+		 *         {@link PropertyObject#NOT_WRITTEN}.
+		 */
 		JSONValue toJSON(V value);
 	}
 
+	/**
+	 * A {@link SimpleProperty} which stores a simple object and uses a
+	 * {@link PropertyConverter} to convert to and from JSON.
+	 * 
+	 * @author Palanath
+	 *
+	 * @param <V> The type of object stored by the property.
+	 */
 	public class ObjectProperty<V> extends SimpleProperty<V> {
 		private final PropertyConverter<V> converter;
 
