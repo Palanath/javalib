@@ -160,7 +160,8 @@ public abstract class PropertyObject implements JSONSavable {
 
 		/**
 		 * <p>
-		 * Creates a {@link SimpleProperty} with a default value and overwriting enabled.
+		 * Creates a {@link SimpleProperty} with a default value and overwriting
+		 * enabled.
 		 * </p>
 		 * <p>
 		 * This {@link SimpleProperty} writes its value to JSON data only when its value
@@ -303,6 +304,42 @@ public abstract class PropertyObject implements JSONSavable {
 			return def && Objects.equals(((Property<V>) this).value, defaultValue) ? NOT_WRITTEN
 					: toJSON(((Property<V>) this).value);
 		}
+	}
+
+	public interface PropertyConverter<V> {
+		V fromJSON(JSONValue json) throws PropertyException;
+
+		JSONValue toJSON(V value);
+	}
+
+	public class ObjectProperty<V> extends SimpleProperty<V> {
+		private final PropertyConverter<V> converter;
+
+		@Override
+		protected V fromJSON(JSONValue json) throws PropertyException {
+			return converter.fromJSON(json);
+		}
+
+		public ObjectProperty(String name, V defaultValue, boolean overwrite, PropertyConverter<V> converter) {
+			super(name, defaultValue, overwrite);
+			this.converter = converter;
+		}
+
+		public ObjectProperty(String name, V defaultValue, PropertyConverter<V> converter) {
+			super(name, defaultValue);
+			this.converter = converter;
+		}
+
+		public ObjectProperty(String name, PropertyConverter<V> converter) {
+			super(name);
+			this.converter = converter;
+		}
+
+		@Override
+		protected JSONValue toJSON(V value) {
+			return converter.toJSON(value);
+		}
+
 	}
 
 	/**
