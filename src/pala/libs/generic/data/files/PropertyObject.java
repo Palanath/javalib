@@ -16,25 +16,39 @@ import pala.libs.generic.json.JSONValue;
 public abstract class PropertyObject implements JSONSavable {
 
 	public class Edit {
-		private final Map<Property<?>, Object> changes = new HashMap<>(2);
+		private final Map<Property<?>, Object> changes = new HashMap<>(4);
 
-		public void commit() {
+		public Edit commit() {
 			commitWithoutDirtying();
 			markDirty();
+			return this;
 		}
 
 		@SuppressWarnings("unchecked")
-		public void commitWithoutDirtying() {
+		public Edit commitWithoutDirtying() {
 			for (Entry<Property<?>, Object> e : changes.entrySet())
 				((Property<Object>) e.getKey()).value = e.getValue();
+			return this;
 		}
 
-		public <V> void set(Property<? super V> property, V value) {
+		public <V> Edit set(Property<? super V> property, V value) {
 			changes.put(property, value);
+			return this;
 		}
 
-		public void undo(Property<?> property) {
+		public Edit undo(Property<?> property) {
 			changes.remove(property);
+			return this;
+		}
+
+		/**
+		 * Clears all the changes in this {@link Edit}.
+		 * 
+		 * @return This {@link Edit} object.
+		 */
+		public Edit clear() {
+			changes.clear();
+			return this;
 		}
 
 	}
@@ -376,15 +390,25 @@ public abstract class PropertyObject implements JSONSavable {
 	}
 
 	/**
+	 * <p>
 	 * A non-nullable boolean property converter. This is the property converter for
 	 * the official primitive boolean type.
+	 * </p>
+	 * <p>
+	 * This converter throws a {@link PropertyRequiredException} if an attempt is
+	 * made to convert {@link PropertyObject#NOT_WRITTEN} to a {@link Boolean} using
+	 * it.
+	 * </p>
 	 */
 	public static final PropertyConverter<Boolean> BOOLEAN_PROPERTY_CONVERTER = new PropertyConverter<Boolean>() {
 		@Override
 		public Boolean fromJSON(JSONValue json) throws PropertyException {
-			if (!(json instanceof JSONConstant))
+			if (json == NOT_WRITTEN)
+				throw new PropertyRequiredException(null);
+			else if (!(json instanceof JSONConstant))
 				throw new InvalidJSONException(null, json);
-			return (JSONConstant) json == JSONConstant.TRUE;
+			else
+				return (JSONConstant) json == JSONConstant.TRUE;
 		}
 
 		@Override
@@ -410,6 +434,8 @@ public abstract class PropertyObject implements JSONSavable {
 	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<String>() {
 		@Override
 		public String fromJSON(JSONValue json) throws PropertyException {
+			if (json == NOT_WRITTEN)
+				throw new PropertyRequiredException(null);
 			if (!(json instanceof JSONString))
 				throw new InvalidJSONException(null, json);
 			return ((JSONString) json).getValue();
