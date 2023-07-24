@@ -9,6 +9,7 @@ import java.util.Objects;
 
 import pala.libs.generic.json.JSONObject;
 import pala.libs.generic.json.JSONSavable;
+import pala.libs.generic.json.JSONString;
 import pala.libs.generic.json.JSONValue;
 
 public abstract class PropertyObject implements JSONSavable {
@@ -371,6 +372,35 @@ public abstract class PropertyObject implements JSONSavable {
 			return converter.toJSON(value);
 		}
 
+	}
+
+	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<String>() {
+
+		@Override
+		public String fromJSON(JSONValue json) throws PropertyException {
+			if (!(json instanceof JSONString))
+				throw new InvalidJSONException(null, json);
+			return ((JSONString) json).getValue();
+		}
+
+		@Override
+		public JSONValue toJSON(String value) {
+			return new JSONString(value);
+		}
+	};
+
+	public class StringProperty extends ObjectProperty<String> {
+		public StringProperty(String name) {
+			super(name, STRING_PROPERTY_CONVERTER);
+		}
+
+		public StringProperty(String name, String defaultValue, boolean overwrite) {
+			super(name, defaultValue, overwrite, STRING_PROPERTY_CONVERTER);
+		}
+
+		public StringProperty(String name, String defaultValue) {
+			super(name, defaultValue, STRING_PROPERTY_CONVERTER);
+		}
 	}
 
 	/**
