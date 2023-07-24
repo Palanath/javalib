@@ -73,16 +73,20 @@ public abstract class PropertyObject implements JSONSavable {
 		}
 
 		@Override
-		protected V fromJSON(JSONValue json) throws PropertyException {
-			return json == NOT_WRITTEN ? defaultValue : read(json);
+		protected void load(JSONValue json) throws PropertyException {
+			if (json != NOT_WRITTEN)
+				((Property<V>) this).value = read(json);
+			else if (overwriteWithDefault)
+				((Property<V>) this).value = defaultValue;
+		}
+
+		@Override
+		protected JSONValue save() {
+			return Objects.equals(((Property<V>) this).value, defaultValue) ? NOT_WRITTEN
+					: write(((Property<V>) this).value);
 		}
 
 		protected abstract V read(JSONValue json);
-
-		@Override
-		protected JSONValue toJSON(V value) {
-			return Objects.equals(value, defaultValue) ? NOT_WRITTEN : write(value);
-		}
 
 		protected abstract JSONValue write(V value);
 
@@ -117,6 +121,15 @@ public abstract class PropertyObject implements JSONSavable {
 			properties.add(this);
 		}
 		private V value;
+
+		protected final void setValue(V value) {
+			this.value = value;
+		}
+
+		protected final V getValue() {
+			return value;
+		}
+
 		private final String name;
 
 		/**
@@ -148,6 +161,63 @@ public abstract class PropertyObject implements JSONSavable {
 		public Property(V value, String name) {
 			this.value = value;
 			this.name = name;
+		}
+
+		public V get() {
+			return value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		/**
+		 * Updates the value of this {@link PropertyObject} to be as signified by the
+		 * provided {@link JSONValue}. This method is called when the surrounding
+		 * {@link PropertyObject} is {@link PropertyObject#load(JSONObject) loaded}.
+		 * 
+		 * @param json The {@link JSONValue} contained in the {@link PropertyObject}'s
+		 *             JSON data, possibly equal to <code>null</code> or
+		 *             {@link PropertyObject#NOT_WRITTEN}.
+		 * @throws PropertyException If a property-related exception occurs while
+		 *                           loading the data.
+		 */
+		protected abstract void load(JSONValue json) throws PropertyException;
+
+		/**
+		 * Converts the value of this {@link PropertyObject} to JSON data and returns
+		 * it. This method may return <code>null</code> (to signifiy the JSON null
+		 * constant) or {@link PropertyObject#NOT_WRITTEN} to signify that data should
+		 * not be written to the file. If {@link PropertyObject#NOT_WRITTEN} is
+		 * returned, it will be provided to {@link #load(JSONValue)} when the JSON data
+		 * is correspondingly read and loaded back.
+		 * 
+		 * @return What JSON data to write to store this {@link Property}.
+		 */
+		protected abstract JSONValue save();
+
+		/**
+		 * Updates the value of this {@link Property}, causing the
+		 * {@link PropertyObject} it belongs to be {@link PropertyObject#markDirty()
+		 * marked dirty}.
+		 * 
+		 * @param value The value to update the {@link Property} to.
+		 */
+		public void update(V value) {
+			this.value = value;
+			markDirty();
+		}
+
+	}
+
+	public abstract class SimpleProperty<V> extends Property<V> {
+
+		public SimpleProperty(String name) {
+			super(name);
+		}
+
+		public SimpleProperty(V value, String name) {
+			super(value, name);
 		}
 
 		/**
@@ -205,22 +275,6 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		protected abstract V fromJSON(JSONValue json) throws PropertyException;
 
-		public V get() {
-			return value;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		private void set(JSONValue json) throws PropertyException {
-			value = fromJSON(json);
-		}
-
-		private JSONValue toJSON() {
-			return toJSON(get());
-		}
-
 		/**
 		 * <p>
 		 * Converts the provided value to JSON format, so that it may be saved. This
@@ -243,18 +297,15 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		protected abstract JSONValue toJSON(V value);
 
-		/**
-		 * Updates the value of this {@link Property}, causing the
-		 * {@link PropertyObject} it belongs to be {@link PropertyObject#markDirty()
-		 * marked dirty}.
-		 * 
-		 * @param value The value to update the {@link Property} to.
-		 */
-		public void update(V value) {
-			this.value = value;
-			markDirty();
+		@Override
+		protected final void load(JSONValue json) throws PropertyException {
+			((Property<V>) this).value = fromJSON(json);
 		}
 
+		@Override
+		protected final JSONValue save() {
+			return toJSON(((Property<V>) this).value);
+		}
 	}
 
 	/**
@@ -286,14 +337,14 @@ public abstract class PropertyObject implements JSONSavable {
 
 	public void load(JSONObject json) throws PropertyException {
 		for (Property<?> p : properties)
-			p.set(json.containsKey(p.name) ? json : NOT_WRITTEN);
+			p.load(json.containsKey(p.name) ? json : NOT_WRITTEN);
 	}
 
 	protected abstract void markDirty();
 
 	public void save(JSONObject json) {
 		for (Property<?> p : properties) {
-			JSONValue r = p.toJSON();
+			JSONValue r = p.save();
 			if (r != NOT_WRITTEN)
 				json.put(p.name, r);
 		}
