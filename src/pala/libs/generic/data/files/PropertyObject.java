@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import pala.libs.generic.json.JSONConstant;
 import pala.libs.generic.json.JSONObject;
 import pala.libs.generic.json.JSONSavable;
 import pala.libs.generic.json.JSONString;
@@ -374,8 +375,39 @@ public abstract class PropertyObject implements JSONSavable {
 
 	}
 
-	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<String>() {
+	/**
+	 * A non-nullable boolean property converter. This is the property converter for
+	 * the official primitive boolean type.
+	 */
+	public static final PropertyConverter<Boolean> BOOLEAN_PROPERTY_CONVERTER = new PropertyConverter<Boolean>() {
+		@Override
+		public Boolean fromJSON(JSONValue json) throws PropertyException {
+			if (!(json instanceof JSONConstant))
+				throw new InvalidJSONException(null, json);
+			return (JSONConstant) json == JSONConstant.TRUE;
+		}
 
+		@Override
+		public JSONValue toJSON(Boolean value) {
+			return value ? JSONConstant.TRUE : JSONConstant.FALSE;
+		}
+	};
+
+	public class BooleanProperty extends ObjectProperty<Boolean> {
+		public BooleanProperty(String name, Boolean defaultValue, boolean overwrite) {
+			super(name, defaultValue, overwrite, BOOLEAN_PROPERTY_CONVERTER);
+		}
+
+		public BooleanProperty(String name, Boolean defaultValue) {
+			super(name, defaultValue, BOOLEAN_PROPERTY_CONVERTER);
+		}
+
+		public BooleanProperty(String name) {
+			super(name, BOOLEAN_PROPERTY_CONVERTER);
+		}
+	}
+
+	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<String>() {
 		@Override
 		public String fromJSON(JSONValue json) throws PropertyException {
 			if (!(json instanceof JSONString))
