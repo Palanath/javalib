@@ -13,49 +13,9 @@ import pala.libs.generic.json.JSONValue;
 
 public abstract class PropertyObject implements JSONSavable {
 
-	private final List<Property<?>> properties = new ArrayList<>();
-
-	public class Edit {
-		private final Map<Property<?>, Object> changes = new HashMap<>(2);
-
-		public <V> void set(Property<? super V> property, V value) {
-			changes.put(property, value);
-		}
-
-		public void undo(Property<?> property) {
-			changes.remove(property);
-		}
-
-		public void commit() {
-			commitWithoutDirtying();
-			markDirty();
-		}
-
-		@SuppressWarnings("unchecked")
-		public void commitWithoutDirtying() {
-			for (Entry<Property<?>, Object> e : changes.entrySet())
-				((Property<Object>) e.getKey()).value = e.getValue();
-		}
-
-	}
-
 	public abstract class DefaultProperty<V> extends Property<V> {
 		private final V defaultValue;
 		private final boolean overwriteWithDefault;
-
-		protected abstract V read(JSONValue json);
-
-		protected abstract JSONValue write(V value);
-
-		@Override
-		protected V fromJSON(JSONValue json) throws PropertyException {
-			return json == NOT_WRITTEN ? defaultValue : read(json);
-		}
-
-		@Override
-		protected JSONValue toJSON(V value) {
-			return Objects.equals(value, defaultValue) ? NOT_WRITTEN : write(value);
-		}
 
 		/**
 		 * <p>
@@ -112,32 +72,45 @@ public abstract class PropertyObject implements JSONSavable {
 			this.overwriteWithDefault = overwriteWithDefault;
 		}
 
-	}
+		@Override
+		protected V fromJSON(JSONValue json) throws PropertyException {
+			return json == NOT_WRITTEN ? defaultValue : read(json);
+		}
 
-	/**
-	 * <p>
-	 * Used by {@link Property Properties} to indicate to the saving mechanism that
-	 * a property should not be saved at all. The saving mechanism also provides
-	 * {@link Property Properties} with this value whenever restoring a
-	 * {@link PropertyObject} from JSON data if no value for that {@link Property}
-	 * was found within the JSON data.
-	 * </p>
-	 * <p>
-	 * The respective functions for handling these behavior are
-	 * {@link Property#toJSON(Object)} and {@link Property#fromJSON(JSONValue)}.
-	 * </p>
-	 */
-	public static final JSONValue NOT_WRITTEN = new JSONValue() {
-		/**
-		 * Serial UID
-		 */
-		private static final long serialVersionUID = 1L;
+		protected abstract V read(JSONValue json);
 
 		@Override
-		public String toString(String indentation) {
-			return null;
+		protected JSONValue toJSON(V value) {
+			return Objects.equals(value, defaultValue) ? NOT_WRITTEN : write(value);
 		}
-	};
+
+		protected abstract JSONValue write(V value);
+
+	}
+
+	public class Edit {
+		private final Map<Property<?>, Object> changes = new HashMap<>(2);
+
+		public void commit() {
+			commitWithoutDirtying();
+			markDirty();
+		}
+
+		@SuppressWarnings("unchecked")
+		public void commitWithoutDirtying() {
+			for (Entry<Property<?>, Object> e : changes.entrySet())
+				((Property<Object>) e.getKey()).value = e.getValue();
+		}
+
+		public <V> void set(Property<? super V> property, V value) {
+			changes.put(property, value);
+		}
+
+		public void undo(Property<?> property) {
+			changes.remove(property);
+		}
+
+	}
 
 	public abstract class Property<V> {
 		{
@@ -146,24 +119,35 @@ public abstract class PropertyObject implements JSONSavable {
 		private V value;
 		private final String name;
 
-		public String getName() {
-			return name;
+		/**
+		 * Constructs a {@link Property} with the provided name. The property's initial
+		 * value is <code>null</code>.
+		 * 
+		 * @param name The name of the property. Must be unique against all other
+		 *             properties in thi {@link PropertyObject}. Used to uniquely
+		 *             identify the data in the file.
+		 */
+		public Property(String name) {
+			this.name = name;
 		}
 
 		/**
-		 * Updates the value of this {@link Property}, causing the
-		 * {@link PropertyObject} it belongs to be {@link PropertyObject#markDirty()
-		 * marked dirty}.
+		 * Constructs a {@link Property} with the provided initial value and name.
+		 * Calling this constructor does not mark the surrounding {@link PropertyObject}
+		 * as dirty.
 		 * 
-		 * @param value The value to update the {@link Property} to.
+		 * @param value The initial value of the {@link Property}. Calls to
+		 *              {@link #get()} after construction will return the provided value
+		 *              and the provided value will be saved when the surrounding
+		 *              {@link PropertyObject} is saved, unless this {@link Property}'s
+		 *              value is changed before saving.
+		 * @param name  The name of the property. Must be unique against all other
+		 *              properties in thi {@link PropertyObject}. Used to uniquely
+		 *              identify the data in the file.
 		 */
-		public void update(V value) {
+		public Property(V value, String name) {
 			this.value = value;
-			markDirty();
-		}
-
-		public V get() {
-			return value;
+			this.name = name;
 		}
 
 		/**
@@ -221,6 +205,22 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		protected abstract V fromJSON(JSONValue json) throws PropertyException;
 
+		public V get() {
+			return value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		private void set(JSONValue json) throws PropertyException {
+			value = fromJSON(json);
+		}
+
+		private JSONValue toJSON() {
+			return toJSON(get());
+		}
+
 		/**
 		 * <p>
 		 * Converts the provided value to JSON format, so that it may be saved. This
@@ -243,53 +243,53 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		protected abstract JSONValue toJSON(V value);
 
-		private JSONValue toJSON() {
-			return toJSON(get());
-		}
-
-		private void set(JSONValue json) throws PropertyException {
-			value = fromJSON(json);
-		}
-
 		/**
-		 * Constructs a {@link Property} with the provided initial value and name.
-		 * Calling this constructor does not mark the surrounding {@link PropertyObject}
-		 * as dirty.
+		 * Updates the value of this {@link Property}, causing the
+		 * {@link PropertyObject} it belongs to be {@link PropertyObject#markDirty()
+		 * marked dirty}.
 		 * 
-		 * @param value The initial value of the {@link Property}. Calls to
-		 *              {@link #get()} after construction will return the provided value
-		 *              and the provided value will be saved when the surrounding
-		 *              {@link PropertyObject} is saved, unless this {@link Property}'s
-		 *              value is changed before saving.
-		 * @param name  The name of the property. Must be unique against all other
-		 *              properties in thi {@link PropertyObject}. Used to uniquely
-		 *              identify the data in the file.
+		 * @param value The value to update the {@link Property} to.
 		 */
-		public Property(V value, String name) {
+		public void update(V value) {
 			this.value = value;
-			this.name = name;
-		}
-
-		/**
-		 * Constructs a {@link Property} with the provided name. The property's initial
-		 * value is <code>null</code>.
-		 * 
-		 * @param name The name of the property. Must be unique against all other
-		 *             properties in thi {@link PropertyObject}. Used to uniquely
-		 *             identify the data in the file.
-		 */
-		public Property(String name) {
-			this.name = name;
+			markDirty();
 		}
 
 	}
 
-	protected abstract void markDirty();
+	/**
+	 * <p>
+	 * Used by {@link Property Properties} to indicate to the saving mechanism that
+	 * a property should not be saved at all. The saving mechanism also provides
+	 * {@link Property Properties} with this value whenever restoring a
+	 * {@link PropertyObject} from JSON data if no value for that {@link Property}
+	 * was found within the JSON data.
+	 * </p>
+	 * <p>
+	 * The respective functions for handling these behavior are
+	 * {@link Property#toJSON(Object)} and {@link Property#fromJSON(JSONValue)}.
+	 * </p>
+	 */
+	public static final JSONValue NOT_WRITTEN = new JSONValue() {
+		/**
+		 * Serial UID
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public String toString(String indentation) {
+			return null;
+		}
+	};
+
+	private final List<Property<?>> properties = new ArrayList<>();
 
 	public void load(JSONObject json) throws PropertyException {
 		for (Property<?> p : properties)
 			p.set(json.containsKey(p.name) ? json : NOT_WRITTEN);
 	}
+
+	protected abstract void markDirty();
 
 	public void save(JSONObject json) {
 		for (Property<?> p : properties) {
