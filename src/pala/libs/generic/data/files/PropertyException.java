@@ -5,6 +5,13 @@ import pala.libs.generic.data.files.PropertyObject.Property;
 public class PropertyException extends Exception {
 	private final Property<?> property;
 
+	/**
+	 * Gets the {@link Property} associated with this exception, or
+	 * <code>null</code> if none could be associated.
+	 * 
+	 * @return The {@link Property} associated with the exception or
+	 *         <code>null</code>.
+	 */
 	public Property<?> getProperty() {
 		return property;
 	}
