@@ -32,7 +32,7 @@ public interface JSONSavable {
 	 * @throws IOException If an {@link IOException} occurs while writing.
 	 */
 	default void save(Writer out) throws IOException {
-		out.write(toString());
+		out.write(toJSON().toString());
 		out.flush();
 	}
 
