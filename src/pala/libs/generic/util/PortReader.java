@@ -7,6 +7,17 @@ import java.net.SocketException;
 
 import pala.libs.generic.JavaTools;
 
+/**
+ * A type used to streamline the creation of a {@link ServerSocket} listener.
+ * This type is capable of handling essentially all {@link ServerSocket}
+ * listening through its {@link #listen(int)} or {@link #listen(ServerSocket)}
+ * methods to a strong level of detail. The caller is expected to implement only
+ * the {@link #handle(byte[])} method, which allows this type to be implemented
+ * as lambda expression or method reference.
+ * 
+ * @author Palanath
+ *
+ */
 public interface PortReader {
 	void handle(byte[] incomingMessage);
 
