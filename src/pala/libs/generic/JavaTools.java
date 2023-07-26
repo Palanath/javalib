@@ -13,8 +13,12 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +47,10 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import pala.libs.generic.json.JSONParser;
+import pala.libs.generic.json.JSONValue;
 import pala.libs.generic.ml.mdp.MDPSolution;
+import pala.libs.generic.streams.CharacterStream;
 import pala.libs.generic.util.Box;
 import pala.libs.generic.util.FallibleSupplier;
 import pala.libs.generic.util.Pair;
@@ -2755,6 +2762,134 @@ public final class JavaTools {
 			if (!map.containsKey(k))
 				return false;
 		return true;
+	}
+
+	public static void sendMessageWithExceptions(String host, int port, byte... message) throws IOException {
+		try (Socket sock = new Socket(InetAddress.getByName(host), port)) {
+			sock.getOutputStream().write(message);
+		}
+	}
+
+	/**
+	 * <p>
+	 * Connects to the specified host and port over TCP, sends the provided
+	 * <code>byte</code>s, then closes the connection. If any errors occur, the
+	 * provided {@link Consumer} exception handler is notified with the
+	 * {@link IOException}.
+	 * </p>
+	 * 
+	 * @param host             The host to connect to.
+	 * @param port             The port on the host to connect to.
+	 * @param exceptionHandler A {@link Consumer} which is provided any exception
+	 *                         that occurs.
+	 * @param message          The message (byte data) to send over the connection.
+	 */
+	public static void sendMessage(String host, int port, Consumer<? super IOException> exceptionHandler,
+			byte... message) {
+		try {
+			sendMessageWithExceptions(host, port, message);
+		} catch (IOException e) {
+			if (exceptionHandler == null)
+				e.printStackTrace();
+			else
+				exceptionHandler.accept(e);
+		}
+	}
+
+	public static void sendMessage(String host, int port, byte... message) {
+		sendMessage(host, port, null, message);
+	}
+
+	public static void sendMessage(String host, int port, Consumer<? super IOException> exceptionHandler,
+			String message) {
+		sendMessage(host, port, exceptionHandler, message.getBytes(StandardCharsets.UTF_8));
+	}
+
+	/**
+	 * Opens a new connection to the specified host and port and sends the provided
+	 * message, encoded in {@link StandardCharsets#UTF_8}. The connection is closed
+	 * afterwards, and a default exception handler (that prints the exception's
+	 * stacktrace and nothing more) is used to handle exceptions.
+	 * 
+	 * @param host    The host to connect to.
+	 * @param port    The port on the host to connect to.
+	 * @param message The message to send, converted to bytes via UTF-8 encoding.
+	 */
+	public static void sendMessage(String host, int port, String message) {
+		sendMessage(host, port, message.getBytes(StandardCharsets.UTF_8));
+	}
+
+	public static void sendPackage(String host, int port, Consumer<? super IOException> exceptionHandler,
+			JSONValue pckge) {
+		sendMessage(host, port, exceptionHandler, pckge.toString());
+	}
+
+	public static void sendPackage(String host, int port, JSONValue pckge) {
+		sendMessage(host, port, pckge.toString());
+	}
+
+	/**
+	 * <p>
+	 * Reads bytes until the end of the stream is found or the provided buffer is
+	 * full. The number of bytes read is returned.
+	 * </p>
+	 * <p>
+	 * This method repeatedly invokes the {@link InputStream} until an exception
+	 * occurs, the end of the stream is reached, or the provided buffer is filled.
+	 * If there are more bytes to read from the stream and the provided buffer is
+	 * not full, this method will not return (unless an exception occurs).
+	 * </p>
+	 * 
+	 * @param in     The stream to read bytes from.
+	 * @param buffer The buffer to fill.
+	 * @return The number of bytes read.
+	 * @throws IOException If an {@link IOException} occurs at any point.
+	 */
+	public static int fillBuffer(InputStream in, byte[] buffer) throws IOException {
+		int nread = 0;
+		for (int n = 0; nread != buffer.length && (n = in.read(buffer, nread, buffer.length - nread)) != -1; nread += n)
+			;
+		return nread;
+	}
+
+	public static byte[] readAllBytes(InputStream in) throws IOException {
+		return readAllBytes(in, 8192);
+	}
+
+	public static byte[] readAllBytes(InputStream in, int bufferSize) throws IOException {
+		if (bufferSize <= 0)
+			throw new IllegalArgumentException("Invalid buffer size provided.");
+		List<byte[]> bytes = new ArrayList<>(1);
+		byte[] buffer = new byte[bufferSize];
+		int read;
+		while ((read = fillBuffer(in, buffer)) == buffer.length) {
+			bytes.add(buffer);
+			buffer = new byte[bufferSize];
+		}
+
+		byte[] result = new byte[bytes.size() * bufferSize + read];
+		int insertionPoint = 0;
+		for (byte[] b : bytes) {
+			System.arraycopy(b, 0, result, insertionPoint, bufferSize);
+			insertionPoint += bufferSize;
+		}
+		if (read != 0)
+			System.arraycopy(buffer, 0, result, insertionPoint, read);
+		return result;
+	}
+
+	public static byte[] receiveMessage(int port) throws IOException {
+		try (ServerSocket ss = new ServerSocket(port); Socket s = ss.accept()) {
+			return readAllBytes(s.getInputStream());
+		}
+	}
+
+	public static String receiveStringMessage(int port) throws IOException {
+		return new String(receiveMessage(port), StandardCharsets.UTF_8);
+	}
+
+	public static JSONValue receivePackage(int port) throws IOException {
+		return new JSONParser().parse(CharacterStream.from(receiveStringMessage(port)));
 	}
 
 }
