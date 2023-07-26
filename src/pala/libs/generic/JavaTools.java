@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ForkJoinPool;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Scanner;
@@ -2890,6 +2891,23 @@ public final class JavaTools {
 
 	public static JSONValue receivePackage(int port) throws IOException {
 		return new JSONParser().parse(CharacterStream.from(receiveStringMessage(port)));
+	}
+
+	public static byte[] receiveMessageNoexcep(int port) {
+		try {
+			return receiveMessage(port);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public static String receiveStringMessageNoexcep(int port) {
+		return new String(receiveMessageNoexcep(port), StandardCharsets.UTF_8);
+	}
+
+	public static JSONValue receivePackageNoexcep(int port) {
+		return new JSONParser().parse(CharacterStream.from(receiveStringMessageNoexcep(port)));
 	}
 
 }
