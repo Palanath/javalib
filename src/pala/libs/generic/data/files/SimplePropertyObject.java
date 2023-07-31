@@ -20,6 +20,14 @@ public class SimplePropertyObject extends PropertyObject {
 
 	private static final BiConsumer<File, Exception> DEFAULT_EXCEPTION_HANDLER = (t, u) -> u.printStackTrace();
 
+	public BiConsumer<File, Exception> getErrorHandler() {
+		return errorHandler;
+	}
+
+	public void setErrorHandler(BiConsumer<File, Exception> errorHandler) {
+		this.errorHandler = errorHandler == null ? DEFAULT_EXCEPTION_HANDLER : errorHandler;
+	}
+
 	@Override
 	protected void markDirty() {
 		dirty.set(true);
