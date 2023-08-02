@@ -1,12 +1,10 @@
 package pala.libs.generic.io.menus;
 
-import java.util.Scanner;
-
 public class MenuUtils {
-	private static Scanner in;
+	private static MenuPrompter prompter;
 
-	public static Scanner getSystemIn() {
-		return in == null ? in = new Scanner(System.in) : in;
+	public static MenuPrompter getSystemIn() {
+		return prompter == null ? prompter = new MenuPrompter() : prompter;
 	}
 
 	/**
@@ -30,18 +28,7 @@ public class MenuUtils {
 	 * @return The index of the selected option.
 	 */
 	public static int prompt(String prompt, String... options) {
-		System.out.println(prompt);
-		for (int i = 0; i < options.length; i++)
-			System.out.println((i + 1) + ". " + options[i]);
-		while (true)
-			try {
-				return Integer.parseInt(nextLine().trim()) - 1;
-			} catch (NumberFormatException e) {
-				System.err.println("That's not a valid option. Please enter a number from 1-" + options.length + '.');
-			}
+		return prompter.prompt(prompt, options);
 	}
 
-	public static String nextLine() {
-		return in.nextLine();
-	}
 }
