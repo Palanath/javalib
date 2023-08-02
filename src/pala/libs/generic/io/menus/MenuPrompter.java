@@ -56,7 +56,13 @@ public class MenuPrompter {
 	/**
 	 * <p>
 	 * Prompts the user with the provided {@link String} prompt and provided
-	 * {@link String} options and returns the <b>index</b> of the option selected.
+	 * {@link String} options, and returns the <code>int</code> value that the user
+	 * responds with, that is, the index of the option selected plus one. This is in
+	 * line with the default numbering scheme for each option, so to select option
+	 * <code>2.</code>, the user will enter <code>2</code>, and the return value
+	 * will therefore be <code>2</code>.
+	 * </p>
+	 * <p>
 	 * The options shown have numeric prefixes generated with
 	 * {@link #getNumberPrefix(int)}. This method does not return until the user
 	 * enters a valid prompt choice. This method takes user input one line at a time
@@ -89,7 +95,7 @@ public class MenuPrompter {
 			out.accept(getNumberPrefix(i) + options[i]);
 		while (true)
 			try {
-				return Integer.parseInt(in.get().trim()) - 1;
+				return Integer.parseInt(in.get().trim());
 			} catch (NumberFormatException e) {
 				out.accept("That's not a valid option. Please enter a number in the range: 1-" + options.length + '.');
 			}
