@@ -9,6 +9,14 @@ public class RestartableSocket implements AutoCloseable {
 	private final int port;
 	private Socket socket;
 
+	public InetAddress getAddress() {
+		return address;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
 	public RestartableSocket(InetAddress address, int port) {
 		this.address = address;
 		this.port = port;
