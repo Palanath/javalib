@@ -74,4 +74,29 @@ public class MenuUtils {
 			}
 	}
 
+	public static <V> V inputValue(String prompt, InputVerifier<? extends V> inputVerifier) {
+		while (true)
+			try {
+				System.out.print(prompt);
+				return inputVerifier.verify(prompt);
+			} catch (InputException e) {
+				System.out.println(e.getLocalizedMessage());
+			}
+	}
+
+	public static class InputException extends Exception {
+		/**
+		 * Serial UID
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public InputException(String message) {
+			super(message);
+		}
+	}
+
+	public interface InputVerifier<V> {
+		V verify(String line) throws InputException;
+	}
+
 }
