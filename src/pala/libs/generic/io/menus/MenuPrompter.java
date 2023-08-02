@@ -95,7 +95,7 @@ public class MenuPrompter {
 			}
 	}
 
-	public String getNumberPrefix(int number) {
+	protected String getNumberPrefix(int number) {
 		return number + ". ";
 	}
 
