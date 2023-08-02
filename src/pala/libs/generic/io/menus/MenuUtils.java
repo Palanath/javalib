@@ -61,7 +61,7 @@ public class MenuUtils {
 	 */
 	public static String input(String prompt) {
 		System.out.print(prompt);
-		return defaultScanner.nextLine();
+		return getDefaultScanner().nextLine();
 	}
 
 	public static int inputNumber(String prompt, String errorMessage) {
@@ -78,7 +78,7 @@ public class MenuUtils {
 		while (true)
 			try {
 				System.out.print(prompt);
-				return inputVerifier.verify(prompt);
+				return inputVerifier.verify(getDefaultScanner().nextLine());
 			} catch (InputException e) {
 				System.out.println(e.getLocalizedMessage());
 			}
