@@ -64,4 +64,14 @@ public class MenuUtils {
 		return defaultScanner.nextLine();
 	}
 
+	public static int inputNumber(String prompt, String errorMessage) {
+		while (true)
+			try {
+				System.out.print(prompt);
+				return Integer.parseInt(getDefaultScanner().nextLine());
+			} catch (NumberFormatException e) {
+				System.out.println(errorMessage);
+			}
+	}
+
 }
