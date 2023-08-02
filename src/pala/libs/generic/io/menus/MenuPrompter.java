@@ -1,5 +1,7 @@
 package pala.libs.generic.io.menus;
 
+import java.io.PrintStream;
+import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -10,6 +12,45 @@ public class MenuPrompter {
 	public MenuPrompter(Supplier<? extends String> in, Consumer<? super String> out) {
 		this.in = in;
 		this.out = out;
+	}
+
+	/**
+	 * <p>
+	 * Creates a new {@link MenuPrompter} with the provided {@link Scanner} to be
+	 * used for input and the provided {@link PrintStream} for output. The
+	 * {@link Scanner}'s {@link Scanner#nextLine() nextLine()} method is used for
+	 * grabbing input and the {@link PrintStream}'s
+	 * {@link PrintStream#println(String) println(String)} method is used for
+	 * output.
+	 * </p>
+	 * <p>
+	 * {@link System#in} and {@link System#out} can be used for constructing the
+	 * {@link MenuPrompter} (with a caller-made {@link Scanner} constructed off of
+	 * {@link System#in}). Such is equivalent to {@link #MenuPrompter()}, though in
+	 * {@link #MenuPrompter()} the {@link Scanner} created is not accessible to
+	 * calling code.
+	 * </p>
+	 * 
+	 * @param in  The {@link Scanner} to use for input.
+	 * @param out The {@link PrintStream} to use for output.
+	 */
+	public MenuPrompter(Scanner in, PrintStream out) {
+		this(in::nextLine, out::println);
+	}
+
+	/**
+	 * <p>
+	 * Creates a new {@link MenuPrompter} with a newly created {@link Scanner}
+	 * hooked to {@link System#in} for input, and {@link System#out} for output.
+	 * </p>
+	 * <p>
+	 * <b>Note:</b> There is no way to acquire the created {@link Scanner} once this
+	 * constructor is called. Subsequent use of {@link System#in} should entirely be
+	 * done through this {@link MenuPrompter} if this constructor is used.
+	 * </p>
+	 */
+	public MenuPrompter() {
+		this(new Scanner(System.in), System.out);
 	}
 
 	/**
@@ -57,4 +98,5 @@ public class MenuPrompter {
 	public String getNumberPrefix(int number) {
 		return number + ". ";
 	}
+
 }
