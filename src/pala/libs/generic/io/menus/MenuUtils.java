@@ -3,16 +3,22 @@ package pala.libs.generic.io.menus;
 public class MenuUtils {
 	private static MenuPrompter prompter;
 
-	public static MenuPrompter getSystemIn() {
+	public static MenuPrompter getDefaultPrompter() {
 		return prompter == null ? prompter = new MenuPrompter() : prompter;
 	}
 
 	/**
+	 * <p>
 	 * Prompts the user with the provided {@link String} prompt and provided
 	 * {@link String} options and returns the <b>index</b> of the option selected.
 	 * This method does not return until the user enters a valid prompt choice. This
 	 * method takes user input one line at a time and parses it as an
 	 * <code>int</code>.
+	 * </p>
+	 * <p>
+	 * This method uses the {@link #getDefaultPrompter() default prompter}, creating
+	 * it if it does not already exist.
+	 * </p>
 	 * 
 	 * @param prompt  The prompt to provide to the user. This appears at the top of
 	 *                the options list. It is often something like:
@@ -28,7 +34,7 @@ public class MenuUtils {
 	 * @return The index of the selected option.
 	 */
 	public static int prompt(String prompt, String... options) {
-		return prompter.prompt(prompt, options);
+		return getDefaultPrompter().prompt(prompt, options);
 	}
 
 }
