@@ -86,7 +86,7 @@ public class MenuPrompter {
 			throw new IllegalArgumentException("No options provided.");
 		out.accept(prompt);
 		for (int i = 0; i < options.length; i++)
-			out.accept((i + 1) + ". " + options[i]);
+			out.accept(getNumberPrefix(i) + options[i]);
 		while (true)
 			try {
 				return Integer.parseInt(in.get().trim()) - 1;
@@ -96,7 +96,7 @@ public class MenuPrompter {
 	}
 
 	protected String getNumberPrefix(int number) {
-		return number + ". ";
+		return 1 + number + ". ";
 	}
 
 }
