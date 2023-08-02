@@ -1,10 +1,25 @@
 package pala.libs.generic.io.menus;
 
+import java.util.Scanner;
+
 public class MenuUtils {
 	private static MenuPrompter prompter;
+	private static Scanner defaultScanner;
 
 	public static MenuPrompter getDefaultPrompter() {
-		return prompter == null ? prompter = new MenuPrompter() : prompter;
+		if (prompter == null)
+			createDefaultObjects();
+		return prompter;
+	}
+
+	public static Scanner getDefaultScanner() {
+		if (defaultScanner == null)
+			createDefaultObjects();
+		return defaultScanner;
+	}
+
+	private static void createDefaultObjects() {
+		prompter = new MenuPrompter(defaultScanner = new Scanner(System.in), System.out);
 	}
 
 	/**
@@ -35,6 +50,18 @@ public class MenuUtils {
 	 */
 	public static int prompt(String prompt, String... options) {
 		return getDefaultPrompter().prompt(prompt, options);
+	}
+
+	/**
+	 * Prompts the user for input by printing the provided {@link String} (without a
+	 * trailing line-break) and then returning the next line parsed.
+	 * 
+	 * @param prompt The {@link String} to prompt the user with.
+	 * @return The line that the user entered.
+	 */
+	public static String input(String prompt) {
+		System.out.print(prompt);
+		return defaultScanner.nextLine();
 	}
 
 }
