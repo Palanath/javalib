@@ -1,6 +1,8 @@
 package pala.libs.generic.io.menus;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -93,12 +95,72 @@ public class MenuPrompter {
 		out.accept(prompt);
 		for (int i = 0; i < options.length; i++)
 			out.accept(getNumberPrefix(i) + options[i]);
-		while (true)
+		while (true) {
 			try {
-				return Integer.parseInt(in.get().trim());
+				int selection = Integer.parseInt(in.get().trim());
+				if (selection > 0 && selection < options.length)
+					return selection;
 			} catch (NumberFormatException e) {
-				out.accept("That's not a valid option. Please enter a number in the range: 1-" + options.length + '.');
 			}
+			out.accept("That's not a valid option. Please enter a number in the range: 1-" + options.length + '.');
+		}
+	}
+
+	public static class Option {
+		private final String value;
+		/**
+		 * Determines whether this {@link Option} is active. Inactive {@link Option}s do
+		 * not show up when provided to {@link MenuPrompter#prompt(String, Option...)}.
+		 * It is as if they were not specified.
+		 */
+		private boolean active;
+
+		public boolean isActive() {
+			return active;
+		}
+
+		/**
+		 * Sets whether this {@link Option} is active or not and returns this
+		 * {@link Option}.
+		 * 
+		 * @param active Whether this {@link Option} is active.
+		 * @return This {@link Option} object.
+		 */
+		public Option setActive(boolean active) {
+			this.active = active;
+			return this;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		public Option(String value) {
+			this.value = value;
+		}
+
+	}
+
+	public int prompt(String prompt, Option... options) {
+		List<String> res = new ArrayList<>();
+		for (int i = 0; i < options.length; i++)
+			if (options[i].active)
+				res.add(options[i].value);
+		if (res.isEmpty())
+			throw new IllegalArgumentException("No options provided.");
+		out.accept(prompt);
+		for (int i = 0; i < res.size(); i++)
+			out.accept(getNumberPrefix(i) + res.get(i));
+
+		while (true) {
+			try {
+				int selection = Integer.parseInt(in.get().trim());
+				if (selection > 0 && selection < res.size())
+					return selection;
+			} catch (NumberFormatException e) {
+			}
+			out.accept("That's not a valid option. Please enter a number in the range: 1-" + options.length + '.');
+		}
 	}
 
 	protected String getNumberPrefix(int number) {
