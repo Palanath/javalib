@@ -11,23 +11,23 @@ public class AutosavingPropertyObject extends PropertyObject {
 
 	private static final BiConsumer<File, IOException> DEFAULT_EXCEPTION_HANDLER = (t, u) -> u.printStackTrace();
 
-	public BiConsumer<File, IOException> getExceptionHandler() {
+	protected BiConsumer<File, IOException> getExceptionHandler() {
 		return exceptionHandler;
 	}
 
-	public void setExceptionHandler(BiConsumer<File, IOException> exceptionHandler) {
+	protected void setExceptionHandler(BiConsumer<File, IOException> exceptionHandler) {
 		this.exceptionHandler = exceptionHandler == null ? DEFAULT_EXCEPTION_HANDLER : exceptionHandler;
 	}
 
-	public File getFile() {
+	protected File getFile() {
 		return file;
 	}
 
-	public void setFile(File file) {
+	protected void setFile(File file) {
 		this.file = file;
 	}
 
-	public AutosavingPropertyObject(File file) {
+	protected AutosavingPropertyObject(File file) {
 		this.file = file;
 	}
 
