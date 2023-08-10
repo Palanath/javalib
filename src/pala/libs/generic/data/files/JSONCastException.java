@@ -1,7 +1,6 @@
 package pala.libs.generic.data.files;
 
 import pala.libs.generic.data.files.PropertyObject.Property;
-import pala.libs.generic.data.files.PropertyObject.PropertyConverter;
 import pala.libs.generic.json.JSONValue;
 
 /**
