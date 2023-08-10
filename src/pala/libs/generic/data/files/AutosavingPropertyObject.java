@@ -31,14 +31,34 @@ public class AutosavingPropertyObject extends PropertyObject {
 		this.file = file;
 	}
 
-	@Override
-	protected void markDirty() {
+	protected void save() {
 		if (file != null)
 			try {
 				save(file);
 			} catch (IOException e) {
 				exceptionHandler.accept(file, e);
 			}
+	}
+
+	/**
+	 * Loads this {@link AutosavingPropertyObject} from its {@link #getFile() file}
+	 * if the {@link #getFile() file} is not <code>null</code>. {@link IOException}s
+	 * are passed to the current {@link #getExceptionHandler() exception handler}.
+	 * 
+	 * @throws PropertyException If there's a property exception while loading.
+	 */
+	protected void load() throws PropertyException {
+		if (file != null)
+			try {
+				load(file);
+			} catch (IOException e) {
+				exceptionHandler.accept(file, e);
+			}
+	}
+
+	@Override
+	protected void markDirty() {
+		save();
 	}
 
 }
