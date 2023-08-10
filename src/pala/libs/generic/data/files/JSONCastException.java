@@ -32,4 +32,17 @@ public class JSONCastException extends PropertyException {
 		super(cause, property);
 	}
 
+	/**
+	 * Creates a new {@link JSONCastException} with the specified cause and
+	 * <code>null</code> for the {@link Property}. This calls
+	 * {@link #JSONCastException(ClassCastException, Property)} with
+	 * <code>null</code> for the second argument.
+	 * 
+	 * @param cause The {@link ClassCastException} that caused this
+	 *              {@link JSONCastException}.
+	 */
+	public JSONCastException(ClassCastException cause) {
+		this(cause, null);
+	}
+
 }
