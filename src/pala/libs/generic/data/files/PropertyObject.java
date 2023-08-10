@@ -554,6 +554,28 @@ public abstract class PropertyObject implements JSONSavable {
 			this.converter = converter;
 		}
 
+		/**
+		 * <p>
+		 * Creates an {@link ObjectProperty} with the provided name, no default value,
+		 * and the provided {@link PropertyConverter}. The {@link PropertyConverter}
+		 * will need to handle normal JSON values, <code>null</code>, and
+		 * {@link PropertyObject#NOT_WRITTEN} when loading a value from JSON for this
+		 * property.
+		 * </p>
+		 * <p>
+		 * This constructor is useful for required properties, since the
+		 * {@link PropertyConverter} can throw a {@link PropertyRequiredException} if it
+		 * is given {@link PropertyObject#NOT_WRITTEN} when loading. All other
+		 * constructors in this class set up the {@link ObjectProperty} with a default
+		 * value, which includes automatic handling of the
+		 * {@link PropertyObject#NOT_WRITTEN} constant.
+		 * </p>
+		 * 
+		 * @param name      The name of the property (the key to write for this
+		 *                  property's entry in th emitted JSON).
+		 * @param converter A {@link PropertyConverter} used to convert the value of
+		 *                  this property to and from JSON.
+		 */
 		public ObjectProperty(String name, PropertyConverter<V> converter) {
 			super(name);
 			this.converter = converter;
