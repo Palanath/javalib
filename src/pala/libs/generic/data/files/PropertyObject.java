@@ -23,16 +23,52 @@ import pala.libs.generic.streams.CharacterStream;
 
 public abstract class PropertyObject implements JSONSavable {
 
+	protected BooleanProperty booleanProperty(String name) {
+		return new BooleanProperty(name);
+	}
+
+	protected BooleanProperty booleanProperty(String name, boolean defaultValue) {
+		return new BooleanProperty(name, defaultValue);
+	}
+
+	protected BooleanProperty booleanProperty(String name, boolean defaultValue, boolean overwrite) {
+		return new BooleanProperty(name, defaultValue, overwrite);
+	}
+
+	protected StringProperty stringProperty(String name) {
+		return new StringProperty(name);
+	}
+
+	protected StringProperty stringProperty(String name, String defaultValue) {
+		return new StringProperty(name, defaultValue);
+	}
+
+	protected StringProperty stringProperty(String name, String defaultValue, boolean overwrite) {
+		return new StringProperty(name, defaultValue, overwrite);
+	}
+
+	protected InstantProperty instantProperty(String name) {
+		return new InstantProperty(name);
+	}
+
+	protected InstantProperty instantProperty(String name, Instant defaultValue) {
+		return new InstantProperty(name, defaultValue);
+	}
+
+	protected InstantProperty instantProperty(String name, Instant defaultValue, boolean overwrite) {
+		return new InstantProperty(name, defaultValue, overwrite);
+	}
+
 	public class BooleanProperty extends ObjectProperty<Boolean> {
 		public BooleanProperty(final String name) {
 			super(name, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 
-		public BooleanProperty(final String name, final Boolean defaultValue) {
+		public BooleanProperty(final String name, final boolean defaultValue) {
 			super(name, defaultValue, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 
-		public BooleanProperty(final String name, final Boolean defaultValue, final boolean overwrite) {
+		public BooleanProperty(final String name, final boolean defaultValue, final boolean overwrite) {
 			super(name, defaultValue, overwrite, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 	}
@@ -287,7 +323,7 @@ public abstract class PropertyObject implements JSONSavable {
 		 */
 		protected abstract JSONValue save();
 
-		protected final void setValue(final V value) {
+		protected final void setPropertyValue(final V value) {
 			this.value = value;
 		}
 
