@@ -3,6 +3,13 @@ package pala.libs.generic.data.files;
 import pala.libs.generic.data.files.PropertyObject.Property;
 import pala.libs.generic.json.JSONValue;
 
+/**
+ * Thrown when the JSON data being loaded into a property was of the right type,
+ * but could not be parsed into the value stored by the property.
+ * 
+ * @author Palanath
+ *
+ */
 public class InvalidJSONException extends PropertyException {
 	/**
 	 * Serial UID
