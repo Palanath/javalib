@@ -25,15 +25,15 @@ public abstract class PropertyObject implements JSONSavable {
 
 	public class BooleanProperty extends ObjectProperty<Boolean> {
 		public BooleanProperty(final String name) {
-			super(name, BOOLEAN_PROPERTY_CONVERTER);
+			super(name, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 
 		public BooleanProperty(final String name, final Boolean defaultValue) {
-			super(name, defaultValue, BOOLEAN_PROPERTY_CONVERTER);
+			super(name, defaultValue, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 
 		public BooleanProperty(final String name, final Boolean defaultValue, final boolean overwrite) {
-			super(name, defaultValue, overwrite, BOOLEAN_PROPERTY_CONVERTER);
+			super(name, defaultValue, overwrite, PropertyConverter.BOOLEAN_PROPERTY_CONVERTER);
 		}
 	}
 
@@ -577,7 +577,7 @@ public abstract class PropertyObject implements JSONSavable {
 
 	/**
 	 * An {@link ObjectProperty} using
-	 * {@link PropertyObject#STRING_PROPERTY_CONVERTER} for the converter.
+	 * {@link PropertyConverter#STRING_PROPERTY_CONVERTER} for the converter.
 	 * {@link StringProperty StringProperties} is <i>required</i> (unless a default
 	 * value is specified through an appropriate constructor) and
 	 * non-<code>null</code>able.
@@ -587,21 +587,21 @@ public abstract class PropertyObject implements JSONSavable {
 	 */
 	public class StringProperty extends ObjectProperty<String> {
 		public StringProperty(final String name) {
-			super(name, STRING_PROPERTY_CONVERTER);
+			super(name, PropertyConverter.STRING_PROPERTY_CONVERTER);
 		}
 
 		public StringProperty(final String name, final String defaultValue) {
-			super(name, defaultValue, STRING_PROPERTY_CONVERTER);
+			super(name, defaultValue, PropertyConverter.STRING_PROPERTY_CONVERTER);
 		}
 
 		public StringProperty(final String name, final String defaultValue, final boolean overwrite) {
-			super(name, defaultValue, overwrite, STRING_PROPERTY_CONVERTER);
+			super(name, defaultValue, overwrite, PropertyConverter.STRING_PROPERTY_CONVERTER);
 		}
 	}
 
 	/**
 	 * An {@link ObjectProperty} using
-	 * {@link PropertyObject#INSTANT_PROPERTY_CONVERTER} for the converter.
+	 * {@link PropertyConverter#INSTANT_PROPERTY_CONVERTER} for the converter.
 	 * {@link InstantProperty InstantProperties} are <i>required</i> (unless a
 	 * default value is specified through an appropriate constructor) and
 	 * non-<code>null</code>able.
@@ -612,94 +612,18 @@ public abstract class PropertyObject implements JSONSavable {
 	public class InstantProperty extends ObjectProperty<Instant> {
 
 		public InstantProperty(String name, Instant defaultValue, boolean overwrite) {
-			super(name, defaultValue, overwrite, INSTANT_PROPERTY_CONVERTER);
+			super(name, defaultValue, overwrite, PropertyConverter.INSTANT_PROPERTY_CONVERTER);
 		}
 
 		public InstantProperty(String name, Instant defaultValue) {
-			super(name, defaultValue, INSTANT_PROPERTY_CONVERTER);
+			super(name, defaultValue, PropertyConverter.INSTANT_PROPERTY_CONVERTER);
 		}
 
 		public InstantProperty(String name) {
-			super(name, INSTANT_PROPERTY_CONVERTER);
+			super(name, PropertyConverter.INSTANT_PROPERTY_CONVERTER);
 		}
 
 	}
-
-	/**
-	 * <p>
-	 * A non-<code>null</code>able, required, {@link Instant} property converter.
-	 * This converter can be safely used with {@link SimpleProperty
-	 * SimpleProperties} that have a default value.
-	 * </p>
-	 */
-	public static final PropertyConverter<Instant> INSTANT_PROPERTY_CONVERTER = new PropertyConverter<>() {
-
-		@Override
-		public Instant fromJSON(final JSONValue json) throws PropertyException {
-			return Instant.parse(PropertyConverter.convertToString(json));
-		}
-
-		@Override
-		public JSONValue toJSON(final Instant value) {
-			return new JSONString(value.toString());
-		}
-	};
-
-	/**
-	 * <p>
-	 * A non-<code>null</code>able, reqiured, <code>boolean</code> property
-	 * converter. This is the property converter for the official primitive boolean
-	 * type.
-	 * </p>
-	 * <p>
-	 * This converter throws a {@link PropertyRequiredException} if an attempt is
-	 * made to convert {@link PropertyObject#NOT_WRITTEN} to a {@link Boolean} using
-	 * it.
-	 * </p>
-	 */
-	public static final PropertyConverter<Boolean> BOOLEAN_PROPERTY_CONVERTER = new PropertyConverter<>() {
-		@Override
-		public Boolean fromJSON(final JSONValue json) throws PropertyException {
-			if (json == NOT_WRITTEN)
-				throw new PropertyRequiredException(null);
-			try {
-				return (JSONConstant) json == JSONConstant.TRUE;
-			} catch (final ClassCastException e) {
-				throw new JSONCastException(e);
-			}
-		}
-
-		@Override
-		public JSONValue toJSON(final Boolean value) {
-			return value ? JSONConstant.TRUE : JSONConstant.FALSE;
-		}
-	};
-
-	/**
-	 * <p>
-	 * A non-<code>null</code>able, required, {@link String} property converter.
-	 * </p>
-	 * <p>
-	 * This class converts between {@link String}s and {@link JSONString}s.
-	 * </p>
-	 * <ul>
-	 * <li>It throws a {@link PropertyRequiredException} if the provided
-	 * {@link JSONValue} is {@link PropertyObject#NOT_WRITTEN} and</li>
-	 * <li>a {@link JSONCastException} if the provided {@link JSONValue} is not a
-	 * {@link JSONString}.</li>
-	 * </ul>
-	 */
-	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<>() {
-		@Override
-		public String fromJSON(final JSONValue json) throws PropertyException {
-			return PropertyConverter.convertToString(json);
-		}
-
-		@Override
-		public JSONValue toJSON(final String value) {
-			return new JSONString(value);
-		}
-	};
 
 	/**
 	 * <p>
