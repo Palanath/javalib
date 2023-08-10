@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -334,6 +333,40 @@ public abstract class PropertyObject implements JSONSavable {
 		 *         {@link PropertyObject#NOT_WRITTEN}.
 		 */
 		JSONValue toJSON(V value);
+
+		/**
+		 * <p>
+		 * Casts the provided {@link JSONValue} to a {@link JSONString}, calls
+		 * {@link JSONString#getValue()}, then returns the result. This method will
+		 * throw exceptions if the {@link String} value cannot be obtained.
+		 * </p>
+		 * <p>
+		 * This method is primarily used for {@link PropertyConverter} implementations
+		 * to conveniently obtain a {@link String} or throw an appropriate exception if
+		 * they cannot.
+		 * </p>
+		 * 
+		 * @param value The {@link JSONValue}.
+		 * @return The {@link String} value in the {@link JSONValue}.
+		 * @throws PropertyRequiredException If the provided {@link JSONValue} is
+		 *                                   {@link PropertyObject#NOT_WRITTEN}.
+		 * @throws JSONCastException         If the provided {@link JSONValue} is not
+		 *                                   assignable to {@link JSONString}.
+		 * @throws NullJSONException         If the provided {@link JSONValue} is
+		 *                                   <code>null</code>.
+		 */
+		static String convertToString(JSONValue value)
+				throws JSONCastException, NullJSONException, PropertyRequiredException {
+			if (value == NOT_WRITTEN)
+				throw new PropertyRequiredException(null);
+			try {
+				return ((JSONString) value).getValue();
+			} catch (ClassCastException e) {
+				throw new JSONCastException(e);
+			} catch (NullPointerException e) {
+				throw new NullJSONException(e);
+			}
+		}
 	}
 
 	public abstract class SimpleProperty<V> extends Property<V> {
@@ -606,6 +639,16 @@ public abstract class PropertyObject implements JSONSavable {
 		protected abstract JSONValue toJSON(V value);
 	}
 
+	/**
+	 * An {@link ObjectProperty} using
+	 * {@link PropertyObject#STRING_PROPERTY_CONVERTER} for the converter.
+	 * {@link StringProperty StringProperties} is <i>required</i> (unless a default
+	 * value is specified through an appropriate constructor) and
+	 * non-<code>null</code>able.
+	 * 
+	 * @author Palanath
+	 *
+	 */
 	public class StringProperty extends ObjectProperty<String> {
 		public StringProperty(final String name) {
 			super(name, STRING_PROPERTY_CONVERTER);
@@ -620,19 +663,44 @@ public abstract class PropertyObject implements JSONSavable {
 		}
 	}
 
+	/**
+	 * An {@link ObjectProperty} using
+	 * {@link PropertyObject#INSTANT_PROPERTY_CONVERTER} for the converter.
+	 * {@link InstantProperty InstantProperties} are <i>required</i> (unless a
+	 * default value is specified through an appropriate constructor) and
+	 * non-<code>null</code>able.
+	 * 
+	 * @author Palanath
+	 *
+	 */
+	public class InstantProperty extends ObjectProperty<Instant> {
+
+		public InstantProperty(String name, Instant defaultValue, boolean overwrite) {
+			super(name, defaultValue, overwrite, INSTANT_PROPERTY_CONVERTER);
+		}
+
+		public InstantProperty(String name, Instant defaultValue) {
+			super(name, defaultValue, INSTANT_PROPERTY_CONVERTER);
+		}
+
+		public InstantProperty(String name) {
+			super(name, INSTANT_PROPERTY_CONVERTER);
+		}
+
+	}
+
+	/**
+	 * <p>
+	 * A non-<code>null</code>able, required, {@link Instant} property converter.
+	 * This converter can be safely used with {@link SimpleProperty
+	 * SimpleProperties} that have a default value.
+	 * </p>
+	 */
 	public static final PropertyConverter<Instant> INSTANT_PROPERTY_CONVERTER = new PropertyConverter<>() {
 
 		@Override
 		public Instant fromJSON(final JSONValue json) throws PropertyException {
-			if (json == NOT_WRITTEN)
-				throw new PropertyRequiredException(null);
-			try {
-				return Instant.parse(((JSONString) json).getValue());
-			} catch (final DateTimeException e) {
-				throw new InvalidJSONException("JSON could not be converted to a String.", null, json);
-			} catch (final ClassCastException e) {
-				throw new JSONCastException(e);
-			}
+			return Instant.parse(PropertyConverter.convertToString(json));
 		}
 
 		@Override
@@ -643,8 +711,9 @@ public abstract class PropertyObject implements JSONSavable {
 
 	/**
 	 * <p>
-	 * A non-nullable boolean property converter. This is the property converter for
-	 * the official primitive boolean type.
+	 * A non-<code>null</code>able, reqiured, <code>boolean</code> property
+	 * converter. This is the property converter for the official primitive boolean
+	 * type.
 	 * </p>
 	 * <p>
 	 * This converter throws a {@link PropertyRequiredException} if an attempt is
@@ -670,16 +739,24 @@ public abstract class PropertyObject implements JSONSavable {
 		}
 	};
 
+	/**
+	 * <p>
+	 * A non-<code>null</code>able, required, {@link String} property converter.
+	 * </p>
+	 * <p>
+	 * This class converts between {@link String}s and {@link JSONString}s.
+	 * </p>
+	 * <ul>
+	 * <li>It throws a {@link PropertyRequiredException} if the provided
+	 * {@link JSONValue} is {@link PropertyObject#NOT_WRITTEN} and</li>
+	 * <li>a {@link JSONCastException} if the provided {@link JSONValue} is not a
+	 * {@link JSONString}.</li>
+	 * </ul>
+	 */
 	public static final PropertyConverter<String> STRING_PROPERTY_CONVERTER = new PropertyConverter<>() {
 		@Override
 		public String fromJSON(final JSONValue json) throws PropertyException {
-			if (json == NOT_WRITTEN)
-				throw new PropertyRequiredException(null);
-			try {
-				return ((JSONString) json).getValue();
-			} catch (final ClassCastException e) {
-				throw new JSONCastException(e);
-			}
+			return PropertyConverter.convertToString(json);
 		}
 
 		@Override
