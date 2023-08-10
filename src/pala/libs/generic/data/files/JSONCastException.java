@@ -15,6 +15,11 @@ import pala.libs.generic.json.JSONValue;
  */
 public class JSONCastException extends PropertyException {
 
+	/**
+	 * Serial UID
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public JSONCastException(Property<?> property) {
 		super(property);
 	}
