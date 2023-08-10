@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.DateTimeException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -587,6 +589,29 @@ public abstract class PropertyObject implements JSONSavable {
 		}
 
 	}
+
+	public static final PropertyConverter<Instant> INSTANT_PROPERTY_CONVERTER = new PropertyConverter<Instant>() {
+
+		@Override
+		public Instant fromJSON(JSONValue json) throws PropertyException {
+			if (json == NOT_WRITTEN)
+				throw new PropertyRequiredException(null);
+			else
+				try {
+					return Instant.parse(((JSONString) json).getValue());
+				} catch (DateTimeException e) {
+					throw new InvalidJSONException("JSON could not be converted to a String.", null, json);
+				} catch (ClassCastException e) {
+					throw new JSONCastException(e, null);
+				}
+		}
+
+		@Override
+		public JSONValue toJSON(Instant value) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	};
 
 	/**
 	 * <p>
