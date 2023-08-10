@@ -602,14 +602,13 @@ public abstract class PropertyObject implements JSONSavable {
 				} catch (DateTimeException e) {
 					throw new InvalidJSONException("JSON could not be converted to a String.", null, json);
 				} catch (ClassCastException e) {
-					throw new JSONCastException(e, null);
+					throw new JSONCastException(e);
 				}
 		}
 
 		@Override
 		public JSONValue toJSON(Instant value) {
-			// TODO Auto-generated method stub
-			return null;
+			return new JSONString(value.toString());
 		}
 	};
 
@@ -629,10 +628,12 @@ public abstract class PropertyObject implements JSONSavable {
 		public Boolean fromJSON(JSONValue json) throws PropertyException {
 			if (json == NOT_WRITTEN)
 				throw new PropertyRequiredException(null);
-			else if (!(json instanceof JSONConstant))
-				throw new InvalidJSONException(null, json);
 			else
-				return (JSONConstant) json == JSONConstant.TRUE;
+				try {
+					return (JSONConstant) json == JSONConstant.TRUE;
+				} catch (ClassCastException e) {
+					throw new JSONCastException(e);
+				}
 		}
 
 		@Override
@@ -660,9 +661,12 @@ public abstract class PropertyObject implements JSONSavable {
 		public String fromJSON(JSONValue json) throws PropertyException {
 			if (json == NOT_WRITTEN)
 				throw new PropertyRequiredException(null);
-			if (!(json instanceof JSONString))
-				throw new InvalidJSONException(null, json);
-			return ((JSONString) json).getValue();
+			else
+				try {
+					return ((JSONString) json).getValue();
+				} catch (ClassCastException e) {
+					throw new JSONCastException(e);
+				}
 		}
 
 		@Override
