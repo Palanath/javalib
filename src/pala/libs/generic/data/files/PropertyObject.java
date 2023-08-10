@@ -258,7 +258,7 @@ public abstract class PropertyObject implements JSONSavable {
 			return name;
 		}
 
-		protected final V getValue() {
+		protected final V getPropertyValue() {
 			return value;
 		}
 
