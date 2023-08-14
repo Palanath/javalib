@@ -1148,6 +1148,25 @@ public final class JavaTools {
 	}
 
 	/**
+	 * <p>
+	 * Thrown by {@link JavaTools#requireNonNull(Object...)}. This exception can be
+	 * caught to distinguish between {@link NullPointerException}s thrown from
+	 * {@link JavaTools#requireNonNull(Object...)} and from other sources.
+	 * </p>
+	 * 
+	 * @author Palanath
+	 *
+	 */
+	public static class IllegalNullException extends NullPointerException {
+
+		/**
+		 * Serial UID
+		 */
+		private static final long serialVersionUID = 1L;
+
+	}
+
+	/**
 	 * Throws a {@link NullPointerException} if any of the objects provided are
 	 * <code>null</code>.
 	 *
@@ -1157,7 +1176,7 @@ public final class JavaTools {
 	public static void requireNonNull(final Object... objects) {
 		for (final Object o : objects)
 			if (o == null)
-				throw null;
+				throw new IllegalNullException();
 	}
 
 	public static BigInteger sumFrequencyMap(final Map<?, Integer> multipliersModifiable) {
