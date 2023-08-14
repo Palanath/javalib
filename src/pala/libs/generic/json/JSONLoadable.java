@@ -64,7 +64,7 @@ public interface JSONLoadable {
 		}
 	}
 
-	default void load(String json) throws JSONLoadException {
+	default void loadFromString(String json) throws JSONLoadException {
 		fromJSON(new JSONParser().parse(CharacterStream.from(json)));
 	}
 }

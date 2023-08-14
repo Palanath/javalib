@@ -60,7 +60,7 @@ public interface JSONSavable {
 		}
 	}
 
-	default String save() {
+	default String saveToString() {
 		return toJSON().toString();
 	}
 }
