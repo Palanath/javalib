@@ -1167,7 +1167,8 @@ public final class JavaTools {
 	}
 
 	/**
-	 * Throws a {@link NullPointerException} if any of the objects provided are
+	 * Throws an {@link IllegalNullException} (which is a subtype of
+	 * {@link NullPointerException}) if any of the objects provided are
 	 * <code>null</code>.
 	 *
 	 * @param objects The array of objects.
