@@ -59,4 +59,8 @@ public interface JSONSavable {
 			save(fw);
 		}
 	}
+
+	default String save() {
+		return toJSON().toString();
+	}
 }
