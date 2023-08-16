@@ -203,6 +203,16 @@ public final class StringTools {
 
 	private static final byte[] HEX_CHAR_BYTES = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
 
+	public static final boolean endsWithIgnoreCase(String string, String suffix) {
+		if (string.length() < suffix.length())
+			return false;
+		for (int i = 0; i < suffix.length(); i++)
+			if (Character.toLowerCase(string.charAt(string.length() - i - 1)) != Character
+					.toLowerCase(suffix.charAt(suffix.length() - i - 1)))
+				return false;
+		return true;
+	}
+
 	/**
 	 * <p>
 	 * Returns true if any of <code>possiblePieces</code> are contained inside the
