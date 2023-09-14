@@ -19,6 +19,7 @@ import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,16 +60,57 @@ import pala.libs.generic.util.functions.BiDoubleFunction;
 import pala.libs.generic.util.functions.IntToBooleanFunction;
 import pala.libs.generic.util.functions.TriDoubleFunction;
 
+/**
+ * General purpose utility class that contains <code>static</code> programming
+ * utilities.
+ * 
+ * @author Palanath
+ *
+ */
 public final class JavaTools {
+
+	public static void main(String[] args) {
+		System.out.println(getSimpleDateTimeFormatter().format(LocalDateTime.now()));
+	}
 
 	private static DateTimeFormatter SIMPLE_DATE_TIME_FORMATTER;
 
+	/**
+	 * <p>
+	 * Gets a general purpose, simple {@link DateTimeFormatter}. The pattern used is
+	 * <code>uuuu-MM-dd kk:mm:ss</code>. This formats dates like so:
+	 * <code>2023-09-11 18:44:27</code>
+	 * </p>
+	 * <p>
+	 * The first call to this method creates a new {@link DateTimeFormatter} and
+	 * caches it in this class. Subsequent calls return it.
+	 * </p>
+	 * 
+	 * @return The {@link DateTimeFormatter}.
+	 */
 	public static DateTimeFormatter getSimpleDateTimeFormatter() {
 		return SIMPLE_DATE_TIME_FORMATTER == null
 				? SIMPLE_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("uuuu-MM-dd kk:mm:ss")
 				: SIMPLE_DATE_TIME_FORMATTER;
 	}
 
+	/**
+	 * <p>
+	 * Represents objects which uniquely match elements with an <code>int</code>
+	 * index, such as {@link List}s or arrays which do not contain duplicate
+	 * elements. This interface provides two methods: {@link #set(int, Object)} and
+	 * {@link #index(Object)}.
+	 * </p>
+	 * <p>
+	 * Instances of this type must allow callers to:
+	 * </p>
+	 * <ol>
+	 * <li>Set what element is at an index,</li>
+	 * <li>Query the index of an element.</li>
+	 * </ol>
+	 * 
+	 * @param <E> The type of element that this {@link Indexable} holds.
+	 */
 	public interface Indexable<E> {
 		void set(int pos, E element);
 
@@ -214,6 +256,25 @@ public final class JavaTools {
 		return items;
 	}
 
+	/**
+	 * <p>
+	 * Performs a binary search over the conceptual array implied by the provided
+	 * <code>arrayIndexer</code> {@link Function}. This method runs the binary
+	 * search algorithm, but instead of indexing an array or calling
+	 * {@link List#get(int)} to grab elements, this method invokes the provided
+	 * {@link Function} to "get" elements, and uses the provided {@link Comparator}
+	 * to compare them.
+	 * </p>
+	 * <p>
+	 * For
+	 * 
+	 * @param <T>
+	 * @param size
+	 * @param arrayIndexer
+	 * @param comparator
+	 * @param key
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> int binarySearch(int size, final Function<? super Integer, ? extends T> arrayIndexer,
 			Comparator<? super T> comparator, final T key) {
@@ -285,16 +346,30 @@ public final class JavaTools {
 	 * <code>// Dog being searched for:
 	 * Dog searchElement = dogs.get((int) (Math.random() * dogs.size()));
 	 * 
-	 * int index = binarySearch(dogs.size(), ind -> {
+	 * int index = binarySearch(dogs.size(), ind -&gt; {
 	 * 	Dog dog = dogs.get(ind);
 	 * 	int res = dog.compareTo(searchElement);
-	 * 	if (res > 0) // dog > searchElement
+	 * 	if (res &gt; 0) // dog &gt; searchElement
 	 * 		return true;
 	 * 	else if (res == 0) // dog == searchElement
 	 * 		return null;
-	 * 	else // dog < searchElement
+	 * 	else // dog &lt; searchElement
 	 * 		return false;
 	 * });</code>
+	 * </pre>
+	 * 
+	 * <p>
+	 * Or, equivalently:
+	 * </p>
+	 * 
+	 * <pre>
+	 * <code>// Dog being searched for:
+	 * Dog searchElement = dogs.get((int) (Math.random() * dogs.size()));
+	 * 
+	 * int index = binarySearch(dogs.size(), ind -&gt; {
+	 * 	int res = dogs.get(ind).compareTo(searchElement);
+	 * 	return res == 0 ? null : res &gt; 0;
+	 * }</code>
 	 * </pre>
 	 * 
 	 * @param size    The total number of elements to search.
