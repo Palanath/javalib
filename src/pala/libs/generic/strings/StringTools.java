@@ -620,4 +620,8 @@ public final class StringTools {
 		return parts.toArray(new String[parts.size()]);
 	}
 
+	public static String maxSize(String str, int maxSize, String ellipsis) {
+		return str.length() > maxSize ? str.substring(0, maxSize - ellipsis.length()) + ellipsis : str;
+	}
+
 }
