@@ -3004,4 +3004,21 @@ public final class JavaTools {
 		return new JSONParser().parse(CharacterStream.from(receiveStringMessageNoexcep(port)));
 	}
 
+	public static String copy(String item, int count) {
+		return new String(copy(count, item.toCharArray()));
+	}
+
+	public static char[] copy(int count, char... chars) {
+		char[] arr = new char[chars.length * count];
+		for (; count > 0; count--)
+			System.arraycopy(chars, 0, arr, (count - 1) * chars.length, chars.length);
+		return arr;
+	}
+
+	public static String fill(char c, int length) {
+		char[] arr = new char[length];
+		Arrays.fill(arr, c);
+		return new String(arr);
+	}
+
 }
